@@ -44,6 +44,15 @@ Fixes made to reach PASSED:
 - CI (`.github/workflows/build.yml`) is product-aware via **per-product tag prefix**: tag `arclight-v0.1.0` → builds the `Arclight` dir (case-insensitive slug match) → releases `arclight-v0.1.0.apk`. Plain `main` push smoke-builds every product (any `*/settings.gradle`) as artifacts, releases nothing. Adding a product = add a folder; no CI edit.
 - Remote already set to `https://github.com/aucksy/FableCollection.git`.
 
+## ON-WRIST FEEDBACK ROUND 3 — arclight-v0.1.7 (2026-07-10): pentagon layout + proven-pattern halo
+Owner tested v0.1.6: halo still absent (all 3 no's) + drew green circles on the showcase for desired slot positions.
+**Key learning:** in v0.1.6 even the STATIC halo layers died → the failure was the GATE (config + two time comparisons chained in ONE ternary on a Group). Two patterns are PROVEN on this watch: (a) single-boolean group gate `[CONFIGURATION.x] ? A : B` (seconds comet), (b) time-range ternary on a PartDraw (sun disc). **v0.1.7 halo = ONLY those two patterns, nested** (haloCfg group: single-boolean → two discs each with the sun-disc time ternary, α30/α80). Pulse + tilt SHELVED — verdict still unknown (the gate masked them); do a dedicated diagnostic build later if wanted.
+**Pentagon slot layout (from owner's green-circle sketch — symmetric ring around the centred time), 450-space:**
+- upper pair ±38° r=130 → 64-boxes at (113,91)/(273,91), flanking PM above digits
+- lower-side pair ±112° r=157 → 64-boxes at (47,252)/(339,252) (4 & 8 o'clock; slots 0/2 shrunk 72→64, sky-style 16px icon/14px text)
+- bottom @180° r≈148 → 72-box at (189,337)
+- Showcase HTML SYNCED to same layout + equinox 6:00/18:00 sim times; rail guide arc removed; preview.png/ic_launcher regenerated from the new render. Design source of truth back in step.
+
 ## ON-WRIST FEEDBACK ROUND 2 — arclight-v0.1.6 (2026-07-10)
 Owner wrist-photo (Pixel Watch, pure black, First Light) + report: halo neither pulses nor tilts; complications feel asymmetric.
 **Diagnosis from the photo:**

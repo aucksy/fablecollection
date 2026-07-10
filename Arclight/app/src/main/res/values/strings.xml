@@ -14,9 +14,9 @@
     <string name="cfg_pure_black">Pure black background</string>
 
     <!-- complication slot labels -->
-    <string name="slot_rail_left">Rail · left</string>
-    <string name="slot_rail_centre">Rail · centre</string>
-    <string name="slot_rail_right">Rail · right</string>
-    <string name="slot_sky_left">Sky · left</string>
-    <string name="slot_sky_right">Sky · right</string>
+    <string name="slot_rail_left">Lower left</string>
+    <string name="slot_rail_centre">Bottom</string>
+    <string name="slot_rail_right">Lower right</string>
+    <string name="slot_sky_left">Upper left</string>
+    <string name="slot_sky_right">Upper right</string>
 </resources>

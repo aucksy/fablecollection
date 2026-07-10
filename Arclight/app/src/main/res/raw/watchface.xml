@@ -125,40 +125,25 @@
     <Group x="0" y="0" width="450" height="450" pivotX="0.5" pivotY="0.5" angle="0" name="sunGroup">
       <Transform target="angle" value="(([HOUR_0_23] + ([MINUTE] / 60.0)) * 15.0) - 180.0" />
 
-      <!-- halo (interactive, config-gated, daytime only)
-           Layered for graceful degradation: the gate uses the proven ternary
-           pattern; the base glow is STATIC (guaranteed); pulse and tilt live on
-           their own expendable layers so a rejected expression only kills that
-           one effect, never the halo itself. -->
+      <!-- halo — built ONLY from patterns proven on-device:
+           · outer Group gate = single-boolean ternary (proven by the seconds comet)
+           · each disc's alpha = time-range ternary on the PartDraw itself (proven by the sun disc)
+           Pulse & tilt experiments are shelved (runtime rejected those expressions). -->
       <Group x="0" y="0" width="450" height="450" name="haloWrap">
         <Variant mode="AMBIENT" target="alpha" value="0" />
-        <Group x="0" y="0" width="450" height="450" alpha="0" name="haloGate">
-          <Transform target="alpha"
-              value="([CONFIGURATION.sunHalo] &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &gt;= 6.0) &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &lt; 18.0)) ? 255 : 0" />
-          <!-- static outer glow -->
-          <PartDraw x="193" y="0" width="64" height="64" alpha="26" name="haloOuter">
-            <Ellipse x="0" y="0" width="64" height="64">
+        <Group x="0" y="0" width="450" height="450" alpha="255" name="haloCfg">
+          <Transform target="alpha" value="[CONFIGURATION.sunHalo] ? 255 : 0" />
+          <PartDraw x="195" y="2" width="60" height="60" alpha="0" name="haloOuter">
+            <Transform target="alpha"
+                value="((([HOUR_0_23] + ([MINUTE] / 60.0)) &gt;= 6.0) &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &lt; 18.0)) ? 30 : 0" />
+            <Ellipse x="0" y="0" width="60" height="60">
               <Fill color="[CONFIGURATION.themeColor.1]" />
             </Ellipse>
           </PartDraw>
-          <!-- static base glow (guaranteed visible) -->
-          <PartDraw x="200" y="7" width="50" height="50" alpha="75" name="haloBase">
-            <Ellipse x="0" y="0" width="50" height="50">
-              <Fill color="[CONFIGURATION.themeColor.1]" />
-            </Ellipse>
-          </PartDraw>
-          <!-- pulse layer (expendable): 4 s triangle-wave breathe -->
-          <PartDraw x="196" y="3" width="58" height="58" alpha="0" name="haloPulse">
-            <Transform target="alpha" value="45.0 * abs((([SECOND_MILLISECOND] % 4.0) / 2.0) - 1.0)" />
-            <Ellipse x="0" y="0" width="58" height="58">
-              <Fill color="[CONFIGURATION.themeColor.1]" />
-            </Ellipse>
-          </PartDraw>
-          <!-- tilt layer (expendable): drifts with wrist angle -->
-          <PartDraw x="194" y="1" width="62" height="62" alpha="24" name="haloDrift">
-            <Transform target="x" value="194.0 + ([ACCELEROMETER_ANGLE_X] / 12.0)" />
-            <Transform target="y" value="1.0 + ([ACCELEROMETER_ANGLE_Y] / 12.0)" />
-            <Ellipse x="0" y="0" width="62" height="62">
+          <PartDraw x="201" y="8" width="48" height="48" alpha="0" name="haloBase">
+            <Transform target="alpha"
+                value="((([HOUR_0_23] + ([MINUTE] / 60.0)) &gt;= 6.0) &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &lt; 18.0)) ? 80 : 0" />
+            <Ellipse x="0" y="0" width="48" height="48">
               <Fill color="[CONFIGURATION.themeColor.1]" />
             </Ellipse>
           </PartDraw>
@@ -226,32 +211,32 @@
 
     <!-- ================= COMPLICATION RAIL (slots 0-2, hidden in ambient) ================= -->
 
-    <!-- Rail · left @210° -->
-    <ComplicationSlot x="110" y="325" width="72" height="72" slotId="0"
-        name="railLeft" displayName="slot_rail_left"
+    <!-- Ring · lower-left @248° (8 o'clock) -->
+    <ComplicationSlot x="47" y="252" width="64" height="64" slotId="0"
+        name="ringLowerLeft" displayName="slot_rail_left"
         supportedTypes="SHORT_TEXT RANGED_VALUE EMPTY" isCustomizable="TRUE">
       <Variant mode="AMBIENT" target="alpha" value="0" />
       <DefaultProviderPolicy defaultSystemProvider="SUNRISE_SUNSET" defaultSystemProviderType="SHORT_TEXT" />
-      <BoundingOval x="0" y="0" width="72" height="72" outlinePadding="2" />
+      <BoundingOval x="0" y="0" width="64" height="64" outlinePadding="2" />
       <Complication type="SHORT_TEXT">
-        <PartImage x="26" y="8" width="20" height="20">
+        <PartImage x="24" y="6" width="16" height="16">
           <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
         </PartImage>
-        <PartText x="0" y="32" width="72" height="26">
+        <PartText x="0" y="26" width="64" height="22">
           <Text align="CENTER" ellipsis="TRUE">
-            <Font family="jetbrainsmono" size="17" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+            <Font family="jetbrainsmono" size="14" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
               <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
             </Font>
           </Text>
         </PartText>
       </Complication>
       <Complication type="RANGED_VALUE">
-        <PartImage x="26" y="8" width="20" height="20">
+        <PartImage x="24" y="6" width="16" height="16">
           <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
         </PartImage>
-        <PartText x="0" y="32" width="72" height="26">
+        <PartText x="0" y="26" width="64" height="22">
           <Text align="CENTER" ellipsis="TRUE">
-            <Font family="jetbrainsmono" size="17" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+            <Font family="jetbrainsmono" size="14" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
               <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
             </Font>
           </Text>
@@ -259,8 +244,8 @@
       </Complication>
     </ComplicationSlot>
 
-    <!-- Rail · centre @180° -->
-    <ComplicationSlot x="189" y="346" width="72" height="72" slotId="1"
+    <!-- Ring · bottom @180° -->
+    <ComplicationSlot x="189" y="337" width="72" height="72" slotId="1"
         name="railCentre" displayName="slot_rail_centre"
         supportedTypes="SHORT_TEXT RANGED_VALUE EMPTY" isCustomizable="TRUE">
       <Variant mode="AMBIENT" target="alpha" value="0" />
@@ -292,32 +277,32 @@
       </Complication>
     </ComplicationSlot>
 
-    <!-- Rail · right @150° -->
-    <ComplicationSlot x="268" y="325" width="72" height="72" slotId="2"
-        name="railRight" displayName="slot_rail_right"
+    <!-- Ring · lower-right @112° (4 o'clock) -->
+    <ComplicationSlot x="339" y="252" width="64" height="64" slotId="2"
+        name="ringLowerRight" displayName="slot_rail_right"
         supportedTypes="SHORT_TEXT RANGED_VALUE EMPTY" isCustomizable="TRUE">
       <Variant mode="AMBIENT" target="alpha" value="0" />
       <DefaultProviderPolicy defaultSystemProvider="NEXT_EVENT" defaultSystemProviderType="SHORT_TEXT" />
-      <BoundingOval x="0" y="0" width="72" height="72" outlinePadding="2" />
+      <BoundingOval x="0" y="0" width="64" height="64" outlinePadding="2" />
       <Complication type="SHORT_TEXT">
-        <PartImage x="26" y="8" width="20" height="20">
+        <PartImage x="24" y="6" width="16" height="16">
           <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
         </PartImage>
-        <PartText x="0" y="32" width="72" height="26">
+        <PartText x="0" y="26" width="64" height="22">
           <Text align="CENTER" ellipsis="TRUE">
-            <Font family="jetbrainsmono" size="17" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+            <Font family="jetbrainsmono" size="14" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
               <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
             </Font>
           </Text>
         </PartText>
       </Complication>
       <Complication type="RANGED_VALUE">
-        <PartImage x="26" y="8" width="20" height="20">
+        <PartImage x="24" y="6" width="16" height="16">
           <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
         </PartImage>
-        <PartText x="0" y="32" width="72" height="26">
+        <PartText x="0" y="26" width="64" height="22">
           <Text align="CENTER" ellipsis="TRUE">
-            <Font family="jetbrainsmono" size="17" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+            <Font family="jetbrainsmono" size="14" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
               <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
             </Font>
           </Text>
@@ -327,8 +312,8 @@
 
     <!-- ================= SKY MICRO SLOTS (3-4, hidden in ambient) ================= -->
 
-    <!-- Sky · left @315° -->
-    <ComplicationSlot x="79" y="79" width="64" height="64" slotId="3"
+    <!-- Ring · upper-left @322°, flanking the time -->
+    <ComplicationSlot x="113" y="91" width="64" height="64" slotId="3"
         name="skyLeft" displayName="slot_sky_left"
         supportedTypes="SHORT_TEXT RANGED_VALUE EMPTY" isCustomizable="TRUE">
       <Variant mode="AMBIENT" target="alpha" value="0" />
@@ -361,8 +346,8 @@
       </Complication>
     </ComplicationSlot>
 
-    <!-- Sky · right @45° -->
-    <ComplicationSlot x="307" y="79" width="64" height="64" slotId="4"
+    <!-- Ring · upper-right @38°, flanking the time -->
+    <ComplicationSlot x="273" y="91" width="64" height="64" slotId="4"
         name="skyRight" displayName="slot_sky_right"
         supportedTypes="SHORT_TEXT RANGED_VALUE EMPTY" isCustomizable="TRUE">
       <Variant mode="AMBIENT" target="alpha" value="0" />
