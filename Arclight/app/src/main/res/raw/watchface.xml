@@ -408,22 +408,63 @@
         <Line startX="181" startY="18" endX="180" endY="13"><Stroke color="#5f7a80" thickness="1.4" cap="ROUND" /></Line>
         <Line startX="203" startY="14" endX="202" endY="10"><Stroke color="#5f7a80" thickness="1.4" cap="ROUND" /></Line>
         </PartDraw>
+        <!-- LIVE seconds progress rim: fills 0->current second each minute (FIX 2). endAngle
+             Transform = the proven master-fill mechanism; [SECOND] steps once/sec (low-frequency,
+             NOT the 60fps smooth-rotation danger case). Interactive only (parent hides in AMBIENT). -->
+        <PartDraw x="0" y="0" width="450" height="450">
+          <Arc centerX="225" centerY="225" width="438" height="438" startAngle="0" endAngle="0" direction="CLOCKWISE">
+            <Transform target="endAngle" value="[SECOND] * 6" />
+            <Stroke color="#3fe0ee" thickness="2.5" cap="ROUND" />
+          </Arc>
+        </PartDraw>
       </Group>
 
-      <!-- master gauge (left edge, 205-345 deg = 140), battery-driven fill -->
+      <!-- master gauge (left edge, 205-345 deg = 140), battery-driven fill, SEGMENTED (28 dashes) -->
       <Group name="pulMaster" x="0" y="0" width="450" height="450">
         <Variant mode="AMBIENT" target="alpha" value="0" />
         <PartDraw x="0" y="0" width="450" height="450">
+          <!-- track + live battery fill (smooth; the cutter comb below dashes both) -->
           <Arc centerX="225" centerY="225" width="375" height="375" startAngle="205" endAngle="345" direction="CLOCKWISE">
-            <Stroke color="#132227" thickness="9" cap="ROUND" />
+            <Stroke color="#132227" thickness="11" cap="BUTT" />
           </Arc>
           <Arc centerX="225" centerY="225" width="375" height="375" startAngle="205" endAngle="205" direction="CLOCKWISE">
             <Transform target="endAngle" value="205 + (140 * ([BATTERY_PERCENT] / 100.0))" />
-            <Stroke color="#3fe0ee" thickness="9" cap="ROUND" />
+            <Stroke color="#3fe0ee" thickness="11" cap="BUTT" />
           </Arc>
+          <!-- 28-tooth cutter comb: bg-colored gaps chop both arcs into 28 dashes (ZERO expressions).
+               NOTE: color MUST equal the Pulsar bg (#050607); update it when a theme changes the bg. -->
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="208.3" endAngle="210.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="213.3" endAngle="215.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="218.3" endAngle="220.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="223.3" endAngle="225.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="228.3" endAngle="230.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="233.3" endAngle="235.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="238.3" endAngle="240.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="243.3" endAngle="245.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="248.3" endAngle="250.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="253.3" endAngle="255.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="258.3" endAngle="260.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="263.3" endAngle="265.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="268.3" endAngle="270.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="273.3" endAngle="275.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="278.3" endAngle="280.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="283.3" endAngle="285.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="288.3" endAngle="290.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="293.3" endAngle="295.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="298.3" endAngle="300.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="303.3" endAngle="305.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="308.3" endAngle="310.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="313.3" endAngle="315.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="318.3" endAngle="320.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="323.3" endAngle="325.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="328.3" endAngle="330.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="333.3" endAngle="335.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="338.3" endAngle="340.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
+          <Arc centerX="225" centerY="225" width="375" height="375" startAngle="343.3" endAngle="345.0" direction="CLOCKWISE"><Stroke color="#050607" thickness="14" cap="BUTT" /></Arc>
         </PartDraw>
-        <PartText x="50" y="220" width="130" height="36">
-          <Text align="CENTER"><Font family="jetbrainsmono" size="28" weight="NORMAL" color="#e8f4f6"><Template>%d%%<Parameter expression="[BATTERY_PERCENT]" /></Template></Font></Text>
+        <!-- master readout: LEFT-aligned in the gauge left zone, clear of the time (FIX 3) -->
+        <PartText x="70" y="220" width="150" height="34">
+          <Text align="START"><Font family="jetbrainsmono" size="28" weight="NORMAL" color="#e8f4f6"><Template>%d%%<Parameter expression="[BATTERY_PERCENT]" /></Template></Font></Text>
         </PartText>
       </Group>
 
@@ -456,7 +497,7 @@
         <Variant mode="AMBIENT" target="alpha" value="0" />
         <DigitalClock x="94" y="190" width="300" height="92">
           <TimeText format="h:mm" align="CENTER" x="0" y="0" width="300" height="92">
-            <Font family="jetbrainsmono" size="60" weight="NORMAL" color="#e8f4f6" />
+            <Font family="jetbrainsmono" size="56" weight="NORMAL" color="#e8f4f6" />
           </TimeText>
         </DigitalClock>
       </Group>
@@ -465,7 +506,7 @@
         <Variant mode="AMBIENT" target="alpha" value="255" />
         <DigitalClock x="94" y="190" width="300" height="92">
           <TimeText format="h:mm" align="CENTER" x="0" y="0" width="300" height="92">
-            <Font family="jetbrainsmono" size="60" weight="NORMAL" color="#79c6ce" />
+            <Font family="jetbrainsmono" size="56" weight="NORMAL" color="#79c6ce" />
           </TimeText>
         </DigitalClock>
       </Group>

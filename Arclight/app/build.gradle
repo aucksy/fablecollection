@@ -11,8 +11,8 @@ android {
         // Watch Face Format requires Wear OS 4 (API 33) or later.
         minSdk 33
         targetSdk 33
-        versionCode 13
-        versionName '0.1.12'
+        versionCode 14
+        versionName '0.1.13'
     }
 
     // Stable debug key committed to the repo so every CI test build shares ONE
