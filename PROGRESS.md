@@ -49,6 +49,14 @@ Fixes made to reach PASSED:
 - Owner: pure-black toggle must NOT apply to Paper Dawn (dark ink on black = unreadable) → redundant `bgPaperDawn` layer gated `[CONFIGURATION.themeColor] == 3 ? 255 : 0` re-draws the themed bg on top when Paper Dawn selected. Graceful: if comparing a ColorConfiguration to its option id is unsupported at runtime, layer stays hidden = old behaviour (verify on wrist!).
 - Validator PASSED.
 
+### ⛔ OPEN BUG (owner confirmed v0.1.9 on-wrist): Paper Dawn exemption FAILED
+`[CONFIGURATION.themeColor] == 3` does NOT work at runtime — a **ColorConfiguration** does not appear to expose a comparable selected-option-id to expressions (only ListConfiguration values are known-comparable, e.g. proven pattern `[CONFIGURATION.secondsOrbit] ? A : B` on a boolean). The `bgPaperDawn` layer never shows → Paper Dawn still goes black under the pure-black toggle. **This is the #1 task for the next session.** Candidate directions (pick after testing):
+  1. Find the real WFF syntax to read a ColorConfiguration's active option id (grep XSD `xsd/1/` for configuration/expression tokens; check developer.android.com WFF expressions ref). If it exists, use it.
+  2. If ColorConfiguration can't be branched on: replace the theme picker with a **ListConfiguration** whose option ids drive the palette AND are comparable — but this loses the native colour-swatch editor UI (tradeoff to weigh).
+  3. Reframe the feature: make pure-black a **ListConfiguration "Background" {Themed, Pure black}** (comparable) — still global, doesn't auto-exempt Paper Dawn, but is honest; OR keep pure-black but when ON force a light ink so ANY theme stays readable (changes the requested behaviour — confirm with owner first).
+  4. Simplest acceptable: drop the auto-exemption, and instead make Paper Dawn readable on black by gating a light-ink duplicate of the text on `[CONFIGURATION.pureBlack]` (proven boolean pattern). Confirm owner is OK with "Paper Dawn + pure black = paper text goes light" vs "background stays paper".
+  Remember: the bgPaperDawn layer currently in watchface.xml is DEAD CODE — remove or replace it as part of the fix.
+
 ## ROUND 4 — arclight-v0.1.8 (2026-07-10): halo confirmed WORKING on-wrist; tuned down + lower slots to 4:30/7:30
 - Owner photo of v0.1.7: **halo VISIBLE** ✓ (proven-pattern rebuild vindicated) but too prominent → outer 60px α30 → 50px α18; base 48px α80 → 38px α48.
 - Owner's second green-circle sketch: lower-side slots inward+down → from ±112° r157 to **±135° (4:30 / 7:30) r=135** → 64-boxes at (97,288)/(289,288). Final pentagon: ±38° r130 · ±135° r135 · 180° r148.
