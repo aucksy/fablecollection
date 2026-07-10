@@ -44,8 +44,13 @@ Fixes made to reach PASSED:
 - CI (`.github/workflows/build.yml`) is product-aware via **per-product tag prefix**: tag `arclight-v0.1.0` → builds the `Arclight` dir (case-insensitive slug match) → releases `arclight-v0.1.0.apk`. Plain `main` push smoke-builds every product (any `*/settings.gradle`) as artifacts, releases nothing. Adding a product = add a folder; no CI edit.
 - Remote already set to `https://github.com/aucksy/FableCollection.git`.
 
+## SHIPPED — arclight-v0.1.1 (2026-07-10) ✅
+- Repo LIVE: github.com/aucksy/fablecollection (GitHub lowercased it). main green; per-product tag release green.
+- **Validated APK: https://github.com/aucksy/fablecollection/releases/download/arclight-v0.1.1/arclight-v0.1.1.apk** (WFF v1, debug-signed test build, ~563 KB).
+- CI is a 2-gate pipeline: (1) google/watchface wff-validator on every push [hard gate], (2) assembleDebug. Both green.
+- `arclight-v0.1.0` = DEFUNCT (built before validation, invalid WFF, wrong format version); tag left in place (can't move a published tag), superseded by v0.1.1.
+
 ## NEXT
-1. **Owner action: create empty public repo `aucksy/FableCollection`** (no README/license — we push everything).
-2. Push main + tag `arclight-v0.1.0` → iterate CI until green (expect 1–3 rounds on WFF XML validity).
-3. Sideload on watch → visual audit vs showcase → fidelity pass (fonts/gradients/labels) → adversarial review → proper `arclight-v0.2.0`.
-4. Then Pulsar (face 02). NOTE: a WFF APK can ship multiple watch faces, but the current CI/naming treats one product = one category APK containing that category's 5 faces. Decide Pulsar-in-Arclight (5 faces per APK, the product model) vs separate — the product structure says all 5 ARCLIGHT faces go in the ONE Arclight APK, so Pulsar is a second face inside Arclight, not a new top-level project. Revisit packaging then.
+1. **Owner action: sideload on the watch** — `adb install arclight-v0.1.1.apk` over Wi-Fi debugging (Pixel Watch / Galaxy Watch, Wear OS 4+). Then long-press the face → check: does it render, is the sun on the ring at the right spot, do the 5 themes/2 toggles/5 complication slots work, does AOD look right, 12/24h follow system.
+2. Report on-wrist findings → fix the runtime-risk list above (fonts/gradient/positions) → design-fidelity pass vs showcase → adversarial review → proper `arclight-v0.2.0`.
+3. Then Pulsar (face 02). NOTE: the 5 ARCLIGHT faces all go in the ONE Arclight APK (product model), so Pulsar is a second face INSIDE Arclight, not a new top-level project. Open decision: multi-face packaging in WFF (one scene + a ListConfiguration "Face" style-switcher, vs multiple watch-face services). Revisit then.
