@@ -133,17 +133,17 @@
         <Variant mode="AMBIENT" target="alpha" value="0" />
         <Group x="0" y="0" width="450" height="450" alpha="255" name="haloCfg">
           <Transform target="alpha" value="[CONFIGURATION.sunHalo] ? 255 : 0" />
-          <PartDraw x="195" y="2" width="60" height="60" alpha="0" name="haloOuter">
+          <PartDraw x="200" y="7" width="50" height="50" alpha="0" name="haloOuter">
             <Transform target="alpha"
-                value="((([HOUR_0_23] + ([MINUTE] / 60.0)) &gt;= 6.0) &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &lt; 18.0)) ? 30 : 0" />
-            <Ellipse x="0" y="0" width="60" height="60">
+                value="((([HOUR_0_23] + ([MINUTE] / 60.0)) &gt;= 6.0) &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &lt; 18.0)) ? 18 : 0" />
+            <Ellipse x="0" y="0" width="50" height="50">
               <Fill color="[CONFIGURATION.themeColor.1]" />
             </Ellipse>
           </PartDraw>
-          <PartDraw x="201" y="8" width="48" height="48" alpha="0" name="haloBase">
+          <PartDraw x="206" y="13" width="38" height="38" alpha="0" name="haloBase">
             <Transform target="alpha"
-                value="((([HOUR_0_23] + ([MINUTE] / 60.0)) &gt;= 6.0) &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &lt; 18.0)) ? 80 : 0" />
-            <Ellipse x="0" y="0" width="48" height="48">
+                value="((([HOUR_0_23] + ([MINUTE] / 60.0)) &gt;= 6.0) &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &lt; 18.0)) ? 48 : 0" />
+            <Ellipse x="0" y="0" width="38" height="38">
               <Fill color="[CONFIGURATION.themeColor.1]" />
             </Ellipse>
           </PartDraw>
@@ -211,8 +211,8 @@
 
     <!-- ================= COMPLICATION RAIL (slots 0-2, hidden in ambient) ================= -->
 
-    <!-- Ring · lower-left @248° (8 o'clock) -->
-    <ComplicationSlot x="47" y="252" width="64" height="64" slotId="0"
+    <!-- Ring · lower-left @225° (7:30, r=135) -->
+    <ComplicationSlot x="97" y="288" width="64" height="64" slotId="0"
         name="ringLowerLeft" displayName="slot_rail_left"
         supportedTypes="SHORT_TEXT RANGED_VALUE EMPTY" isCustomizable="TRUE">
       <Variant mode="AMBIENT" target="alpha" value="0" />
@@ -277,8 +277,8 @@
       </Complication>
     </ComplicationSlot>
 
-    <!-- Ring · lower-right @112° (4 o'clock) -->
-    <ComplicationSlot x="339" y="252" width="64" height="64" slotId="2"
+    <!-- Ring · lower-right @135° (4:30, r=135) -->
+    <ComplicationSlot x="289" y="288" width="64" height="64" slotId="2"
         name="ringLowerRight" displayName="slot_rail_right"
         supportedTypes="SHORT_TEXT RANGED_VALUE EMPTY" isCustomizable="TRUE">
       <Variant mode="AMBIENT" target="alpha" value="0" />

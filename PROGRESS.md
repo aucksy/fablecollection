@@ -44,6 +44,11 @@ Fixes made to reach PASSED:
 - CI (`.github/workflows/build.yml`) is product-aware via **per-product tag prefix**: tag `arclight-v0.1.0` → builds the `Arclight` dir (case-insensitive slug match) → releases `arclight-v0.1.0.apk`. Plain `main` push smoke-builds every product (any `*/settings.gradle`) as artifacts, releases nothing. Adding a product = add a folder; no CI edit.
 - Remote already set to `https://github.com/aucksy/FableCollection.git`.
 
+## ROUND 4 — arclight-v0.1.8 (2026-07-10): halo confirmed WORKING on-wrist; tuned down + lower slots to 4:30/7:30
+- Owner photo of v0.1.7: **halo VISIBLE** ✓ (proven-pattern rebuild vindicated) but too prominent → outer 60px α30 → 50px α18; base 48px α80 → 38px α48.
+- Owner's second green-circle sketch: lower-side slots inward+down → from ±112° r157 to **±135° (4:30 / 7:30) r=135** → 64-boxes at (97,288)/(289,288). Final pentagon: ±38° r130 · ±135° r135 · 180° r148.
+- Showcase synced (anchors pol(144,225°)/pol(144,135°) in 480-space), preview/icon regenerated. Validator PASSED.
+
 ## ON-WRIST FEEDBACK ROUND 3 — arclight-v0.1.7 (2026-07-10): pentagon layout + proven-pattern halo
 Owner tested v0.1.6: halo still absent (all 3 no's) + drew green circles on the showcase for desired slot positions.
 **Key learning:** in v0.1.6 even the STATIC halo layers died → the failure was the GATE (config + two time comparisons chained in ONE ternary on a Group). Two patterns are PROVEN on this watch: (a) single-boolean group gate `[CONFIGURATION.x] ? A : B` (seconds comet), (b) time-range ternary on a PartDraw (sun disc). **v0.1.7 halo = ONLY those two patterns, nested** (haloCfg group: single-boolean → two discs each with the sun-disc time ternary, α30/α80). Pulse + tilt SHELVED — verdict still unknown (the gate masked them); do a dedicated diagnostic build later if wanted.
