@@ -202,12 +202,30 @@
       <Variant mode="AMBIENT" target="alpha" value="0" />
       <Group x="0" y="0" width="450" height="450" alpha="255" name="secondsGate">
         <Transform target="alpha" value="[CONFIGURATION.secondsOrbit] ? 220 : 0" />
-        <AnalogClock x="0" y="0" width="450" height="450">
-          <SecondHand resource="@drawable/second_dot" x="0" y="0" width="450" height="450"
-              pivotX="0.5" pivotY="0.5" tintColor="[CONFIGURATION.themeColor.2]">
-            <Sweep frequency="15" />
-          </SecondHand>
-        </AnalogClock>
+        <!-- themed dot (interactive default; hidden on pure black). tintColor is a
+             colorAttributeType so it can't hold a ternary — the dot is twinned instead. -->
+        <Group x="0" y="0" width="450" height="450" name="secondsThemed">
+          <Transform target="alpha" value="[CONFIGURATION.pureBlack] ? 0 : 255" />
+          <AnalogClock x="0" y="0" width="450" height="450">
+            <SecondHand resource="@drawable/second_dot" x="0" y="0" width="450" height="450"
+                pivotX="0.5" pivotY="0.5" tintColor="[CONFIGURATION.themeColor.2]">
+              <Sweep frequency="15" />
+            </SecondHand>
+          </AnalogClock>
+        </Group>
+        <!-- light-tinted twin dot: shows on pure black so the dot stays visible on EVERY
+             theme (Paper Dawn's ink #2D2418 is near-black → invisible on black without this).
+             Same proven pureBlack twin pattern as the text; mutually exclusive with the
+             themed copy so they never overlap. -->
+        <Group x="0" y="0" width="450" height="450" name="secondsLight">
+          <Transform target="alpha" value="[CONFIGURATION.pureBlack] ? 255 : 0" />
+          <AnalogClock x="0" y="0" width="450" height="450">
+            <SecondHand resource="@drawable/second_dot" x="0" y="0" width="450" height="450"
+                pivotX="0.5" pivotY="0.5" tintColor="#F4EFE4">
+              <Sweep frequency="15" />
+            </SecondHand>
+          </AnalogClock>
+        </Group>
       </Group>
     </Group>
 
@@ -231,19 +249,37 @@
     </Group>
 
     <!-- ================= TIME (TimeText follows the system 12/24-h setting natively) =================
-         Themed vs light pair, gated on pureBlack (DigitalClock can't hold a Transform,
-         so each copy is wrapped in a Group). No ambient Variant: in AOD (pure black off)
-         the themed copy shows exactly as before. -->
-    <Group x="0" y="0" width="450" height="450" name="timeThemed">
-      <Transform target="alpha" value="[CONFIGURATION.pureBlack] ? 0 : 255" />
-      <DigitalClock x="45" y="170" width="360" height="105">
-        <TimeText format="h:mm" align="CENTER" x="0" y="0" width="360" height="105">
-          <Font family="fraunces" size="88" weight="NORMAL" color="[CONFIGURATION.themeColor.2]" />
-        </TimeText>
-      </DigitalClock>
+         Three copies, each a proven single-condition gate on its own node (DigitalClock can't
+         hold a Transform, so each copy is wrapped in a Group):
+           · timeThemed — interactive + NOT pure black. Themed ink, now ALSO ambient-hidden
+             (outer gate) so its ink never shows in AOD.
+           · timeLight  — pure black (interactive OR ambient). Light ink.
+           · timeAodLight — ambient only (structural: base alpha 0 + AMBIENT Variant 255, the
+             proven dayBandAmbient pattern, no expression). Makes AOD readable light-on-black on
+             EVERY theme, incl. Paper Dawn whose ink #2D2418 was invisible on black in AOD.
+         In ambient + pure black, timeLight and timeAodLight harmlessly overlap (identical light
+         glyphs). Exactly one readable copy is visible in each of the four state combinations. -->
+    <Group x="0" y="0" width="450" height="450" name="timeThemedGate">
+      <Variant mode="AMBIENT" target="alpha" value="0" />
+      <Group x="0" y="0" width="450" height="450" name="timeThemed">
+        <Transform target="alpha" value="[CONFIGURATION.pureBlack] ? 0 : 255" />
+        <DigitalClock x="45" y="170" width="360" height="105">
+          <TimeText format="h:mm" align="CENTER" x="0" y="0" width="360" height="105">
+            <Font family="fraunces" size="88" weight="NORMAL" color="[CONFIGURATION.themeColor.2]" />
+          </TimeText>
+        </DigitalClock>
+      </Group>
     </Group>
     <Group x="0" y="0" width="450" height="450" name="timeLight">
       <Transform target="alpha" value="[CONFIGURATION.pureBlack] ? 255 : 0" />
+      <DigitalClock x="45" y="170" width="360" height="105">
+        <TimeText format="h:mm" align="CENTER" x="0" y="0" width="360" height="105">
+          <Font family="fraunces" size="88" weight="NORMAL" color="#F4EFE4" />
+        </TimeText>
+      </DigitalClock>
+    </Group>
+    <Group x="0" y="0" width="450" height="450" alpha="0" name="timeAodLight">
+      <Variant mode="AMBIENT" target="alpha" value="255" />
       <DigitalClock x="45" y="170" width="360" height="105">
         <TimeText format="h:mm" align="CENTER" x="0" y="0" width="360" height="105">
           <Font family="fraunces" size="88" weight="NORMAL" color="#F4EFE4" />
