@@ -1,0 +1,41 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.arclight.pulsar'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.arclight.pulsar'
+        // Watch Face Format requires Wear OS 4 (API 33) or later.
+        minSdk 33
+        targetSdk 33
+        // Per-face APK line (one face per APK — WFF complications are Scene-global,
+        // so per-face complications require a package per face). Restarted at 0.2.0.
+        versionCode 20
+        versionName '0.2.0'
+    }
+
+    // Stable debug key committed to the repo so every CI test build shares ONE
+    // signature and can update in place (no uninstall between builds). This is a
+    // throwaway debug key (well-known password), NOT a release/Play key — Play
+    // signing will use a separate keystore provisioned via secrets at store time.
+    signingConfigs {
+        debug {
+            storeFile file("$rootDir/arclight-debug.keystore")
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+// Resource-only Watch Face Format app: no code, no dependencies.

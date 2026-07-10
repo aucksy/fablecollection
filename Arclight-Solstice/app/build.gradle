@@ -3,16 +3,18 @@ plugins {
 }
 
 android {
-    namespace 'com.fable.arclight'
+    namespace 'com.arclight.solstice'
     compileSdk 34
 
     defaultConfig {
-        applicationId 'com.fable.arclight'
+        applicationId 'com.arclight.solstice'
         // Watch Face Format requires Wear OS 4 (API 33) or later.
         minSdk 33
         targetSdk 33
-        versionCode 14
-        versionName '0.1.13'
+        // Per-face APK line (one face per APK — WFF complications are Scene-global,
+        // so per-face complications require a package per face). Restarted at 0.2.0.
+        versionCode 20
+        versionName '0.2.0'
     }
 
     // Stable debug key committed to the repo so every CI test build shares ONE
