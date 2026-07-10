@@ -44,6 +44,11 @@ Fixes made to reach PASSED:
 - CI (`.github/workflows/build.yml`) is product-aware via **per-product tag prefix**: tag `arclight-v0.1.0` → builds the `Arclight` dir (case-insensitive slug match) → releases `arclight-v0.1.0.apk`. Plain `main` push smoke-builds every product (any `*/settings.gradle`) as artifacts, releases nothing. Adding a product = add a folder; no CI edit.
 - Remote already set to `https://github.com/aucksy/FableCollection.git`.
 
+## ROUND 5 — arclight-v0.1.9 (2026-07-10): native smooth seconds + Paper Dawn pure-black exemption
+- Owner: seconds dot janky (expression-driven `[SECOND_MILLISECOND]` rotation is at the mercy of frame scheduling) → replaced with WFF's NATIVE mechanism: `<AnalogClock><SecondHand resource="@drawable/second_dot" tintColor="[CONFIGURATION.themeColor.2]"><Sweep frequency="15"/></SecondHand></AnalogClock>` — the platform drives the sweep at 15 Hz itself. `second_dot.png` = 450px transparent PNG, white 6px dot at (222,12) (r=210 from pivot 0.5/0.5), tinted per theme. Sweep frequency enum: 2/5/10/15 only.
+- Owner: pure-black toggle must NOT apply to Paper Dawn (dark ink on black = unreadable) → redundant `bgPaperDawn` layer gated `[CONFIGURATION.themeColor] == 3 ? 255 : 0` re-draws the themed bg on top when Paper Dawn selected. Graceful: if comparing a ColorConfiguration to its option id is unsupported at runtime, layer stays hidden = old behaviour (verify on wrist!).
+- Validator PASSED.
+
 ## ROUND 4 — arclight-v0.1.8 (2026-07-10): halo confirmed WORKING on-wrist; tuned down + lower slots to 4:30/7:30
 - Owner photo of v0.1.7: **halo VISIBLE** ✓ (proven-pattern rebuild vindicated) but too prominent → outer 60px α30 → 50px α18; base 48px α80 → 38px α48.
 - Owner's second green-circle sketch: lower-side slots inward+down → from ±112° r157 to **±135° (4:30 / 7:30) r=135** → 64-boxes at (97,288)/(289,288). Final pentagon: ±38° r130 · ±135° r135 · 180° r148.

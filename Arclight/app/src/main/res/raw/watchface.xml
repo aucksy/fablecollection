@@ -56,6 +56,25 @@
           </Rectangle>
         </PartDraw>
       </Group>
+      <!-- Paper Dawn exemption: a light dial on pure black makes the dark ink
+           unreadable, so this redundant layer re-draws the themed background
+           whenever Paper Dawn (option 3) is selected, overriding the toggle.
+           If the theme-index expression is unsupported, the layer stays hidden
+           and behaviour simply falls back to the toggle applying everywhere. -->
+      <Group x="0" y="0" width="450" height="450" alpha="0" name="bgPaperDawn">
+        <Transform target="alpha" value="([CONFIGURATION.themeColor] == 3) ? 255 : 0" />
+        <PartDraw x="0" y="0" width="450" height="450">
+          <Rectangle x="0" y="0" width="450" height="450">
+            <Fill color="[CONFIGURATION.themeColor.4]" />
+          </Rectangle>
+          <Rectangle x="0" y="0" width="450" height="450">
+            <Fill color="#73000000">
+              <LinearGradient startX="225" startY="0" endX="225" endY="300"
+                  colors="#73000000 #00000000" positions="0 1" />
+            </Fill>
+          </Rectangle>
+        </PartDraw>
+      </Group>
     </Group>
 
     <!-- ================= 24-HOUR RING (night track) ================= -->
@@ -169,18 +188,19 @@
       </PartDraw>
     </Group>
 
-    <!-- ================= SECONDS ORBIT (interactive only, config-gated) ================= -->
+    <!-- ================= SECONDS ORBIT (interactive only, config-gated) =================
+         Native smooth sweep: SecondHand + Sweep@15Hz — the platform drives the
+         motion itself (same engine as analog second hands), no expression scheduling. -->
     <Group x="0" y="0" width="450" height="450" name="secondsWrap">
       <Variant mode="AMBIENT" target="alpha" value="0" />
-      <Group x="0" y="0" width="450" height="450" pivotX="0.5" pivotY="0.5" angle="0" alpha="255" name="secondsSpin">
+      <Group x="0" y="0" width="450" height="450" alpha="255" name="secondsGate">
         <Transform target="alpha" value="[CONFIGURATION.secondsOrbit] ? 220 : 0" />
-        <Transform target="angle" value="[SECOND_MILLISECOND] * 6.0" />
-        <!-- comet dot glides smoothly on r=210 (no track ring — it read as clutter on OLED) -->
-        <PartDraw x="222" y="12" width="6" height="6">
-          <Ellipse x="0" y="0" width="6" height="6">
-            <Fill color="[CONFIGURATION.themeColor.2]" />
-          </Ellipse>
-        </PartDraw>
+        <AnalogClock x="0" y="0" width="450" height="450">
+          <SecondHand resource="@drawable/second_dot" x="0" y="0" width="450" height="450"
+              pivotX="0.5" pivotY="0.5" tintColor="[CONFIGURATION.themeColor.2]">
+            <Sweep frequency="15" />
+          </SecondHand>
+        </AnalogClock>
       </Group>
     </Group>
 
