@@ -11,6 +11,7 @@
     <string name="theme_pacific">Pacific</string>
     <string name="cfg_seconds_orbit">Seconds orbit</string>
     <string name="cfg_sun_halo">Sun halo</string>
+    <string name="cfg_pure_black">Pure black background</string>
 
     <!-- complication slot labels -->
     <string name="slot_rail_left">Rail · left</string>

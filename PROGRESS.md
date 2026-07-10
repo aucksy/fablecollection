@@ -44,6 +44,11 @@ Fixes made to reach PASSED:
 - CI (`.github/workflows/build.yml`) is product-aware via **per-product tag prefix**: tag `arclight-v0.1.0` → builds the `Arclight` dir (case-insensitive slug match) → releases `arclight-v0.1.0.apk`. Plain `main` push smoke-builds every product (any `*/settings.gradle`) as artifacts, releases nothing. Adding a product = add a folder; no CI edit.
 - Remote already set to `https://github.com/aucksy/FableCollection.git`.
 
+## FEATURE — arclight-v0.1.4 (2026-07-10): "Pure black background" toggle
+- Owner request: a setting to keep the themed background OR make it completely black.
+- Impl: new `BooleanConfiguration pureBlack` (default FALSE). Background is now an outer Group (ambient→alpha 0) wrapping an inner `bgThemed` Group whose alpha = `[CONFIGURATION.pureBlack] ? 0 : 255`; when on, the Scene's true black shows through and only the luminous elements remain (same look as AOD, great for OLED battery). Validator PASSED.
+- CAVEAT: pairs best with the 4 dark themes. With the one light theme (Paper Dawn) the ink is dark → low contrast on black; acceptable (user-controlled, off by default). Showcase HTML not yet synced with this toggle (design-source drift to reconcile in the fidelity pass).
+
 ## FIX — arclight-v0.1.3 (2026-07-10): stable signing key (in-place updates)
 - Symptom: `adb install -r` of v0.1.2 over v0.1.1 → `INSTALL_FAILED_UPDATE_INCOMPATIBLE: signatures do not match`.
 - Cause: GitHub Actions generates a fresh RANDOM debug keystore on every run, so each build had a different signature → can't update in place.

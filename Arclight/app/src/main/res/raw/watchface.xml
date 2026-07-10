@@ -30,18 +30,25 @@
     </ColorConfiguration>
     <BooleanConfiguration id="secondsOrbit" displayName="cfg_seconds_orbit" defaultValue="TRUE" />
     <BooleanConfiguration id="sunHalo" displayName="cfg_sun_halo" defaultValue="TRUE" />
+    <BooleanConfiguration id="pureBlack" displayName="cfg_pure_black" defaultValue="FALSE" />
   </UserConfigurations>
 
   <Scene backgroundColor="#FF000000">
 
-    <!-- ================= BACKGROUND (interactive only; ambient = true black) ================= -->
+    <!-- ================= BACKGROUND =================
+         Ambient = true black (outer Group alpha 0). Interactive = themed colour,
+         unless "Pure black" is on: the inner Group hides and the Scene's black
+         shows through, leaving only the luminous elements. -->
     <Group x="0" y="0" width="450" height="450" name="bgGroup">
       <Variant mode="AMBIENT" target="alpha" value="0" />
-      <PartDraw x="0" y="0" width="450" height="450">
-        <Rectangle x="0" y="0" width="450" height="450">
-          <Fill color="[CONFIGURATION.themeColor.4]" />
-        </Rectangle>
-      </PartDraw>
+      <Group x="0" y="0" width="450" height="450" name="bgThemed">
+        <Transform target="alpha" value="[CONFIGURATION.pureBlack] ? 0 : 255" />
+        <PartDraw x="0" y="0" width="450" height="450">
+          <Rectangle x="0" y="0" width="450" height="450">
+            <Fill color="[CONFIGURATION.themeColor.4]" />
+          </Rectangle>
+        </PartDraw>
+      </Group>
     </Group>
 
     <!-- ================= 24-HOUR RING (night track) ================= -->
