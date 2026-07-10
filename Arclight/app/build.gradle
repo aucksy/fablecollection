@@ -1,0 +1,27 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.fable.arclight'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.fable.arclight'
+        // Watch Face Format v2 requires Wear OS 4 (API 33) or later.
+        minSdk 33
+        targetSdk 33
+        versionCode 1
+        versionName '0.1.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            // Signed with debug key until Play keystore is provisioned (CI test builds).
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+// Resource-only Watch Face Format app: no code, no dependencies.

@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ARCLIGHT · Face 01 — SOLSTICE (Fable Watch Faces, Series 01)
+  Watch Face Format v2. Design source of truth: FABLE-Arclight-Showcase.html
+
+  Geometry (450×450, centre 225,225):
+    24-h solar ring   r=193  · solar noon at 12 o'clock, midnight at 6 o'clock
+    day band          06:00 → 19:00 preset  = 270° → 465° (angle = (hour-12)×15)
+    rails (slots 0-2) r=157  @ 210° / 180° / 150°
+    sky slots (3-4)   r=161  @ 315° / 45°
+    seconds orbit     r=197
+
+  Theme colour indices ([CONFIGURATION.themeColor.n]):
+    0 dayStart · 1 dayEnd · 2 ink · 3 muted · 4 bgTop · 5 bgBottom · 6 sun · 7 night/track
+-->
+<WatchFace width="450" height="450" clipShape="CIRCLE">
+  <Metadata key="CLOCK_TYPE" value="DIGITAL" />
+  <Metadata key="PREVIEW_TIME" value="10:08:32" />
+
+  <UserConfigurations>
+    <ColorConfiguration id="themeColor" displayName="theme_label" defaultValue="0">
+      <ColorOption id="0" displayName="theme_first_light" colors="#FF9D6F #FFD77A #F5EEE2 #9D94A8 #0D1122 #2B1A2E #FFD98F #3D4568" />
+      <ColorOption id="1" displayName="theme_alpenglow"   colors="#C98BFF #FF8FB1 #F0ECF7 #968FAE #12141F #241B33 #FFC6DD #3A4265" />
+      <ColorOption id="2" displayName="theme_midnight_sun" colors="#C2A05C #F4E3B2 #EFE6D2 #8A8064 #000000 #0D0B06 #F8ECC9 #332E22" />
+      <ColorOption id="3" displayName="theme_paper_dawn"  colors="#E0713F #F2B23E #2D2418 #8D7F68 #F4EFE4 #F9E9D2 #E88A3D #C9BFAE" />
+      <ColorOption id="4" displayName="theme_pacific"     colors="#2FD4C2 #A7F0D3 #E2F4EF #6E988F #04121A #062B33 #C8F5E2 #173A46" />
+    </ColorConfiguration>
+    <BooleanConfiguration id="secondsOrbit" displayName="cfg_seconds_orbit" defaultValue="TRUE" />
+    <BooleanConfiguration id="sunHalo" displayName="cfg_sun_halo" defaultValue="TRUE" />
+  </UserConfigurations>
+
+  <Scene backgroundColor="#FF000000">
+
+    <!-- ================= BACKGROUND (interactive only; ambient = true black) ================= -->
+    <Group x="0" y="0" width="450" height="450" name="bgGroup">
+      <Variant mode="AMBIENT" target="alpha" value="0" />
+      <PartDraw x="0" y="0" width="450" height="450">
+        <Rectangle x="0" y="0" width="450" height="450">
+          <Fill color="[CONFIGURATION.themeColor.4]">
+            <LinearGradient
+                startX="225" startY="0" endX="225" endY="450"
+                colors="[CONFIGURATION.themeColor.4] [CONFIGURATION.themeColor.5]"
+                positions="0 1" />
+          </Fill>
+        </Rectangle>
+      </PartDraw>
+    </Group>
+
+    <!-- ================= 24-HOUR RING (night track) ================= -->
+    <PartDraw x="0" y="0" width="450" height="450" alpha="150" name="nightRing">
+      <Variant mode="AMBIENT" target="alpha" value="70" />
+      <Ellipse x="32" y="32" width="386" height="386">
+        <Stroke color="[CONFIGURATION.themeColor.7]" thickness="2" />
+      </Ellipse>
+    </PartDraw>
+
+    <!-- ================= DAY BAND · interactive (two-tone) ================= -->
+    <Group x="0" y="0" width="450" height="450" name="dayBand">
+      <Variant mode="AMBIENT" target="alpha" value="0" />
+      <PartDraw x="0" y="0" width="450" height="450">
+        <Arc centerX="225" centerY="225" width="386" height="386"
+             startAngle="270" endAngle="465" direction="CLOCKWISE">
+          <Stroke color="[CONFIGURATION.themeColor.0]" thickness="8" cap="ROUND" />
+        </Arc>
+        <Arc centerX="225" centerY="225" width="386" height="386"
+             startAngle="367" endAngle="465" direction="CLOCKWISE">
+          <Stroke color="[CONFIGURATION.themeColor.1]" thickness="8" cap="ROUND" />
+        </Arc>
+      </PartDraw>
+    </Group>
+
+    <!-- ================= DAY BAND · ambient hairline ================= -->
+    <Group x="0" y="0" width="450" height="450" alpha="0" name="dayBandAmbient">
+      <Variant mode="AMBIENT" target="alpha" value="230" />
+      <PartDraw x="0" y="0" width="450" height="450">
+        <Arc centerX="225" centerY="225" width="386" height="386"
+             startAngle="270" endAngle="465" direction="CLOCKWISE">
+          <Stroke color="[CONFIGURATION.themeColor.3]" thickness="3" cap="ROUND" />
+        </Arc>
+      </PartDraw>
+    </Group>
+
+    <!-- ================= SUNRISE / SUNSET TICKS ================= -->
+    <PartDraw x="0" y="0" width="450" height="450" alpha="200" name="sunTicks">
+      <Variant mode="AMBIENT" target="alpha" value="110" />
+      <!-- sunrise 06:00 → 270° (9 o'clock) -->
+      <Line startX="40" startY="225" endX="24" endY="225">
+        <Stroke color="[CONFIGURATION.themeColor.3]" thickness="2" cap="ROUND" />
+      </Line>
+      <!-- sunset 19:00 → 105° -->
+      <Line startX="404" startY="273" endX="419" endY="277">
+        <Stroke color="[CONFIGURATION.themeColor.3]" thickness="2" cap="ROUND" />
+      </Line>
+    </PartDraw>
+
+    <!-- ================= SUN / MOON MARKER (rotates with time of day) ================= -->
+    <Group x="0" y="0" width="450" height="450" pivotX="0.5" pivotY="0.5" angle="0" name="sunGroup">
+      <Transform target="angle" value="(([HOUR_0_23] + ([MINUTE] / 60.0)) * 15.0) - 180.0" />
+
+      <!-- halo (interactive, config-gated, daytime only) -->
+      <Group x="0" y="0" width="450" height="450" name="haloWrap">
+        <Variant mode="AMBIENT" target="alpha" value="0" />
+        <PartDraw x="199" y="6" width="52" height="52" alpha="0">
+          <Transform target="alpha"
+              value="([CONFIGURATION.sunHalo] &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &gt;= 6.0) &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &lt; 19.0)) ? 90 : 0" />
+          <Ellipse x="0" y="0" width="52" height="52">
+            <Fill color="[CONFIGURATION.themeColor.6]" />
+          </Ellipse>
+        </PartDraw>
+      </Group>
+
+      <!-- sun disc (daytime) -->
+      <PartDraw x="217" y="24" width="16" height="16" alpha="255" name="sunDisc">
+        <Transform target="alpha"
+            value="((([HOUR_0_23] + ([MINUTE] / 60.0)) &gt;= 6.0) &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &lt; 19.0)) ? 255 : 0" />
+        <Ellipse x="0" y="0" width="16" height="16">
+          <Fill color="[CONFIGURATION.themeColor.6]" />
+        </Ellipse>
+      </PartDraw>
+
+      <!-- moon ring (night) -->
+      <PartDraw x="217" y="24" width="16" height="16" alpha="0" name="moonRing">
+        <Transform target="alpha"
+            value="((([HOUR_0_23] + ([MINUTE] / 60.0)) &gt;= 6.0) &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &lt; 19.0)) ? 0 : 255" />
+        <Ellipse x="1" y="1" width="14" height="14">
+          <Stroke color="[CONFIGURATION.themeColor.6]" thickness="2" />
+        </Ellipse>
+      </PartDraw>
+    </Group>
+
+    <!-- ================= SECONDS ORBIT (interactive only, config-gated) ================= -->
+    <Group x="0" y="0" width="450" height="450" name="secondsWrap">
+      <Variant mode="AMBIENT" target="alpha" value="0" />
+      <Group x="0" y="0" width="450" height="450" pivotX="0.5" pivotY="0.5" angle="0" alpha="255" name="secondsSpin">
+        <Transform target="alpha" value="[CONFIGURATION.secondsOrbit] ? 220 : 0" />
+        <Transform target="angle" value="[SECOND] * 6.0" />
+        <PartDraw x="222" y="25" width="6" height="6">
+          <Ellipse x="0" y="0" width="6" height="6">
+            <Fill color="[CONFIGURATION.themeColor.2]" />
+          </Ellipse>
+        </PartDraw>
+      </Group>
+    </Group>
+
+    <!-- ================= AM / PM (12-h mode only) ================= -->
+    <DigitalClock x="185" y="156" width="80" height="20">
+      <Group x="0" y="0" width="80" height="20" name="amPmWrap">
+        <Transform target="alpha" value="[IS_24_HOUR_MODE] ? 0 : 255" />
+        <TimeText format="a" align="CENTER" x="0" y="0" width="80" height="20">
+          <Font family="jetbrainsmono" size="13" weight="NORMAL" color="[CONFIGURATION.themeColor.3]" />
+        </TimeText>
+      </Group>
+    </DigitalClock>
+
+    <!-- ================= TIME ================= -->
+    <DigitalClock x="45" y="170" width="360" height="105">
+      <!-- 12-hour -->
+      <Group x="0" y="0" width="360" height="105" name="clock12">
+        <Transform target="alpha" value="[IS_24_HOUR_MODE] ? 0 : 255" />
+        <TimeText format="h:mm" hourFormat="HOURS_12" align="CENTER" x="0" y="0" width="360" height="105">
+          <Font family="fraunces" size="88" weight="NORMAL" color="[CONFIGURATION.themeColor.2]" />
+        </TimeText>
+      </Group>
+      <!-- 24-hour -->
+      <Group x="0" y="0" width="360" height="105" name="clock24">
+        <Transform target="alpha" value="[IS_24_HOUR_MODE] ? 255 : 0" />
+        <TimeText format="HH:mm" hourFormat="HOURS_24" align="CENTER" x="0" y="0" width="360" height="105">
+          <Font family="fraunces" size="88" weight="NORMAL" color="[CONFIGURATION.themeColor.2]" />
+        </TimeText>
+      </Group>
+    </DigitalClock>
+
+    <!-- ================= DATE LINE ================= -->
+    <PartText x="105" y="278" width="240" height="22" name="dateLine">
+      <Variant mode="AMBIENT" target="alpha" value="0" />
+      <Text align="CENTER">
+        <Font family="jetbrainsmono" size="15" weight="NORMAL" color="[CONFIGURATION.themeColor.3]">
+          <Template>%s %d · %s
+            <Parameter expression="[DAY_OF_WEEK_S]" />
+            <Parameter expression="[DAY_1_31]" />
+            <Parameter expression="[MONTH_S]" />
+          </Template>
+        </Font>
+      </Text>
+    </PartText>
+
+    <!-- ================= COMPLICATION RAIL (slots 0-2, hidden in ambient) ================= -->
+
+    <!-- Rail · left @210° -->
+    <ComplicationSlot x="110" y="325" width="72" height="72" slotId="0"
+        name="railLeft" displayName="slot_rail_left"
+        supportedTypes="SHORT_TEXT RANGED_VALUE EMPTY" isCustomizable="TRUE">
+      <Variant mode="AMBIENT" target="alpha" value="0" />
+      <DefaultProviderPolicy defaultDataSourceType="SUNRISE_SUNSET" backupDataSourceType="EMPTY" />
+      <BoundingOval x="0" y="0" width="72" height="72" outlinePadding="2" />
+      <Complication type="SHORT_TEXT">
+        <PartImage x="26" y="8" width="20" height="20">
+          <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
+        </PartImage>
+        <PartText x="0" y="32" width="72" height="26">
+          <Text align="CENTER" ellipsis="TRUE">
+            <Font family="jetbrainsmono" size="17" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+              <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
+            </Font>
+          </Text>
+        </PartText>
+      </Complication>
+      <Complication type="RANGED_VALUE">
+        <PartImage x="26" y="8" width="20" height="20">
+          <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
+        </PartImage>
+        <PartText x="0" y="32" width="72" height="26">
+          <Text align="CENTER" ellipsis="TRUE">
+            <Font family="jetbrainsmono" size="17" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+              <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
+            </Font>
+          </Text>
+        </PartText>
+      </Complication>
+    </ComplicationSlot>
+
+    <!-- Rail · centre @180° -->
+    <ComplicationSlot x="189" y="346" width="72" height="72" slotId="1"
+        name="railCentre" displayName="slot_rail_centre"
+        supportedTypes="SHORT_TEXT RANGED_VALUE EMPTY" isCustomizable="TRUE">
+      <Variant mode="AMBIENT" target="alpha" value="0" />
+      <DefaultProviderPolicy defaultDataSourceType="STEP_COUNT" backupDataSourceType="EMPTY" />
+      <BoundingOval x="0" y="0" width="72" height="72" outlinePadding="2" />
+      <Complication type="SHORT_TEXT">
+        <PartImage x="26" y="8" width="20" height="20">
+          <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
+        </PartImage>
+        <PartText x="0" y="32" width="72" height="26">
+          <Text align="CENTER" ellipsis="TRUE">
+            <Font family="jetbrainsmono" size="17" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+              <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
+            </Font>
+          </Text>
+        </PartText>
+      </Complication>
+      <Complication type="RANGED_VALUE">
+        <PartImage x="26" y="8" width="20" height="20">
+          <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
+        </PartImage>
+        <PartText x="0" y="32" width="72" height="26">
+          <Text align="CENTER" ellipsis="TRUE">
+            <Font family="jetbrainsmono" size="17" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+              <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
+            </Font>
+          </Text>
+        </PartText>
+      </Complication>
+    </ComplicationSlot>
+
+    <!-- Rail · right @150° -->
+    <ComplicationSlot x="268" y="325" width="72" height="72" slotId="2"
+        name="railRight" displayName="slot_rail_right"
+        supportedTypes="SHORT_TEXT RANGED_VALUE EMPTY" isCustomizable="TRUE">
+      <Variant mode="AMBIENT" target="alpha" value="0" />
+      <DefaultProviderPolicy defaultDataSourceType="NEXT_EVENT" backupDataSourceType="DAY_AND_DATE" />
+      <BoundingOval x="0" y="0" width="72" height="72" outlinePadding="2" />
+      <Complication type="SHORT_TEXT">
+        <PartImage x="26" y="8" width="20" height="20">
+          <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
+        </PartImage>
+        <PartText x="0" y="32" width="72" height="26">
+          <Text align="CENTER" ellipsis="TRUE">
+            <Font family="jetbrainsmono" size="17" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+              <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
+            </Font>
+          </Text>
+        </PartText>
+      </Complication>
+      <Complication type="RANGED_VALUE">
+        <PartImage x="26" y="8" width="20" height="20">
+          <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
+        </PartImage>
+        <PartText x="0" y="32" width="72" height="26">
+          <Text align="CENTER" ellipsis="TRUE">
+            <Font family="jetbrainsmono" size="17" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+              <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
+            </Font>
+          </Text>
+        </PartText>
+      </Complication>
+    </ComplicationSlot>
+
+    <!-- ================= SKY MICRO SLOTS (3-4, hidden in ambient) ================= -->
+
+    <!-- Sky · left @315° -->
+    <ComplicationSlot x="79" y="79" width="64" height="64" slotId="3"
+        name="skyLeft" displayName="slot_sky_left"
+        supportedTypes="SHORT_TEXT RANGED_VALUE EMPTY" isCustomizable="TRUE">
+      <Variant mode="AMBIENT" target="alpha" value="0" />
+      <DefaultProviderPolicy defaultDataSourceType="HEART_RATE" backupDataSourceType="EMPTY" />
+      <BoundingOval x="0" y="0" width="64" height="64" outlinePadding="2" />
+      <Complication type="SHORT_TEXT">
+        <PartImage x="24" y="6" width="16" height="16">
+          <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
+        </PartImage>
+        <PartText x="0" y="26" width="64" height="22">
+          <Text align="CENTER" ellipsis="TRUE">
+            <Font family="jetbrainsmono" size="14" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+              <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
+            </Font>
+          </Text>
+        </PartText>
+      </Complication>
+      <Complication type="RANGED_VALUE">
+        <PartImage x="24" y="6" width="16" height="16">
+          <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
+        </PartImage>
+        <PartText x="0" y="26" width="64" height="22">
+          <Text align="CENTER" ellipsis="TRUE">
+            <Font family="jetbrainsmono" size="14" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+              <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
+            </Font>
+          </Text>
+        </PartText>
+      </Complication>
+    </ComplicationSlot>
+
+    <!-- Sky · right @45° -->
+    <ComplicationSlot x="307" y="79" width="64" height="64" slotId="4"
+        name="skyRight" displayName="slot_sky_right"
+        supportedTypes="SHORT_TEXT RANGED_VALUE EMPTY" isCustomizable="TRUE">
+      <Variant mode="AMBIENT" target="alpha" value="0" />
+      <DefaultProviderPolicy defaultDataSourceType="WATCH_BATTERY" backupDataSourceType="EMPTY" />
+      <BoundingOval x="0" y="0" width="64" height="64" outlinePadding="2" />
+      <Complication type="SHORT_TEXT">
+        <PartImage x="24" y="6" width="16" height="16">
+          <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
+        </PartImage>
+        <PartText x="0" y="26" width="64" height="22">
+          <Text align="CENTER" ellipsis="TRUE">
+            <Font family="jetbrainsmono" size="14" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+              <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
+            </Font>
+          </Text>
+        </PartText>
+      </Complication>
+      <Complication type="RANGED_VALUE">
+        <PartImage x="24" y="6" width="16" height="16">
+          <Image resource="[COMPLICATION.MONOCHROMATIC_IMAGE]" />
+        </PartImage>
+        <PartText x="0" y="26" width="64" height="22">
+          <Text align="CENTER" ellipsis="TRUE">
+            <Font family="jetbrainsmono" size="14" weight="BOLD" color="[CONFIGURATION.themeColor.2]">
+              <Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template>
+            </Font>
+          </Text>
+        </PartText>
+      </Complication>
+    </ComplicationSlot>
+
+  </Scene>
+</WatchFace>
