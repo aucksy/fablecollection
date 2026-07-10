@@ -44,7 +44,13 @@ Fixes made to reach PASSED:
 - CI (`.github/workflows/build.yml`) is product-aware via **per-product tag prefix**: tag `arclight-v0.1.0` → builds the `Arclight` dir (case-insensitive slug match) → releases `arclight-v0.1.0.apk`. Plain `main` push smoke-builds every product (any `*/settings.gradle`) as artifacts, releases nothing. Adding a product = add a folder; no CI edit.
 - Remote already set to `https://github.com/aucksy/FableCollection.git`.
 
-## SHIPPED — arclight-v0.1.1 (2026-07-10) ✅
+## FIX — arclight-v0.1.2 (2026-07-10): face was not editable on-watch
+- Symptom (owner on real watch): installs + renders fine, but NOTHING is customizable (no themes/toggles/complication editor).
+- Cause: `res/xml/watch_face_info.xml` was missing **`<Editable value="true" />`** — I'd invented `<AvailableInRetail>` and omitted Editable. Wear OS renders a non-editable face by default; Editable=true is what surfaces the auto-generated editor. The wff-validator does NOT check watch_face_info.xml, so it slipped past.
+- Fix: match Google's official sample exactly — `Preview` + `MultipleInstancesAllowed=false` + `Editable=true`. (Reference: google/watchface .../test-samples/sample-wf.) `watch_face_info.xml` is auto-discovered by path; no manifest ref needed.
+- LESSON for all 5 faces: editability lives in watch_face_info.xml, NOT watchface.xml, and is unvalidated — always include `Editable=true`.
+
+## SHIPPED — arclight-v0.1.1 (2026-07-10) ✅ (superseded by v0.1.2 — v0.1.1 renders but is NOT editable)
 - Repo LIVE: github.com/aucksy/fablecollection (GitHub lowercased it). main green; per-product tag release green.
 - **Validated APK: https://github.com/aucksy/fablecollection/releases/download/arclight-v0.1.1/arclight-v0.1.1.apk** (WFF v1, debug-signed test build, ~563 KB).
 - CI is a 2-gate pipeline: (1) google/watchface wff-validator on every push [hard gate], (2) assembleDebug. Both green.
