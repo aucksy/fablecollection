@@ -44,6 +44,13 @@ Fixes made to reach PASSED:
 - CI (`.github/workflows/build.yml`) is product-aware via **per-product tag prefix**: tag `arclight-v0.1.0` → builds the `Arclight` dir (case-insensitive slug match) → releases `arclight-v0.1.0.apk`. Plain `main` push smoke-builds every product (any `*/settings.gradle`) as artifacts, releases nothing. Adding a product = add a folder; no CI edit.
 - Remote already set to `https://github.com/aucksy/FableCollection.git`.
 
+## FIX — arclight-v0.1.3 (2026-07-10): stable signing key (in-place updates)
+- Symptom: `adb install -r` of v0.1.2 over v0.1.1 → `INSTALL_FAILED_UPDATE_INCOMPATIBLE: signatures do not match`.
+- Cause: GitHub Actions generates a fresh RANDOM debug keystore on every run, so each build had a different signature → can't update in place.
+- Fix: committed a STABLE debug keystore `Arclight/arclight-debug.keystore` (throwaway key, password `android`, alias `androiddebugkey`) and pointed `signingConfigs.debug.storeFile` at `$rootDir/arclight-debug.keystore` in app/build.gradle. Every CI build now shares one signature → future test builds update in place, no uninstall.
+- NOT a Play key — real release signing will use a secret-provisioned keystore at store time (see [[colorcloset-play-store]] pattern).
+- Owner must UNINSTALL ONCE to move off the old random-key builds: `adb uninstall com.fable.arclight` then install v0.1.3. After that, v0.1.3→v0.1.4→… update in place.
+
 ## FIX — arclight-v0.1.2 (2026-07-10): face was not editable on-watch
 - Symptom (owner on real watch): installs + renders fine, but NOTHING is customizable (no themes/toggles/complication editor).
 - Cause: `res/xml/watch_face_info.xml` was missing **`<Editable value="true" />`** — I'd invented `<AvailableInRetail>` and omitted Editable. Wear OS renders a non-editable face by default; Editable=true is what surfaces the auto-generated editor. The wff-validator does NOT check watch_face_info.xml, so it slipped past.
