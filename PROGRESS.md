@@ -44,6 +44,19 @@ Fixes made to reach PASSED:
 - CI (`.github/workflows/build.yml`) is product-aware via **per-product tag prefix**: tag `arclight-v0.1.0` → builds the `Arclight` dir (case-insensitive slug match) → releases `arclight-v0.1.0.apk`. Plain `main` push smoke-builds every product (any `*/settings.gradle`) as artifacts, releases nothing. Adding a product = add a folder; no CI edit.
 - Remote already set to `https://github.com/aucksy/FableCollection.git`.
 
+## ON-WRIST FEEDBACK ROUND 2 — arclight-v0.1.6 (2026-07-10)
+Owner wrist-photo (Pixel Watch, pure black, First Light) + report: halo neither pulses nor tilts; complications feel asymmetric.
+**Diagnosis from the photo:**
+- Seconds comet HAD moved off 12 → `[SECOND_MILLISECOND]` + smooth rotation WORK at runtime.
+- Halo absent entirely → a single element carrying ternary+`abs`/`%`+`clamp`+ACCELEROMETER transforms dies wholesale when any expression is rejected. **Rule: one risky expression per element; never stack unproven expressions on one element.**
+- Sun-time labels absent → string-literal `Parameter expression="&quot;6:00&quot;"` fails at runtime (validator passed it!). **Rule: numeric params only — `%d:00` + `expression="6"`.**
+- Perceived asymmetry root cause: the 06:00→19:00 band preset ends BELOW 3 o'clock while starting AT 9 o'clock → lopsided crown. Also the r=210 seconds track ring read as a stray third circle on OLED.
+**v0.1.6 changes:**
+- Day band → equinox preset 06:00→18:00 (270°→450°, split 360°): band, ticks (now 9 & 3 exactly), labels, sun path all mirror-symmetric. Day/night threshold updated to 18.0 in halo/sun/moon gates.
+- Halo rebuilt as GRACEFUL LAYERS under one proven-ternary gate group: static outer(64px α26) + static base(50px α75) = guaranteed glow; pulse (58px, pure-arithmetic triangle α0–45) expendable; tilt (62px α24, `[ACCELEROMETER_ANGLE_X/Y]/12` on x/y, no clamp) expendable. Any rejected effect kills only its own layer.
+- Labels via numeric `%d:00` params; seconds track ring REMOVED (comet stays).
+- OWNER TEST CHECKLIST for v0.1.6: (1) static glow around sun now visible? (2) does it breathe? (3) does it drift on tilt? (4) crown symmetric? Report per-item — layers isolate which expression works.
+
 ## MOTION + FIDELITY PASS — arclight-v0.1.5 (2026-07-10)
 Owner: "wrist-raise animation not working; ensure everything planned works + UI/dimensions clean."
 **WFF animation facts (XSD-verified, v1–v5 identical):**
