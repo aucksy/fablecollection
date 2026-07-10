@@ -24,6 +24,27 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Validate Watch Face Format XML
+        run: |
+          set -e
+          curl -sL -o wff-validator.jar \
+            https://github.com/google/watchface/releases/download/latest/wff-validator.jar
+          fail=0
+          for xml in */app/src/main/res/raw/watchface.xml; do
+            prod="${xml%%/*}"
+            man="$prod/app/src/main/AndroidManifest.xml"
+            ver=$(python3 - "$man" <<'PY'
+import re,sys
+t=open(sys.argv[1]).read()
+m=re.search(r'format\.version.*?android:value="(\d+)"', t, re.S)
+print(m.group(1) if m else "1")
+PY
+)
+            echo "== Validating $xml against WFF version $ver =="
+            java -jar wff-validator.jar "$ver" "$xml" || fail=1
+          done
+          [ $fail -eq 0 ] || { echo "::error::WFF validation failed — see log above"; exit 1; }
+
       - name: Build APK(s)
         run: |
           set -e
