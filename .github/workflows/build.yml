@@ -3,14 +3,15 @@ name: build
 on:
   push:
     branches: [main]
-    tags: ['v*']
+    tags: ['*-v*']          # per-product tags, e.g. arclight-v0.1.0
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  apk:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -23,23 +24,38 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build debug APK
-        working-directory: Arclight
-        run: gradle assembleDebug --no-daemon --stacktrace
-
-      - name: Rename APK
+      - name: Build APK(s)
         run: |
-          TAG="${GITHUB_REF_NAME}"
-          cp "Arclight/app/build/outputs/apk/debug/app-debug.apk" "arclight-${TAG}.apk"
+          set -e
+          mkdir -p out
+          if [[ "$GITHUB_REF" == refs/tags/*-v* ]]; then
+            # Release build: only the tagged product. Tag = <slug>-v<version>
+            slug="${GITHUB_REF_NAME%%-v*}"
+            dir=$(find . -maxdepth 1 -type d -iname "$slug" -printf '%f\n' | head -1)
+            [ -n "$dir" ] || { echo "::error::no product dir for tag slug '$slug'"; exit 1; }
+            echo "Releasing product '$dir' from tag '$GITHUB_REF_NAME'"
+            (cd "$dir" && gradle assembleDebug --no-daemon --stacktrace)
+            cp "$dir/app/build/outputs/apk/debug/app-debug.apk" "out/${GITHUB_REF_NAME}.apk"
+          else
+            # main push / manual: smoke-build every product (any top-level Gradle project)
+            for f in */settings.gradle; do
+              d=$(dirname "$f")
+              slug=$(echo "$d" | tr '[:upper:]' '[:lower:]')
+              echo "Building product '$d'"
+              (cd "$d" && gradle assembleDebug --no-daemon --stacktrace)
+              cp "$d/app/build/outputs/apk/debug/app-debug.apk" "out/${slug}-${GITHUB_REF_NAME}.apk"
+            done
+          fi
+          ls -la out
 
       - uses: actions/upload-artifact@v4
         with:
-          name: arclight-apk
-          path: arclight-*.apk
+          name: apks
+          path: out/*.apk
 
-      - name: Release (tags only)
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Release (per-product tags only)
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: arclight-*.apk
+          files: out/*.apk
           generate_release_notes: true

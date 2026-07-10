@@ -2,7 +2,7 @@
 
 Premium Wear OS watch faces built entirely from arcs, sweeps and orbital data, for Google Pixel Watch and Samsung Galaxy Watch. Watch Face Format v2, resource-only (no code runs on the watch).
 
-**Series plan:** 5 categories → 5 standalone APKs × 5 faces each. This repo is Series 01 (ARCLIGHT).
+**Series plan:** 5 categories → 5 standalone APKs × 5 faces each, all in this one **FableCollection** monorepo. Each category is an independent top-level Gradle project (`Arclight/`, then `Ledger/`, `Armature/`, `Wilder/`, `Afterglow/`) with its own `applicationId` and its own Play listing. They build and release independently via per-product tags.
 
 ## Contents
 
@@ -24,13 +24,15 @@ Premium Wear OS watch faces built entirely from arcs, sweeps and orbital data, f
 
 ## Build
 
-No local toolchain — cloud only. Push a tag:
+No local toolchain — cloud only. Each product releases on its own **prefixed** tag:
 
 ```
-git tag v0.1.0 && git push origin main --tags
+git tag arclight-v0.1.0 && git push origin main --tags
 ```
 
-CI builds `arclight-v0.1.0.apk` (debug-signed test build; Play keystore comes later) and attaches it to the release. Sideload with `adb install` over Wi-Fi debugging on the watch.
+The tag slug (`arclight`) selects which top-level project to build. CI builds `arclight-v0.1.0.apk` (debug-signed test build; Play keystore comes later) and attaches it to that release. A plain push to `main` smoke-builds every product as an artifact but publishes nothing. Sideload a release APK with `adb install` over Wi-Fi debugging on the watch.
+
+Future products just add a folder — e.g. `Ledger/` with its own `settings.gradle` — and tag `ledger-v0.1.0`. No CI edits needed; a single shared signing keystore secret will cover all five at Play time.
 
 ## Design rules
 

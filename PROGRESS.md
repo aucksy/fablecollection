@@ -29,8 +29,13 @@
 - Rail complications are icon+text only (no mini ranged arcs yet); no serif↔geometric numeral toggle.
 - Layout presets (Minimal/Balanced/Data-Rich/Fitness) not yet expressed as flavors.
 
+## Repo structure (decided 2026-07-10): ONE monorepo `aucksy/FableCollection`
+- All 5 category APKs live here, each an independent top-level Gradle project (`Arclight/`, later `Ledger/` `Armature/` `Wilder/` `Afterglow/`), each its own `applicationId` + Play listing.
+- CI (`.github/workflows/build.yml`) is product-aware via **per-product tag prefix**: tag `arclight-v0.1.0` → builds the `Arclight` dir (case-insensitive slug match) → releases `arclight-v0.1.0.apk`. Plain `main` push smoke-builds every product (any `*/settings.gradle`) as artifacts, releases nothing. Adding a product = add a folder; no CI edit.
+- Remote already set to `https://github.com/aucksy/FableCollection.git`.
+
 ## NEXT
-1. **Owner action: create empty public repo `aucksy/fable-arclight`** (no README/license — we push everything).
-2. Push main + tag `v0.1.0` → iterate CI until green (expect 1–3 rounds on WFF XML validity).
-3. Sideload on watch → visual audit vs showcase → fidelity pass (fonts/gradients/labels) → adversarial review → proper `v0.2.0`.
-4. Then Pulsar (face 02) — investigate multi-watchface-per-APK packaging in WFF at that point.
+1. **Owner action: create empty public repo `aucksy/FableCollection`** (no README/license — we push everything).
+2. Push main + tag `arclight-v0.1.0` → iterate CI until green (expect 1–3 rounds on WFF XML validity).
+3. Sideload on watch → visual audit vs showcase → fidelity pass (fonts/gradients/labels) → adversarial review → proper `arclight-v0.2.0`.
+4. Then Pulsar (face 02). NOTE: a WFF APK can ship multiple watch faces, but the current CI/naming treats one product = one category APK containing that category's 5 faces. Decide Pulsar-in-Arclight (5 faces per APK, the product model) vs separate — the product structure says all 5 ARCLIGHT faces go in the ONE Arclight APK, so Pulsar is a second face inside Arclight, not a new top-level project. Revisit packaging then.
