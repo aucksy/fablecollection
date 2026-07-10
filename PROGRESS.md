@@ -44,6 +44,22 @@ Fixes made to reach PASSED:
 - CI (`.github/workflows/build.yml`) is product-aware via **per-product tag prefix**: tag `arclight-v0.1.0` → builds the `Arclight` dir (case-insensitive slug match) → releases `arclight-v0.1.0.apk`. Plain `main` push smoke-builds every product (any `*/settings.gradle`) as artifacts, releases nothing. Adding a product = add a folder; no CI edit.
 - Remote already set to `https://github.com/aucksy/FableCollection.git`.
 
+## MOTION + FIDELITY PASS — arclight-v0.1.5 (2026-07-10)
+Owner: "wrist-raise animation not working; ensure everything planned works + UI/dimensions clean."
+**WFF animation facts (XSD-verified, v1–v5 identical):**
+- There are NO vector property animations and NO time-since-wake source → a "day-band draws itself in on wrist-raise" is IMPOSSIBLE in WFF vectors. The only wake-triggered mechanism is `PartAnimatedImage`+`AnimationController play="ON_VISIBLE"` (pre-rendered animated WebP; per-theme assets — deferred, maybe never). System provides a brief AOD↔interactive crossfade automatically. → The showcase's "wake sweep = NATIVE animated transforms" claim was WRONG; correct the showcase in the next design-sync.
+- Event triggers available: TAP, ON_VISIBLE, ON_NEXT_SECOND/MINUTE/HOUR (image sequences only).
+- What IS native for motion: `[SECOND_MILLISECOND]` (smooth sub-second), `[MILLISECOND]`, accelerometer sources (`ACCELEROMETER_ANGLE_X/Y/Z`, `ACCELEROMETER_X/Y/Z`, `_IS_SUPPORTED`).
+**Shipped in v0.1.5:**
+- Seconds comet now GLIDES (`[SECOND_MILLISECOND] * 6`), moved to correct showcase radius r=210 (was 197), + faint orbit track (alpha ~18).
+- Sun halo BREATHES: 4 s triangle-wave alpha 55↔90 via `abs`/`%` on `[SECOND_MILLISECOND]` (60 % 4 == 0 so no wrap glitch).
+- TILT PARALLAX: halo drifts ±3 px with wrist via `clamp([ACCELEROMETER_ANGLE_X/Y],-45,45)/15` on Transform target x/y — the "responds to wrist movement" feel, continuous rather than one-shot.
+- Sky depth restored: literal-color LinearGradient overlay `#73000000→transparent` (top 300 px) inside bgThemed — works with every theme + hidden in pureBlack/ambient. (ColorOption 5-colour cap made a config-colour gradient impossible; overlay sidesteps it.)
+- Sunrise/sunset time labels added at the ticks ("6:00" / "19:00", static = matches the fixed preset).
+- Gotcha: `<Template>` REQUIRES ≥1 `<Parameter>` — static label text must be `%s` + `Parameter expression="&quot;6:00&quot;"` (string literal expression).
+- Font has NO letterSpacing attr in WFF (checked XSD) — the showcase's airy letterspaced captions can't be reproduced; accepted.
+**Still unverifiable off-watch:** expression functions (`abs`, `clamp`, `%`) and accelerometer sources are schema-valid but their runtime behaviour needs the owner's wrist check.
+
 ## FEATURE — arclight-v0.1.4 (2026-07-10): "Pure black background" toggle
 - Owner request: a setting to keep the themed background OR make it completely black.
 - Impl: new `BooleanConfiguration pureBlack` (default FALSE). Background is now an outer Group (ambient→alpha 0) wrapping an inner `bgThemed` Group whose alpha = `[CONFIGURATION.pureBlack] ? 0 : 255`; when on, the Scene's true black shows through and only the luminous elements remain (same look as AOD, great for OLED battery). Validator PASSED.

@@ -47,6 +47,13 @@
           <Rectangle x="0" y="0" width="450" height="450">
             <Fill color="[CONFIGURATION.themeColor.4]" />
           </Rectangle>
+          <!-- sky depth: darker toward the top, like the showcase gradient -->
+          <Rectangle x="0" y="0" width="450" height="450">
+            <Fill color="#73000000">
+              <LinearGradient startX="225" startY="0" endX="225" endY="300"
+                  colors="#73000000 #00000000" positions="0 1" />
+            </Fill>
+          </Rectangle>
         </PartDraw>
       </Group>
     </Group>
@@ -98,16 +105,34 @@
       </Line>
     </PartDraw>
 
+    <!-- ================= SUNRISE / SUNSET TIME LABELS (preset 06:00 / 19:00) ================= -->
+    <PartText x="55" y="222" width="44" height="16" name="sunriseLabel">
+      <Variant mode="AMBIENT" target="alpha" value="0" />
+      <Text align="CENTER">
+        <Font family="jetbrainsmono" size="11" weight="NORMAL" color="[CONFIGURATION.themeColor.3]"><Template>%s<Parameter expression="&quot;6:00&quot;" /></Template></Font>
+      </Text>
+    </PartText>
+    <PartText x="346" y="260" width="44" height="16" name="sunsetLabel">
+      <Variant mode="AMBIENT" target="alpha" value="0" />
+      <Text align="CENTER">
+        <Font family="jetbrainsmono" size="11" weight="NORMAL" color="[CONFIGURATION.themeColor.3]"><Template>%s<Parameter expression="&quot;19:00&quot;" /></Template></Font>
+      </Text>
+    </PartText>
+
     <!-- ================= SUN / MOON MARKER (rotates with time of day) ================= -->
     <Group x="0" y="0" width="450" height="450" pivotX="0.5" pivotY="0.5" angle="0" name="sunGroup">
       <Transform target="angle" value="(([HOUR_0_23] + ([MINUTE] / 60.0)) * 15.0) - 180.0" />
 
-      <!-- halo (interactive, config-gated, daytime only) -->
+      <!-- halo (interactive, config-gated, daytime only)
+           · alpha breathes on a 4 s triangle wave
+           · x/y drift ±3 px with wrist tilt (accelerometer parallax) -->
       <Group x="0" y="0" width="450" height="450" name="haloWrap">
         <Variant mode="AMBIENT" target="alpha" value="0" />
         <PartDraw x="199" y="6" width="52" height="52" alpha="0">
           <Transform target="alpha"
-              value="([CONFIGURATION.sunHalo] &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &gt;= 6.0) &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &lt; 19.0)) ? 90 : 0" />
+              value="([CONFIGURATION.sunHalo] &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &gt;= 6.0) &amp;&amp; (([HOUR_0_23] + ([MINUTE] / 60.0)) &lt; 19.0)) ? (55 + (35 * abs((([SECOND_MILLISECOND] % 4.0) / 2.0) - 1.0))) : 0" />
+          <Transform target="x" value="199.0 + (clamp([ACCELEROMETER_ANGLE_X], -45.0, 45.0) / 15.0)" />
+          <Transform target="y" value="6.0 + (clamp([ACCELEROMETER_ANGLE_Y], -45.0, 45.0) / 15.0)" />
           <Ellipse x="0" y="0" width="52" height="52">
             <Fill color="[CONFIGURATION.themeColor.1]" />
           </Ellipse>
@@ -138,8 +163,15 @@
       <Variant mode="AMBIENT" target="alpha" value="0" />
       <Group x="0" y="0" width="450" height="450" pivotX="0.5" pivotY="0.5" angle="0" alpha="255" name="secondsSpin">
         <Transform target="alpha" value="[CONFIGURATION.secondsOrbit] ? 220 : 0" />
-        <Transform target="angle" value="[SECOND] * 6.0" />
-        <PartDraw x="222" y="25" width="6" height="6">
+        <Transform target="angle" value="[SECOND_MILLISECOND] * 6.0" />
+        <!-- faint orbit track, r=210 (matches the showcase) -->
+        <PartDraw x="12" y="12" width="426" height="426" alpha="18">
+          <Ellipse x="3" y="3" width="420" height="420">
+            <Stroke color="[CONFIGURATION.themeColor.2]" thickness="1" />
+          </Ellipse>
+        </PartDraw>
+        <!-- comet dot glides smoothly on r=210 -->
+        <PartDraw x="222" y="12" width="6" height="6">
           <Ellipse x="0" y="0" width="6" height="6">
             <Fill color="[CONFIGURATION.themeColor.2]" />
           </Ellipse>
