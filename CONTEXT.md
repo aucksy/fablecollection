@@ -10,6 +10,9 @@ You are continuing **Fable Watch Faces Series 01 · ARCLIGHT** at `D:\Apps\WearO
 6. **IMMEDIATE OPEN BUG** (see PROGRESS.md "⛔ OPEN BUG"): the "Pure black background" toggle still blacks out the light **Paper Dawn** theme (dark ink → unreadable). My `[CONFIGURATION.themeColor] == 3` exemption does NOT work at runtime (ColorConfiguration option-id isn't comparable in expressions). Fix this FIRST — candidate approaches are listed in PROGRESS.md. There is DEAD `bgPaperDawn` code in watchface.xml to remove/replace.
 7. After that: design-fidelity polish if any, then face 02 (**PULSAR**) — a SECOND FACE INSIDE the Arclight APK, not a new project. Open engineering decision: how to pack 5 faces into one WFF APK (one scene + a style/ListConfiguration face-switcher, vs multiple watch-face services). Decide at the start of the Pulsar phase.
 
+## Standing rule for this project: run the Fable Method
+- Load and apply `D:\Apps\WearOS Apps\WatchFaces\Resources\FableMode.md` (the five-gate loop: scope → evidence → attack → verify → report) on every non-trivial task here, all sessions. WFF's runtime is unforgiving and schema-valid ≠ works-on-wrist, so Gate 2 (open the XSD, don't design from memory) and Gate 4 (validate before ship) are load-bearing.
+
 ## Key workflow facts (don't relearn the hard way)
 - **Validate before every ship:** WFF XML is NOT checked by the Gradle build. Run google/watchface `wff-validator.jar` (needs Java 17; a portable JRE17 + the jar + `wff-xsd.zip` are in the last session's scratchpad, or re-download from the `latest` release). CI also runs it as a hard gate.
 - **Ship loop:** edit → validate → bump versionCode/versionName in Arclight/app/build.gradle → commit → push main (CI validates+builds) → `git tag arclight-vX.Y.Z` + push tag (CI releases the APK). Poll the DIRECT release URL for HTTP 302 (GitHub unauth API rate-limits fast). Paste the direct .apk link to the owner every time.
