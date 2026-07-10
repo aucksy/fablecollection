@@ -15,15 +15,25 @@
 - `preview.png` + `ic_launcher.png` cropped from the live simulator render.
 - CI `.github/workflows/build.yml`: main→APK artifact, `v*` tag→GitHub Release with `arclight-<tag>.apk` (debug-signed; no secrets needed).
 
-## Known risks / first-CI-run watchlist (WFF attributes written from memory)
-1. `<LinearGradient>` inside `<Fill>` — syntax/attr names may differ; fallback = solid `themeColor.4` background.
-2. `Font family="fraunces"` — bundled-font referencing convention unverified; fallback = `SYNC_TO_DEVICE`.
-3. `hourFormat` attr on TimeText, `[IS_24_HOUR_MODE]` ternary alpha gating, boolean config in ternary (`[CONFIGURATION.secondsOrbit] ? 220 : 0`).
-4. `DefaultProviderPolicy defaultDataSourceType` enum names (esp. `SUNRISE_SUNSET`, `NEXT_EVENT`).
-5. Arc `endAngle="465"` (past 360) legality; `clipShape="CIRCLE"` on WatchFace root.
-6. Consider adding google/watchface validator as a CI step when iterating.
+## WFF v1 validation — PASSED (2026-07-10). Real constraints learned (apply to all 5 faces)
+Validated with google/watchface `wff-validator.jar` (needs Java 17). Local one-off: portable Temurin JRE 17 unzipped in scratchpad; the XSD is in `wff-xsd.zip` (dir per version: `xsd/1/…`) — grep it for tokens/enums. CI runs the validator as a hard gate on every push, so normally you don't need local.
+Fixes made to reach PASSED:
+1. **ColorOption `colors` = max 5 colours.** Had 8 → consolidated palette to 5 roles: 0 dayStart · 1 dayEnd(+sun/moon/halo) · 2 ink · 3 muted(+ring/ticks/date/hairline) · 4 bg(solid). Dropped the background gradient (fidelity gap, see below).
+2. **`DigitalClock` children may only be `{TimeText, Variant, Localization}`** — NOT `Group`. To alpha-gate a clock, wrap the DigitalClock in a Group and put the Transform on the Group.
+3. **`TimeText format` only accepts `h`/`m`/`s` patterns** — no `a` (AM/PM), no uppercase `H`. So: (a) TimeText auto-follows the system 12/24-h setting → ONE clock with `format="h:mm"`, no twin-clock hack, no `hourFormat` attr (invalid). (b) AM/PM comes from the `[AMPM_STRING]` data source in a PartText, alpha-gated by `[IS_24_HOUR_MODE] ? 0 : 255`.
+4. **Day-of-month token is `[DAY]`**, not `[DAY_1_31]`. Verified tokens: IS_24_HOUR_MODE, HOUR_0_23, MINUTE, SECOND, DAY, DAY_OF_WEEK_S, MONTH_S, AMPM_STRING.
+5. **No `HEART_RATE` system provider exists.** Full v1 system-provider enum: APP_SHORTCUT, DATE, DAY_AND_DATE, DAY_OF_WEEK, EMPTY, FAVORITE_CONTACT, NEXT_EVENT, STEP_COUNT, SUNRISE_SUNSET, TIME_AND_DATE, UNREAD_NOTIFICATION_COUNT, WATCH_BATTERY, WORLD_CLOCK. (No weather either in v1.) HR/weather can still be user-ADDED to a slot; they just can't be a `DefaultProviderPolicy`. Sky-left default → UNREAD_NOTIFICATION_COUNT.
+6. `DefaultProviderPolicy` attrs = `defaultSystemProvider` + `defaultSystemProviderType` (both required).
+7. Confirmed OK by schema: boolean/config ternaries in Transform (`[CONFIGURATION.secondsOrbit] ? 220 : 0`), Arc `endAngle="465"` (>360), `clipShape="CIRCLE"`, solid `<Fill>`, custom font `family` (binds to `res/font/<family>.ttf`).
+
+## Runtime risks still unverified until on-wrist (schema can't catch these)
+- Variable-font weight rendering (Fraunces/JBMono are variable TTFs; `weight` may map to default axis → may need static instances).
+- `[COMPLICATION.TEXT]` / `[COMPLICATION.MONOCHROMATIC_IMAGE]` expression tokens at runtime.
+- Arc 270→465 wrap direction; sun-marker angle math; exact anchor positions of rail/sky slots.
+- `[AMPM_STRING]` localised output + whether TimeText truly auto-switches 12/24 on device.
 
 ## Gaps vs design (deliberate, for later fidelity pass — design-fidelity gate applies before "final" ship)
+- Background is a solid colour (gradient dropped to fit the 5-colour ColorOption limit); true sky gradient deferred.
 - Day-band gradient is 2-tone arcs, not a true sweep gradient.
 - No sunrise/sunset time labels on the dial yet; moon is a ring, not a crescent.
 - Rail complications are icon+text only (no mini ranged arcs yet); no serif↔geometric numeral toggle.
