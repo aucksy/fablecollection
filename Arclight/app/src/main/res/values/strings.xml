@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Arclight · Solstice</string>
+    <string name="app_name">Arclight</string>
+
+    <!-- face switch (one APK, multiple faces) -->
+    <string name="face_label">Face</string>
+    <string name="face_solstice">Solstice</string>
+    <string name="face_pulsar">Pulsar</string>
 
     <!-- configuration labels -->
     <string name="theme_label">Colour theme</string>
