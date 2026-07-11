@@ -1,4 +1,19 @@
-# PROGRESS — Fable Series 01 · ARCLIGHT
+# PROGRESS — Fable Watch Faces (Collection)
+
+## SERIES 02 · LEDGER — Phase 1 design SHIPPED (2026-07-11) ✅
+- `FABLE-Ledger-Showcase.html` — interactive design simulator for all 5 LEDGER faces ("Typographic dials — the numerals are the face"). Same architecture as the Arclight showcase (live local-time clock, 5 themes/face ≤5 roles, layout presets, slot editor, AOD toggle, spec sheets, deep links `#f=0..4&theme=&mode=aod&cfg=&h24=1&clean=1`), but **feasibility-LOCKED at design time** — the fix for Arclight's over-promises (wake sweeps, sequential tick-lighting): every signature element names an on-wrist-proven WFF mechanism in the spec sheet itself; the sim renders nothing WFF can't (no letter-spacing on dial text, no digit transitions, no glows, no gradients on type; AOD = fixed light inks #d8d4cc/#8f8877 on black — the v0.1.11 universal-readable pattern).
+- **The 5 faces (named after classical type sizes), all WFF v1** (deliberate: nothing needs v2 Weather/Flavors, v3 auto-size, v4 photos; one APK per face per the ROUND-10 rule, own ≤8 slots each):
+  1. **CANON** (hero/masthead) — 190px Fraunces-Black hour stacked over hairline-italic minutes between editorial rules; folio date. Mechanism: two TimeTexts `format="hh"`/`"mm"`, static TTF per weight, [AMPM_STRING]+[IS_24_HOUR_MODE] gate, PartDraw rules. 3 margin-note slots.
+  2. **PARAGON** (poster/dress) — two 196px Space-Mono numerals in deliberate overlap (hour ink, minutes accent drawn later = on top); monospace makes the collision deterministic for every digit pair. Pure static positioning + scene order. 2 corner slots.
+  3. **PICA** (ledger sheet/data) — monospaced sheet; **complications ARE the rows** (label from [COMPLICATION.TITLE], value text, proven mini ring-fill); ELAPSED day-total row; dotted leaders = static dot-strip assets (WFF has no dashed stroke). 4 row slots.
+  4. **BREVIER** (word clock/calm) — static word grid, lit sentence via duplicate-and-alpha-gate: ~38 gated word copies, each ONE two-comparison range ternary (the proven sun-disc gate shape), minute-frequency; hour words via [HOUR_1_12] (XSD-check at build; fallback = paired [HOUR_0_23] gates → ~62 copies, costed in the spec). Exact-time corner TimeText **replaces** QLOCKTWO minute dots (would need the shelved `%` operator). AOD = thin digital twin (full-word AOD costed as option). English-only at ship.
+  5. **NONPAREIL** (numeral dial/classic) — 12 static DM-Serif didone numerals + AnalogClock hands (two-tone tips baked into hand PNGs) + native Sweep seconds; optional current-hour accent = 12 gated numeral copies (costed).
+- **Killed at the design gate** (documented on-page in "Designed inside the format"): letter-spaced captions, flip/slide/fade digits, arbitrary templated words, colour ternaries, `%` digit math, text glows/blends, v1 one-tap presets (presets = editor states; Flavors deferred to a possible v2 refresh), giant black AOD glyphs.
+- CUSTOM badge appears only on optional non-signature extras (PICA linear-bar variant / custom-metric row, BREVIER localised grids, NONPAREIL hour-strike — rejected on the memory gate and said so). Every possible-but-costly row carries an explicit "⚠ build cost" note (element counts, eval frequency, fallbacks).
+- **QA'd per Gate 4**: 7 headless-Chrome screenshots read back (5 faces incl. light themes + CANON/BREVIER AOD) — BREVIER sentence verified correct against live time (10:28 → "IT IS TWENTY FIVE PAST TEN", hour word accent); DOM-dump grep confirmed spec tables/badges/cost notes/legend/walls/roadmap all render. Chrome: `C:\Program Files (x86)\Google\Chrome\Application\chrome.exe` (Bash sandbox can't exec it — run sandbox-off).
+- **NEXT for LEDGER (owner-gated, later phase):** owner reviews the showcase → pick the first face to build (CANON is the intended hero) → scaffold `Ledger-<Face>/` per the per-face-APK pattern → validate → adversarial review → tag `ledger-<face>-v0.1.0`. Build-time verifies queued in the spec sheets: [HOUR_1_12] / [WEEK_IN_YEAR] / [DAY_OF_YEAR] vs the v1 XSD; %d formatting of division params.
+
+# SERIES 01 · ARCLIGHT
 
 ## Done
 

@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEDGER — Series 02 · Fable Watch Faces · Design Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=DM+Serif+Display:ital@0;1&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,900;1,9..144,300&family=IBM+Plex+Mono:wght@300;400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0a09; --panel:#14120f; --panel2:#191713; --line:#2a2620; --line2:#37322a;
+  --ink:#ede8dc; --sub:#c9c2b2; --mut:#8f8877; --faint:#5c5749;
+  --accent:#e05252; --accent-dim:rgba(224,82,82,.14);
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --body:'Inter',system-ui,sans-serif;
+  --disp:'Fraunces',Georgia,serif;
+  --r:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:#0b0a09}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer}
+.wrap{max-width:1360px;margin:0 auto;padding:0 30px}
+.mono{font-family:var(--mono)}
+
+/* ---------- hero ---------- */
+header.hero{padding:66px 0 40px;position:relative;overflow:hidden}
+.hero-type{position:absolute;right:-40px;top:-60px;font-family:var(--disp);font-weight:900;font-size:560px;line-height:1;color:var(--ink);opacity:.045;pointer-events:none;user-select:none}
+.kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.32em;color:var(--mut);text-transform:uppercase;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kicker .tag{border:1px solid var(--line2);border-radius:999px;padding:4px 12px;color:var(--sub);letter-spacing:.18em}
+h1.title{font-family:var(--disp);font-weight:400;font-size:clamp(64px,9vw,124px);line-height:.98;letter-spacing:-.015em;margin:26px 0 6px}
+h1.title em{font-style:italic;font-weight:300;color:var(--accent);transition:color .5s}
+.subtitle{max-width:64ch;color:var(--sub);font-size:17px;margin-top:14px}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.chip{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--sub);border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 14px}
+.chip b{color:var(--accent);font-weight:500;transition:color .5s}
+.why{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+.why div{border-top:1px solid var(--line);padding-top:14px}
+.why h4{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--accent);font-weight:500;text-transform:uppercase;margin-bottom:7px;transition:color .5s}
+.why p{font-size:13.5px;color:var(--mut)}
+@media(max-width:900px){.why{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- face tabs ---------- */
+nav.tabs{position:sticky;top:0;z-index:50;background:rgba(11,10,9,.82);backdrop-filter:blur(14px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tabs-inner{display:flex;gap:6px;padding:10px 0;overflow-x:auto}
+.tab{display:flex;align-items:center;gap:12px;background:none;border:1px solid transparent;border-radius:14px;padding:8px 16px 8px 9px;color:var(--mut);transition:all .25s;white-space:nowrap;flex:1;min-width:150px}
+.tab:hover{background:var(--panel);color:var(--sub)}
+.tab.on{background:var(--panel2);border-color:var(--line2);color:var(--ink)}
+.tab .thumb{width:52px;height:52px;border-radius:50%;background:#000;flex:none;border:1px solid var(--line2);overflow:hidden;position:relative}
+.tab.on .thumb{border-color:var(--accent)}
+.tab .thumb svg{display:block;width:100%;height:100%}
+.tab .tn{text-align:left}
+.tab .tn b{display:block;font-family:'Space Grotesk';font-size:14.5px;font-weight:600;letter-spacing:.06em}
+.tab .tn span{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.tab.on .tn span{color:var(--accent)}
+
+/* ---------- simulator layout ---------- */
+main{padding:46px 0 10px}
+.sim{display:grid;grid-template-columns:minmax(0,1fr) 408px;gap:40px;align-items:start}
+@media(max-width:1060px){.sim{grid-template-columns:1fr}}
+.stage{position:sticky;top:96px;display:flex;flex-direction:column;align-items:center;padding:30px 0 10px}
+@media(max-width:1060px){.stage{position:static}}
+.stage::before{content:'';position:absolute;top:-20px;left:50%;transform:translateX(-50%);width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.045),transparent 62%);pointer-events:none}
+.device{position:relative;width:min(66vw,430px);aspect-ratio:1;margin-top:10px}
+.bezel{position:absolute;inset:-16px;border-radius:50%;
+  background:conic-gradient(from 220deg,#41403e,#131312 22%,#565553 47%,#0e0e0d 71%,#3c3b39 100%);
+  box-shadow:0 34px 90px rgba(0,0,0,.72),0 4px 18px rgba(0,0,0,.5),inset 0 1px 1px rgba(255,255,255,.22),inset 0 -2px 6px rgba(0,0,0,.7)}
+.crown{position:absolute;right:-26px;top:39%;width:16px;height:34px;border-radius:5px;
+  background:linear-gradient(90deg,#4a4947,#1b1a19);box-shadow:inset 0 1px 1px rgba(255,255,255,.2),0 3px 8px rgba(0,0,0,.5)}
+.crown::after{content:'';position:absolute;inset:4px 5px;border-radius:3px;background:repeating-linear-gradient(180deg,#333 0 2px,#1a1a19 2px 4px)}
+.sbtn{position:absolute;right:-20px;top:58%;width:10px;height:24px;border-radius:4px;background:linear-gradient(90deg,#3c3b39,#161514)}
+.screen{position:absolute;inset:0;border-radius:50%;overflow:hidden;background:#000;
+  box-shadow:inset 0 0 0 9px #000,inset 0 0 40px rgba(0,0,0,.85)}
+.screen svg{display:block;width:100%;height:100%}
+.screen .glass{position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:radial-gradient(130% 95% at 30% 10%,rgba(255,255,255,.09),rgba(255,255,255,0) 44%)}
+.screen.aod svg{filter:brightness(.8) saturate(.85)}
+.facemeta{margin-top:34px;text-align:center}
+.facemeta h2{font-family:'Space Grotesk';font-size:26px;font-weight:600;letter-spacing:.14em}
+.facemeta p{color:var(--mut);font-size:13.5px;margin-top:4px;max-width:46ch}
+.modecap{font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);margin-top:12px}
+.modecap b{color:var(--accent);font-weight:500;transition:color .5s}
+.stagebtns{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center}
+.sbt{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--sub);background:var(--panel);border:1px solid var(--line2);border-radius:999px;padding:8px 16px;transition:all .2s}
+.sbt:hover{border-color:var(--accent);color:var(--ink)}
+
+/* rack */
+.rack{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+.panel h3{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--mut);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.panel h3 .hint{letter-spacing:.05em;color:var(--faint);text-transform:none;font-size:10px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:40px;height:40px;border-radius:50%;border:2px solid transparent;padding:2px;background:none;transition:all .2s;position:relative}
+.sw i{display:block;width:100%;height:100%;border-radius:50%;border:1px solid rgba(255,255,255,.14)}
+.sw.on{border-color:var(--accent)}
+.sw:hover{transform:scale(1.08)}
+.swname{font-family:var(--mono);font-size:11px;color:var(--sub);letter-spacing:.1em;margin-top:10px;min-height:15px}
+.segrow{display:flex;gap:8px;flex-wrap:wrap}
+.seg{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--mut);background:none;border:1px solid var(--line2);border-radius:999px;padding:7px 14px;transition:all .2s}
+.seg:hover{color:var(--sub);border-color:var(--faint)}
+.seg.on{background:var(--accent-dim);border-color:var(--accent);color:var(--ink)}
+.slotrow{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;margin:0 -10px;transition:background .2s}
+.slotrow.sel{background:var(--accent-dim)}
+.slotrow .sl{flex:1;min-width:0}
+.slotrow .sl b{display:block;font-size:12.5px;font-weight:600;letter-spacing:.02em}
+.slotrow .sl span{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.06em}
+.slotrow select{background:var(--panel2);color:var(--sub);border:1px solid var(--line2);border-radius:9px;padding:7px 10px;font-family:var(--mono);font-size:11.5px;max-width:168px;outline:none}
+.slotrow select:focus-visible{border-color:var(--accent)}
+.optrow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.optrow:last-child{border-bottom:none}
+.optrow label{font-size:13px;color:var(--sub)}
+.optrow .note{font-family:var(--mono);font-size:9.5px;color:var(--faint);letter-spacing:.06em;display:block}
+.tgl{width:40px;height:22px;border-radius:999px;background:var(--line);border:none;position:relative;transition:background .2s;flex:none}
+.tgl::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#8f8877;transition:all .2s}
+.tgl.on{background:var(--accent)}
+.tgl.on::after{left:21px;background:#0b0a09}
+.minirow{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.mini{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--mut);background:none;border:1px solid var(--line);border-radius:8px;padding:5px 10px;transition:all .2s}
+.mini:hover{color:var(--sub);border-color:var(--faint)}
+.mini.on{color:var(--ink);border-color:var(--accent);background:var(--accent-dim)}
+
+/* ---------- specs ---------- */
+section.specs{padding:70px 0 30px}
+.sechead{display:flex;align-items:baseline;gap:18px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:28px}
+.sechead h2{font-family:var(--disp);font-size:34px;font-weight:400}
+.sechead h2 em{font-style:italic;color:var(--accent);transition:color .5s}
+.sechead span{font-family:var(--mono);font-size:11px;letter-spacing:.26em;color:var(--faint);text-transform:uppercase}
+.speccards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.speccards{grid-template-columns:1fr}}
+.scard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px}
+.scard.wide{grid-column:1/-1}
+.scard h4{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;transition:color .5s}
+.scard p{font-size:14px;color:var(--sub);margin-bottom:10px}
+.scard p:last-child{margin-bottom:0}
+.scard ul{list-style:none}
+.scard li{font-size:13.5px;color:var(--sub);padding:5.5px 0 5.5px 18px;position:relative;border-bottom:1px solid rgba(255,255,255,.035)}
+.scard li:last-child{border-bottom:none}
+.scard li::before{content:'';position:absolute;left:1px;top:13px;width:8px;height:8px;border:1.5px solid var(--accent);border-radius:50%;border-bottom-color:transparent;border-left-color:transparent;transform:rotate(-45deg)}
+.scard li b{color:var(--ink);font-weight:600}
+.scard li .m{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.05em}
+.typechips{display:flex;flex-wrap:wrap;gap:7px}
+.tchip{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--sub);border:1px solid var(--line2);border-radius:7px;padding:4px 9px}
+.feastab{width:100%;border-collapse:collapse}
+.feastab td{padding:8px 10px 8px 0;font-size:13px;color:var(--sub);border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+.feastab td:first-child{color:var(--ink);font-weight:500;width:26%}
+.feastab tr:last-child td{border-bottom:none}
+.badge{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.14em;border-radius:5px;padding:3px 8px;vertical-align:1px}
+.b-native{background:rgba(104,211,145,.12);color:#7fdfa4;border:1px solid rgba(104,211,145,.3)}
+.b-provider{background:rgba(99,179,237,.12);color:#8ec9f5;border:1px solid rgba(99,179,237,.3)}
+.b-sim{background:rgba(246,213,92,.1);color:#efd47f;border:1px solid rgba(246,213,92,.3)}
+.b-custom{background:rgba(237,100,166,.1);color:#f096c0;border:1px solid rgba(237,100,166,.3)}
+.cost{display:block;margin-top:4px;font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:#efd47f}
+.cost::before{content:'⚠ build cost — ';color:#efd47f}
+.mech{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.02em}
+.themelist{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:640px){.themelist{grid-template-columns:1fr}}
+.themerow{display:flex;align-items:center;gap:11px;padding:7px 0}
+.themerow .dots{display:flex;flex:none}
+.themerow .dots i{width:16px;height:16px;border-radius:50%;border:1px solid rgba(255,255,255,.15);margin-left:-5px}
+.themerow .dots i:first-child{margin-left:0}
+.themerow div b{display:block;font-size:13px;font-weight:600}
+.themerow div span{font-size:11.5px;color:var(--mut)}
+
+/* ---------- global sections ---------- */
+section.global{padding:36px 0}
+.gtitle{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);margin-bottom:22px;display:flex;align-items:center;gap:16px}
+.gtitle::after{content:'';flex:1;height:1px;background:var(--line)}
+.legend{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.legend{grid-template-columns:repeat(2,1fr)}}
+.leg{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.leg p{font-size:12.5px;color:var(--mut);margin-top:9px}
+.walls{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.walls{grid-template-columns:1fr}}
+.wall{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.wall b{display:block;font-size:13.5px;color:var(--ink);margin-bottom:5px}
+.wall b s{color:var(--faint);font-weight:400}
+.wall p{font-size:12.5px;color:var(--mut)}
+.wall p em{color:var(--sub);font-style:normal;font-weight:600}
+.roadmap{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:900px){.roadmap{grid-template-columns:1fr 1fr}}
+.road{border:1px solid var(--line);border-radius:14px;padding:16px;background:linear-gradient(180deg,var(--panel),transparent)}
+.road.now{border-color:var(--accent)}
+.road .n{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--faint)}
+.road.now .n{color:var(--accent)}
+.road b{display:block;font-family:'Space Grotesk';font-size:15px;letter-spacing:.08em;margin:7px 0 4px}
+.road p{font-size:11.5px;color:var(--mut)}
+.protonote{background:var(--panel);border:1px solid var(--line2);border-left:3px solid var(--accent);border-radius:12px;padding:18px 22px;font-size:13.5px;color:var(--sub)}
+footer{border-top:1px solid var(--line);margin-top:50px;padding:30px 0 44px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer .f1{font-family:var(--disp);font-size:19px}
+footer .f1 em{font-style:italic;color:var(--accent)}
+footer p{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--faint)}
+
+#toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,80px);background:#1d1a15;border:1px solid var(--line2);color:var(--sub);font-size:12.5px;font-family:var(--mono);letter-spacing:.03em;padding:11px 20px;border-radius:999px;transition:transform .35s cubic-bezier(.2,.9,.3,1.2);z-index:99;max-width:86vw;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+#toast.show{transform:translate(-50%,0)}
+#toast b{color:var(--accent)}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-type" aria-hidden="true">02</div>
+  <div class="wrap">
+    <div class="kicker">
+      <span>Fable Watch Faces</span><span>·</span><span>Series 02</span>
+      <span class="tag">Phase 1 — design prototype · no production code</span>
+    </div>
+    <h1 class="title">Led<em>ger</em></h1>
+    <p class="subtitle">Five typographic watch faces where the numerals <em>are</em> the face — no hands to hide behind, no dashboard cosplay. Named after the classical type sizes, from Canon down to Nonpareil. Every face is feasibility-gated at design time: each signature element names the exact Watch Face Format mechanism that draws it, and every mechanism is one already proven on a real wrist in Series 01.</p>
+    <div class="chips">
+      <span class="chip"><b>5</b> faces · one APK each</span>
+      <span class="chip"><b>25</b> colour themes · ≤5 roles each</span>
+      <span class="chip"><b>WFF v1</b> · Wear OS 4+ · widest reach</span>
+      <span class="chip">per-face complications · <b>≤8</b> slots</span>
+      <span class="chip"><b>AOD</b> designed for every face</span>
+      <span class="chip">live simulator · <b>your local time</b></span>
+    </div>
+    <div class="why">
+      <div><h4>Type is the interface</h4><p>Weight, scale, position and colour do all the work. The strongest levers WFF actually has — not the ones it doesn't.</p></div>
+      <div><h4>No motion cosplay</h4><p>WFF has no digit transitions, no property animation, no wake trigger for vectors. LEDGER's identity is composition, so nothing here pretends to move.</p></div>
+      <div><h4>Ship-safe by construction</h4><p>Every signature maps to an on-wrist-proven pattern: alpha gates, native Sweep, Transform arc fills, duplicate-and-gate colour states.</p></div>
+      <div><h4>OLED economics</h4><p>Ink-on-black typography is the cheapest thing a watch can draw. Sparse thin-weight AOD variants keep every face under the 15% pixel gate.</p></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Watch faces"><div class="wrap"><div class="tabs-inner" id="tabs"></div></div></nav>
+
+<main>
+  <div class="wrap sim">
+    <div class="stage">
+      <div class="device">
+        <div class="bezel"></div>
+        <div class="crown"></div><div class="sbtn"></div>
+        <div class="screen" id="screen"><svg id="dial" viewBox="0 0 480 480" role="img" aria-label="Watch face simulator"></svg><div class="glass"></div></div>
+      </div>
+      <div class="facemeta"><h2 id="fname"></h2><p id="ftag"></p></div>
+      <div class="modecap" id="modecap"></div>
+      <div class="stagebtns">
+        <button class="sbt" id="btnAod">◐ toggle always-on</button>
+        <button class="sbt" id="btnMap">◎ show slot map</button>
+        <button class="sbt" id="btnShuffle">⤨ shuffle simulated data</button>
+      </div>
+    </div>
+    <div class="rack" id="rack"></div>
+  </div>
+
+  <div class="wrap">
+    <section class="specs" id="specs"></section>
+
+    <section class="global">
+      <div class="gtitle">How to read the feasibility badges</div>
+      <div class="legend">
+        <div class="leg"><span class="badge b-native">NATIVE</span><p>Built into Watch Face Format itself and drawn by a mechanism named in the row — TimeText, PartText tokens, alpha-gate Transforms, arc fills, the seconds Sweep. Ships in the face with no dependencies.</p></div>
+        <div class="leg"><span class="badge b-provider">PROVIDER</span><p>Data arrives through standard Wear OS complication providers. Defaults are restricted to the WFF v1 system-provider list; heart-rate and weather can be user-added but can never be a default.</p></div>
+        <div class="leg"><span class="badge b-sim">SIMULATED</span><p>Shown live in this prototype with generated values so you can judge the design. The real face binds the same slot to a real provider. Nothing renders here that the real WFF face couldn't draw.</p></div>
+        <div class="leg"><span class="badge b-custom">CUSTOM</span><p>Would need our own complication provider or companion app. In LEDGER this badge appears only on optional, non-signature extras — no face depends on one to ship.</p></div>
+      </div>
+      <p style="margin-top:14px;font-family:var(--mono);font-size:11px;color:#efd47f;letter-spacing:.04em">⚠ build cost — rows carrying this note are possible-but-costly: the mechanism is real, but it multiplies elements or needs one dedicated on-wrist verification round. Costed here so nothing is discovered after building.</p>
+    </section>
+
+    <section class="global">
+      <div class="gtitle">Designed inside the format — the walls LEDGER was built against</div>
+      <div class="walls">
+        <div class="wall"><b><s>Letter-spaced, airy numerals</s></b><p>WFF fonts have no letterSpacing attribute. <em>So every face sets type tight</em> — the aesthetic is dense masthead lockups, not tracked-out captions. (Spacing separate PartText glyphs by hand is possible but costs one element per glyph; not used anywhere.)</p></div>
+        <div class="wall"><b><s>Flip / slide / fade digit transitions</s></b><p>No vector property animation and no time-since-wake source exist. <em>Digits change by instant substitution</em>, exactly as WFF renders them. The only motion in the series: the native seconds Sweep and proven data-driven arc fills.</p></div>
+        <div class="wall"><b><s>Arbitrary rendered words</s></b><p>String-literal Template parameters fail at runtime (numeric %d only). <em>Every word on these dials is either a native token ([DAY_OF_WEEK_S], [MONTH_S], [AMPM_STRING]), provider text, or static &lt;Text&gt;</em> — which is why BREVIER's grammar is a fixed grid of static words, lit by gates.</p></div>
+        <div class="wall"><b><s>Colour logic in colour attributes</s></b><p>No ternaries in any colour attribute, and a ColorConfiguration selection can never be branched on. <em>Every colour-by-state element ships as duplicated copies alpha-gated on a Boolean/List config</em> — the pattern that fixed Paper Dawn in Series 01.</p></div>
+        <div class="wall"><b><s>Per-digit arithmetic (h % 12 tricks)</s></b><p>The % operator died silently on-wrist in Series 01 and stays shelved. <em>No face here splits digits by modulo</em>; hour mapping uses paired equality gates or the [HOUR_1_12] token (verified against the XSD before build).</p></div>
+        <div class="wall"><b><s>Glow, blur and blend modes on type</s></b><p>Blend modes are WFF v3+, and text has no filter pipeline. <em>LEDGER's type is flat by design</em> — crisp ink, no halos. Depth comes from draw order and colour roles.</p></div>
+        <div class="wall"><b><s>One-tap layout presets (v1)</s></b><p>Flavors are WFF v2+. The presets in this simulator correspond on-watch to saved slot/toggle states in the system editor (every slot can be set Empty). <em>Staying v1 keeps Wear OS 4 devices; Flavors can arrive later as a v2 refresh without redesign.</em></p></div>
+        <div class="wall"><b><s>Giant black glyphs in always-on</s></b><p>Ambient must stay ≤15% lit pixels. <em>Every AOD variant here is a structural thin-weight twin</em> (base alpha 0 + Variant AMBIENT 255 — the exact Series 01 pattern) in fixed light ink, so even light themes stay readable on the black ambient canvas.</p></div>
+      </div>
+    </section>
+
+    <section class="global">
+      <div class="gtitle">Series roadmap — five categories, twenty-five single-face APKs</div>
+      <div class="roadmap">
+        <div class="road"><span class="n">SERIES 01 · BUILDING</span><b>ARCLIGHT</b><p>Arcs &amp; curves. Solstice + Pulsar shipped as standalone APKs.</p></div>
+        <div class="road now"><span class="n">SERIES 02 · THIS PROTOTYPE</span><b>LEDGER</b><p>Typographic dials — the numerals are the face.</p></div>
+        <div class="road"><span class="n">SERIES 03 · QUEUED</span><b>ARMATURE</b><p>Mechanical instruments, skeletons and gauges.</p></div>
+        <div class="road"><span class="n">SERIES 04 · QUEUED</span><b>WILDER</b><p>Nature, weather and organic slow motion.</p></div>
+        <div class="road"><span class="n">SERIES 05 · QUEUED</span><b>AFTERGLOW</b><p>Retro-digital light: LCD, phosphor and neon.</p></div>
+      </div>
+    </section>
+
+    <section class="global">
+      <div class="gtitle">About this prototype</div>
+      <div class="protonote">
+        This page is a <b>design simulator, not a build</b>. The clock is your real local time and all complication values are generated placeholders. No Wear OS project, APK or production code exists for LEDGER yet — that is a deliberate Phase-1 gate. Unlike a normal mock-up, this simulator is <b>feasibility-locked</b>: dial text carries no letter-spacing, digits never animate, colours never blend, and every rendered element corresponds to a named WFF v1 mechanism already proven on a real watch in Series 01. If it renders here, it can ship.
+      </div>
+    </section>
+
+    <footer>
+      <div>
+        <div class="f1">Fable · Led<em>ger</em></div>
+        <p>SERIES 02 · PHASE 1 DESIGN PROTOTYPE · 2026</p>
+      </div>
+      <p>PIXEL WATCH &amp; GALAXY WATCH · WATCH FACE FORMAT V1 · DESIGNED IN THE BROWSER, HONEST ABOUT THE WATCH</p>
+    </footer>
+  </div>
+</main>
+
+<div id="toast"></div>
+<script>
+'use strict';
+/* =========================================================
+   LEDGER — Series 02 · Fable Watch Faces
+   Phase-1 interactive design prototype. Browser-only.
+   Feasibility-locked: dial renderers draw ONLY what WFF v1
+   can draw with mechanisms proven on-wrist in Series 01.
+   ========================================================= */
+
+const $ = s => document.querySelector(s);
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const pad2 = n => String(n).padStart(2,'0');
+const fmtInt = n => Math.round(n).toLocaleString('en-US');
+const DAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+
+/* angle system: 0° = 12 o'clock, clockwise */
+function pol(cx, cy, r, a){
+  const t = (a - 90) * Math.PI / 180;
+  return [cx + r*Math.cos(t), cy + r*Math.sin(t)];
+}
+function arcPath(cx, cy, r, a0, a1){
+  let sweep = clamp(a1 - a0, 0.05, 359.9);
+  const [x0,y0] = pol(cx,cy,r,a0), [x1,y1] = pol(cx,cy,r,a0+sweep);
+  const large = sweep > 180 ? 1 : 0;
+  return `M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+}
+function isoWeek(d){
+  const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  const y0 = new Date(Date.UTC(t.getUTCFullYear(),0,1));
+  return Math.ceil((((t - y0) / 86400000) + 1) / 7);
+}
+function dayOfYear(d){
+  return Math.floor((d - new Date(d.getFullYear(),0,0)) / 86400000);
+}
+
+/* ---------- icon library (24-box line fragments) ---------- */
+const ICONS = {
+  steps:'<ellipse cx="8.2" cy="7.2" rx="2.9" ry="4.3"/><path d="M8.2 14.6v2.4"/><ellipse cx="15.8" cy="12.4" rx="2.9" ry="4.3"/><path d="M15.8 19.8v1.2"/>',
+  hr:'<path d="M12 20.5C7.4 16.8 3.5 13.4 3.5 9.3 3.5 6.6 5.5 4.5 8 4.5c1.5 0 3 .7 4 2 1-1.3 2.5-2 4-2 2.5 0 4.5 2.1 4.5 4.8 0 4.1-3.9 7.5-8.5 11.2Z"/>',
+  weather:'<circle cx="8" cy="8.2" r="2.7"/><path d="M8 3.4v1.3M3.2 8.2h1.3M4.8 5l1 1"/><path d="M10.6 20h6.1a3.3 3.3 0 0 0 .6-6.6A4.6 4.6 0 0 0 8.7 12 3.6 3.6 0 0 0 10.6 20Z"/>',
+  battery:'<rect x="3" y="8" width="15" height="9" rx="2.2"/><path d="M20.6 11v3M6.6 11.5v2M9.6 11.5v2"/>',
+  calendar:'<rect x="3.8" y="5.5" width="16.4" height="15" rx="2.6"/><path d="M3.8 10.4h16.4M9 3.4v4M15 3.4v4"/>',
+  date:'<rect x="3.8" y="5.5" width="16.4" height="15" rx="2.6"/><path d="M3.8 10.4h16.4M9 3.4v4M15 3.4v4"/><circle cx="12" cy="15.2" r="1.3"/>',
+  alarm:'<circle cx="12" cy="13.6" r="6.8"/><path d="M12 10v3.8l2.6 1.6M4.6 5.4 7 3.6M19.4 5.4 17 3.6"/>',
+  worldclock:'<circle cx="12" cy="12" r="8.4"/><path d="M3.6 12h16.8M12 3.6c2.5 2.3 3.8 5.1 3.8 8.4s-1.3 6.1-3.8 8.4c-2.5-2.3-3.8-5.1-3.8-8.4s1.3-6.1 3.8-8.4Z"/>',
+  sunrise:'<path d="M3.5 18.5h17M7.2 18.5a4.8 4.8 0 0 1 9.6 0M12 5.2v3M5.8 8.8l1.4 1.4M18.2 8.8l-1.4 1.4"/>',
+  calories:'<path d="M12 21.2c-3.5 0-6.1-2.4-6.1-5.8 0-2.3 1.3-4 2.5-5.5 1.2-1.4 2.2-3 2.1-5.5 2.7 1.6 4.4 3.9 4.8 6.2.6-.5 1.1-1.3 1.4-2.3 1.5 1.6 2.5 3.6 2.5 5.8 0 3.4-2.7 7.1-7.2 7.1Z"/>',
+  distance:'<circle cx="6.2" cy="18.6" r="2.4"/><circle cx="17.8" cy="5.4" r="2.4"/><path d="M8.8 18.6h6a3.4 3.4 0 0 0 0-6.8H9.2a3.4 3.4 0 0 1 0-6.8h6.2"/>',
+  notif:'<path d="M6.4 15.8V11a5.6 5.6 0 0 1 11.2 0v4.8l1.7 2.4H4.7l1.7-2.4Z"/><path d="M10.2 20.6a2 2 0 0 0 3.6 0"/>'
+};
+function ic(name, x, y, s, col, sw, op){
+  const k = s/24;
+  return `<g transform="translate(${(x-s/2).toFixed(1)} ${(y-s/2).toFixed(1)}) scale(${k.toFixed(3)})" fill="none" stroke="${col}" stroke-width="${(sw||2)/k}" stroke-linecap="round" stroke-linejoin="round" opacity="${op==null?1:op}">${ICONS[name]||''}</g>`;
+}
+
+/* ---------- simulated data (prototype only) ---------- */
+const sim = {
+  steps: 6432, stepGoal: 10000, hrv: 68, batt: 78, temp: 24,
+  cal: 412, dist: 4.6, notif: 3,
+  eventTitle: 'Design review', eventH: 14.5,
+  alarmH: 6.5, sunriseH: 6.0, sunsetH: 18.0,
+  wcCity: 'NYC', wcOffset: -9.5
+};
+function shuffleSim(){
+  sim.steps = 2200 + Math.floor(Math.random()*9500);
+  sim.hrv = 54 + Math.floor(Math.random()*68);
+  sim.batt = 18 + Math.floor(Math.random()*80);
+  sim.temp = 9 + Math.floor(Math.random()*26);
+  sim.cal = 150 + Math.floor(Math.random()*600);
+  sim.dist = +(1 + Math.random()*9).toFixed(1);
+  sim.notif = Math.floor(Math.random()*6);
+  const ev = [['Design review',14.5],['Standup',9.5],['1:1 with Maya',11.0],['Flight BLR → DEL',17.75],['Gym',18.5]];
+  const e = ev[Math.floor(Math.random()*ev.length)];
+  sim.eventTitle = e[0]; sim.eventH = e[1];
+}
+setInterval(()=>{ /* gentle live drift */
+  sim.hrv = clamp(sim.hrv + Math.round(Math.random()*4-2), 52, 148);
+  if(Math.random() < .5) sim.steps += Math.floor(Math.random()*9);
+}, 2600);
+
+function fmtClock(hf, h24){
+  let h = Math.floor(hf), m = Math.round((hf - h)*60);
+  if(m === 60){ h++; m = 0; }
+  if(h24) return pad2(h) + ':' + pad2(m);
+  const hh = ((h + 11) % 12) + 1;
+  return hh + ':' + pad2(m) + (h < 12 ? 'a' : 'p');
+}
+function dateShort(){ const d = new Date(); return DAYS[d.getDay()] + ' ' + d.getDate(); }
+
+/* ---------- complication registry ----------
+   tab = the 4–5 char row label PICA prints (from [COMPLICATION.TITLE] on the watch) */
+const COMPS = {
+  steps:     { name:'Steps',        tab:'STEPS', icon:'steps',      wff:'RANGED_VALUE',  tap:'the fitness app', get:p=>({txt:fmtInt(sim.steps), sub:'STEPS', frac:clamp(sim.steps/sim.stepGoal,0,1)}) },
+  hr:        { name:'Heart rate',   tab:'PULSE', icon:'hr',         wff:'RANGED_VALUE',  tap:'the heart-rate app', get:p=>({txt:String(sim.hrv), sub:'BPM', frac:clamp((sim.hrv-40)/140,0,1)}) },
+  weather:   { name:'Weather',      tab:'WTHR',  icon:'weather',    wff:'SHORT_TEXT + ICON', tap:'the weather app', get:p=>({txt:sim.temp+'°', sub:'PARTLY CLOUDY', frac:null}) },
+  battery:   { name:'Watch battery',tab:'BATT',  icon:'battery',    wff:'RANGED_VALUE',  tap:'battery settings', get:p=>({txt:sim.batt+'%', sub:'BATTERY', frac:sim.batt/100}) },
+  calendar:  { name:'Next event',   tab:'EVENT', icon:'calendar',   wff:'SHORT/LONG_TEXT', tap:'the event in Calendar', get:p=>({txt:fmtClock(sim.eventH,p.h24), sub:sim.eventTitle.toUpperCase(), frac:null}) },
+  alarm:     { name:'Next alarm',   tab:'ALARM', icon:'alarm',      wff:'SHORT_TEXT',    tap:'Clock — alarms', get:p=>({txt:fmtClock(sim.alarmH,p.h24), sub:'ALARM', frac:null}) },
+  worldclock:{ name:'World clock',  tab:'WORLD', icon:'worldclock', wff:'NATIVE TZ CLOCK', tap:'Clock — world clock', get:p=>{
+      const d = new Date(Date.now() + sim.wcOffset*3600000);
+      const h = d.getHours(), m = d.getMinutes();
+      return {txt: p.h24 ? pad2(h)+':'+pad2(m) : (((h+11)%12)+1)+':'+pad2(m), sub:sim.wcCity, frac:null}; } },
+  sunrise:   { name:'Sunrise / sunset', tab:'SUNRS', icon:'sunrise', wff:'SHORT_TEXT',   tap:'the weather provider', get:p=>({txt:fmtClock(sim.sunriseH,p.h24), sub:'SET '+fmtClock(sim.sunsetH,p.h24).toUpperCase(), frac:null}) },
+  calories:  { name:'Calories',     tab:'KCAL',  icon:'calories',   wff:'RANGED_VALUE',  tap:'the fitness app', get:p=>({txt:fmtInt(sim.cal), sub:'KCAL', frac:clamp(sim.cal/600,0,1)}) },
+  distance:  { name:'Distance',     tab:'DIST',  icon:'distance',   wff:'RANGED_VALUE',  tap:'the fitness app', get:p=>({txt:sim.dist.toFixed(1), sub:'KM', frac:clamp(sim.dist/8,0,1)}) },
+  notif:     { name:'Notifications',tab:'NOTIF', icon:'notif',      wff:'SHORT_TEXT',    tap:'the notification stream', get:p=>({txt:String(sim.notif), sub:'UNREAD', frac:null}) },
+  date:      { name:'Date',         tab:'DATE',  icon:'date',       wff:'NATIVE',        tap:'Calendar', get:p=>({txt:dateShort(), sub:MONTHS[new Date().getMonth()], frac:null}) }
+};
+
+/* =========================================================
+   FACE DEFINITIONS
+   ========================================================= */
+const GEN = ['steps','hr','weather','battery','calendar','calories','distance','notif','alarm','worldclock','sunrise'];
+
+const FACES = [
+{
+  id:'canon', name:'CANON', role:'Masthead · hero',
+  accent:'#e05252',
+  tagline:'The front page of your wrist — an ultra-black serif hour stacked over hairline italic minutes, set like a newspaper masthead.',
+  themes:[
+    {n:'Broadsheet', d:'Warm print black, off-white ink, masthead red', c:{bg:'#100e0c',ink:'#f0e9dc',acc:'#e05252',mut:'#8a8172',aa:'#c9c0ae'}, sw:['#e05252','#100e0c']},
+    {n:'Ivory Edition', d:'Light dial — ink on cream stock, carmine rules', c:{bg:'#f2ecdf',ink:'#1d1913',acc:'#c43d2e',mut:'#97907f',aa:'#c9c0ae'}, sw:['#c43d2e','#f2ecdf']},
+    {n:'Gilt Folio', d:'Gold leaf on black — the dress edition', c:{bg:'#0b0a08',ink:'#ecdfc0',acc:'#d4b060',mut:'#857a5e',aa:'#c4b68c'}, sw:['#d4b060','#0b0a08']},
+    {n:'Midnight Print', d:'Cool slate ink with a steel-blue accent', c:{bg:'#0c1018',ink:'#e8edf4',acc:'#7fa8e0',mut:'#6d7889',aa:'#a7b8cc'}, sw:['#7fa8e0','#0c1018']},
+    {n:'Vermilion Plate', d:'Warm dark stock, hot vermilion numerals', c:{bg:'#160b09',ink:'#f4e6da',acc:'#ff6b4a',mut:'#96796c',aa:'#d0a08c'}, sw:['#ff6b4a','#160b09']}
+  ],
+  slots:[
+    {id:'m1', label:'Margin note · left',   pos:'bottom margin row', allowed:GEN, anchor:[140,432]},
+    {id:'m2', label:'Margin note · centre', pos:'bottom margin row', allowed:GEN, anchor:[240,432]},
+    {id:'m3', label:'Margin note · right',  pos:'bottom margin row', allowed:GEN, anchor:[340,432]}
+  ],
+  configOrder:['Bare','Standard','Full'],
+  defCfg:'Standard',
+  configs:{
+    'Bare':     {m1:null,m2:null,m3:null},
+    'Standard': {m1:null,m2:'steps',m3:null},
+    'Full':     {m1:'weather',m2:'steps',m3:'battery'}
+  },
+  options:[
+    {id:'redRules', label:'Accent rules', def:true, note:'masthead rules in accent · off = muted'},
+    {id:'italicMin', label:'Italic minutes', def:true, note:'off = upright hairline minutes'},
+    {id:'folio', label:'Folio date line', def:true, note:'TUE · 11 JUL above the masthead'},
+    {id:'secCounter', label:'Seconds folio', def:false, note:'tiny seconds under the minutes · interactive only'}
+  ]
+},
+{
+  id:'paragon', name:'PARAGON', role:'Poster · dress',
+  accent:'#4f74ff',
+  tagline:'Two enormous monospaced numerals in deliberate collision — the hour in ink, the minutes in colour, locked up like a printed poster.',
+  themes:[
+    {n:'Klein', d:'International Klein Blue over warm off-white ink', c:{bg:'#0a0d18',ink:'#e9e6dd',acc:'#4f74ff',mut:'#5c6272',aa:'#a8b4cc'}, sw:['#4f74ff','#0a0d18']},
+    {n:'Signal', d:'Light dial — letterpress ink and signal red on bone', c:{bg:'#ece7db',ink:'#17140f',acc:'#e0392e',mut:'#9a927f',aa:'#c9c0ae'}, sw:['#e0392e','#ece7db']},
+    {n:'Acid', d:'Chartreuse over grey ink — the studio poster', c:{bg:'#0c0c0a',ink:'#d8d5c8',acc:'#c8f05a',mut:'#5f5f54',aa:'#b0b09a'}, sw:['#c8f05a','#0c0c0a']},
+    {n:'Rose Riso', d:'Risograph pink on aubergine black', c:{bg:'#14090f',ink:'#f2e3e8',acc:'#ff5f8f',mut:'#7a5f6b',aa:'#cc9cb0'}, sw:['#ff5f8f','#14090f']},
+    {n:'Duotone Steel', d:'Cold cyan over graphite — the night print', c:{bg:'#0e1214',ink:'#dde6ea',acc:'#58c8d8',mut:'#5c6a70',aa:'#9cbcc4'}, sw:['#58c8d8','#0e1214']}
+  ],
+  slots:[
+    {id:'cTR', label:'Corner · upper right', pos:'clear of the lockup', allowed:['battery','steps','hr','notif','calories','weather'], anchor:[382,120]},
+    {id:'cBL', label:'Corner · lower left',  pos:'clear of the lockup', allowed:['battery','steps','hr','notif','calories','weather'], anchor:[98,388]}
+  ],
+  configOrder:['Poster','Detail','Full'],
+  defCfg:'Poster',
+  configs:{
+    'Poster': {cTR:null,cBL:null},
+    'Detail': {cTR:'battery',cBL:null},
+    'Full':   {cTR:'battery',cBL:'steps'}
+  },
+  options:[
+    {id:'date', label:'Date line', def:true, note:'small folio at the top'},
+    {id:'secDot', label:'Seconds satellite', def:false, note:'native Sweep dot on the rim · interactive only'},
+    {id:'cardinals', label:'Cardinal ticks', def:false, note:'four static hairline ticks'}
+  ]
+},
+{
+  id:'pica', name:'PICA', role:'Ledger sheet · data',
+  accent:'#58c98a',
+  tagline:'The namesake — a monospaced ledger where your complications are the line items. Time is row one; everything else is bookkeeping.',
+  themes:[
+    {n:'Green Ledger', d:'Account-book green on near black', c:{bg:'#0a100c',ink:'#dcefe2',acc:'#58c98a',mut:'#5f7a6a',aa:'#9cc4ac'}, sw:['#58c98a','#0a100c']},
+    {n:'Manila', d:'Light dial — folder stock, ochre stamps', c:{bg:'#efe6d2',ink:'#201a10',acc:'#b8722d',mut:'#93876e',aa:'#c9b894'}, sw:['#b8722d','#efe6d2']},
+    {n:'Carbon Copy', d:'Graphite sheet with violet carbon ink', c:{bg:'#0d0d10',ink:'#e2e4ea',acc:'#8f7ff0',mut:'#6b6b80',aa:'#b0aed0'}, sw:['#8f7ff0','#0d0d10']},
+    {n:'Redline Audit', d:'Warm black, auditor red entries', c:{bg:'#100c0c',ink:'#f0e4e0',acc:'#ef5350',mut:'#8a6f6c',aa:'#cfa39e'}, sw:['#ef5350','#100c0c']},
+    {n:'Phosphor', d:'Terminal green — the night-shift ledger', c:{bg:'#060906',ink:'#d8f2dc',acc:'#54e07f',mut:'#567a5e',aa:'#8fd0a0'}, sw:['#54e07f','#060906']}
+  ],
+  slots:[
+    {id:'r1', label:'Ledger row 1', pos:'sheet row · below the date', allowed:GEN, anchor:[240,262]},
+    {id:'r2', label:'Ledger row 2', pos:'sheet row', allowed:GEN, anchor:[240,300]},
+    {id:'r3', label:'Ledger row 3', pos:'sheet row', allowed:GEN, anchor:[240,338]},
+    {id:'r4', label:'Ledger row 4', pos:'sheet row', allowed:GEN, anchor:[240,376]}
+  ],
+  configOrder:['Compact','Standard','Full'],
+  defCfg:'Standard',
+  configs:{
+    'Compact':  {r1:'steps',r2:'battery',r3:null,r4:null},
+    'Standard': {r1:'steps',r2:'battery',r3:'calendar',r4:null},
+    'Full':     {r1:'steps',r2:'hr',r3:'calendar',r4:'weather'}
+  },
+  options:[
+    {id:'weekNo', label:'Week number', def:true, note:'W28 in the header · [WEEK_IN_YEAR]'},
+    {id:'secs', label:'Seconds entry', def:true, note:'live :ss beside the time · interactive only'},
+    {id:'leaders', label:'Dotted leaders', def:true, note:'static dot strips between label and value'},
+    {id:'elapsed', label:'Day-elapsed row', def:true, note:'ELAPSED nn% — the day as a ledger total'}
+  ]
+},
+{
+  id:'brevier', name:'BREVIER', role:'Word clock · calm',
+  accent:'#ffc857',
+  tagline:'The time, set in words — a fixed grid of static type where the true sentence lights up. IT IS TWENTY FIVE PAST NINE.',
+  themes:[
+    {n:'Chalk', d:'Soft white words, brass hour, board black', c:{bg:'#101012',ink:'#ecebe6',acc:'#ffc857',mut:'#3f3f46',aa:'#c4c2b4'}, sw:['#ffc857','#101012']},
+    {n:'Paper', d:'Light dial — ink words on warm paper', c:{bg:'#f1ede3',ink:'#232014',acc:'#d06034',mut:'#cfc7b2',aa:'#c9c0ae'}, sw:['#d06034','#f1ede3']},
+    {n:'Slate Blue', d:'Night-sky slate with a moonlit hour', c:{bg:'#0d1220',ink:'#e6ecf6',acc:'#6fa8ff',mut:'#333d54',aa:'#a7b8cc'}, sw:['#6fa8ff','#0d1220']},
+    {n:'Moss', d:'Forest black, spring-green hour word', c:{bg:'#0c110c',ink:'#e4eede',acc:'#8fd06a',mut:'#39463a',aa:'#a8c49a'}, sw:['#8fd06a','#0c110c']},
+    {n:'Plum', d:'Deep plum with an orchid hour word', c:{bg:'#130d16',ink:'#f0e6f4',acc:'#d98fff',mut:'#443a4e',aa:'#c0a4cc'}, sw:['#d98fff','#130d16']}
+  ],
+  slots:[
+    {id:'head', label:'Header note', pos:'top centre, above the grid', allowed:['battery','steps','weather','notif','alarm','worldclock'], anchor:[240,64]},
+    {id:'foot', label:'Footnote line', pos:'bottom centre, below the grid', allowed:GEN, anchor:[240,438]}
+  ],
+  configOrder:['Words','Annotated','Full'],
+  defCfg:'Annotated',
+  configs:{
+    'Words':     {head:null,foot:null},
+    'Annotated': {head:null,foot:'steps'},
+    'Full':      {head:'battery',foot:'steps'}
+  },
+  options:[
+    {id:'ghost', label:'Ghost grid', def:true, note:'the full word grid stays faintly visible'},
+    {id:'accentHour', label:'Accent hour word', def:true, note:'off = hour word in ink like the rest'},
+    {id:'exact', label:'Exact-time corner', def:true, note:'small h:mm — replaces QLOCKTWO minute dots (no % math in WFF)'}
+  ]
+},
+{
+  id:'nonpareil', name:'NONPAREIL', role:'Numeral dial · classic',
+  accent:'#d4b878',
+  tagline:'The one analog face — twelve oversized didone numerals are the dial furniture, read by slim typographic hands.',
+  themes:[
+    {n:'Onyx Plate', d:'Engraved gold numerals on onyx', c:{bg:'#0b0a09',ink:'#ece2cc',acc:'#d4b878',mut:'#6f665a',aa:'#c4b68c'}, sw:['#d4b878','#0b0a09']},
+    {n:'Bone China', d:'Light dial — porcelain, ink numerals, carmine seconds', c:{bg:'#efeae0',ink:'#211c14',acc:'#b02f24',mut:'#a49a86',aa:'#c9c0ae'}, sw:['#b02f24','#efeae0']},
+    {n:'Carmine', d:'Black lacquer with carmine-tipped hands', c:{bg:'#120a0c',ink:'#f0e0dc',acc:'#d4576a',mut:'#7a5f64',aa:'#cc9ca4'}, sw:['#d4576a','#120a0c']},
+    {n:'Verdigris', d:'Aged bronze-green on deep teal black', c:{bg:'#0a1210',ink:'#dcece4',acc:'#5fc2a0',mut:'#59706a',aa:'#9cc4b4'}, sw:['#5fc2a0','#0a1210']},
+    {n:'Ultramarine', d:'Ink-blue night dial, powder-blue numerals', c:{bg:'#0a0e1c',ink:'#e4e9f4',acc:'#7f9dff',mut:'#5c667e',aa:'#a7b8cc'}, sw:['#7f9dff','#0a0e1c']}
+  ],
+  slots:[
+    {id:'dateWin', label:'Date window', pos:'above 6 o’clock', allowed:['date'], anchor:[240,314]},
+    {id:'innerL', label:'Inner · 9 side', pos:'inside the numeral ring', allowed:['battery','steps','hr','notif','calories'], anchor:[140,240]},
+    {id:'innerR', label:'Inner · 3 side', pos:'inside the numeral ring', allowed:['battery','steps','hr','notif','calories'], anchor:[340,240]}
+  ],
+  configOrder:['Dress','Balanced','Full'],
+  defCfg:'Dress',
+  configs:{
+    'Dress':    {dateWin:'date',innerL:null,innerR:null},
+    'Balanced': {dateWin:'date',innerL:null,innerR:'battery'},
+    'Full':     {dateWin:'date',innerL:'steps',innerR:'battery'}
+  },
+  options:[
+    {id:'hourAccent', label:'Accent current hour', def:true, note:'12 gated numeral copies · one gate each'},
+    {id:'secNeedle', label:'Seconds needle', def:true, note:'native Sweep · hidden in AOD'},
+    {id:'minuteTrack', label:'Minute dot track', def:false, note:'60 static dots (Pulsar-proven static ring)'}
+  ]
+}
+];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const state = {
+  f: 0,
+  theme: {},
+  mode: 'int',            // 'int' | 'aod'
+  cfg: {},
+  cur: {},
+  opts: {},
+  prefs: { h24:false, sec:'sweep', clean:false },   // sec: 'sweep' | 'tick' | 'off'  (maps to WFF Sweep / Tick / hidden)
+  sel: null,
+  showMap: false
+};
+FACES.forEach(f=>{
+  state.theme[f.id] = 0;
+  state.cfg[f.id] = f.defCfg;
+  state.cur[f.id] = Object.assign({}, f.configs[f.defCfg]);
+  state.opts[f.id] = {};
+  f.options.forEach(o=> state.opts[f.id][o.id] = o.def);
+});
+
+/* ---------- toast ---------- */
+let toastTimer = null;
+function toast(msg){
+  const t = $('#toast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 3000);
+}
+
+/* ---------- context builder ---------- */
+function makeCtx(fi, forThumb){
+  const face = FACES[fi];
+  const th = face.themes[state.theme[face.id]].c;
+  const d = new Date();
+  const aod = !forThumb && state.mode === 'aod';
+  const clean = !forThumb && state.prefs.clean;
+  const slots = {};
+  face.slots.forEach(s=>{
+    const key = state.cur[face.id][s.id];
+    if(key && !clean && COMPS[key]) slots[s.id] = { key, comp: COMPS[key], v: COMPS[key].get(state.prefs) };
+    else slots[s.id] = null;
+  });
+  return {
+    face, th, d,
+    idp: forThumb ? 't' + fi + '-' : 'm-',
+    t: { h: d.getHours(), m: d.getMinutes(), s: d.getSeconds(), ms: d.getMilliseconds() },
+    aod, clean, slots,
+    prefs: state.prefs,
+    sec: (aod || forThumb) ? 'off' : state.prefs.sec,
+    opts: state.opts[face.id],
+    sel: forThumb ? null : state.sel,
+    showMap: forThumb ? false : state.showMap,
+    thumb: !!forThumb
+  };
+}
+
+/* ---------- hit overlay (slot map + tap targets) ---------- */
+function hitOverlay(ctx){
+  if(ctx.thumb) return '';
+  let s = '';
+  ctx.face.slots.forEach((sd, i)=>{
+    const [x,y] = sd.anchor;
+    const active = !!ctx.slots[sd.id];
+    if(ctx.showMap){
+      const on = active;
+      s += `<g opacity="${on?1:.45}">
+        <circle cx="${x}" cy="${y}" r="26" fill="none" stroke="${on?'#ffd479':'#8f8877'}" stroke-width="1.4" stroke-dasharray="4 5"/>
+        <circle cx="${x}" cy="${y}" r="10.5" fill="#0b0a09" stroke="${on?'#ffd479':'#8f8877'}" stroke-width="1.2"/>
+        <text x="${x}" y="${y+3.8}" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="${on?'#ffd479':'#b8b0a0'}">${i+1}</text></g>`;
+    }
+    if(ctx.sel === sd.id){
+      s += `<circle cx="${x}" cy="${y}" r="30" fill="none" stroke="#ffffff" stroke-opacity=".85" stroke-width="1.6" stroke-dasharray="3 6" stroke-linecap="round"/>`;
+    }
+    if(active || ctx.showMap){
+      s += `<circle cx="${x}" cy="${y}" r="30" fill="rgba(0,0,0,0)" data-slot="${sd.id}" style="cursor:pointer"/>`;
+    }
+  });
+  return s;
+}
+
+/* =========================================================
+   RENDERERS — each returns inner SVG for a 480×480 dial.
+   FEASIBILITY LOCK: no letter-spacing, no filters/glows,
+   no gradients on type, no animated digits. AOD variants
+   use FIXED light inks (#d8d4cc / #8f8877 / #26241f) — the
+   Series-01-proven universal-readable ambient pattern.
+   ========================================================= */
+function T(x,y,s,fill,str,o){
+  o = o || {};
+  return `<text x="${x}" y="${y}" font-size="${s}" fill="${fill}" text-anchor="${o.a||'middle'}" font-family="${o.f||'Inter'}" font-weight="${o.w||500}"${o.i?' font-style="italic"':''}${o.op!=null?` opacity="${o.op}"`:''}>${str}</text>`;
+}
+const AOD_INK = '#d8d4cc', AOD_MUT = '#8f8877', AOD_LINE = '#26241f';
+function mainTime(ctx){
+  const {h,m} = ctx.t, p = ctx.prefs;
+  if(p.h24) return { hh: pad2(h), mm: pad2(m), joined: pad2(h)+':'+pad2(m), ap:'' };
+  const h12 = ((h+11)%12)+1;
+  return { hh: pad2(h12), mm: pad2(m), joined: h12+':'+pad2(m), ap: h<12?'AM':'PM' };
+}
+const R = {};
+
+/* ---------------- CANON — the masthead ---------------- */
+R.canon = function(ctx){
+  const th = ctx.th, tm = mainTime(ctx);
+  if(ctx.aod){
+    /* structural thin twin: Fraunces 300, fixed light inks, folio dropped */
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    s += `<rect x="160" y="112" width="160" height="1.5" fill="${AOD_LINE}"/>`;
+    s += T(240,258,150,AOD_INK,tm.hh,{f:'Fraunces',w:300});
+    s += `<rect x="160" y="290" width="160" height="1.5" fill="${AOD_LINE}"/>`;
+    s += T(240,368,72,AOD_MUT,tm.mm,{f:'Fraunces',w:300,i:true});
+    if(tm.ap) s += T(240,404,12,AOD_MUT,tm.ap,{f:'JetBrains Mono'});
+    return s;
+  }
+  const ruleC = ctx.opts.redRules ? th.acc : th.mut;
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* folio date — [DAY_OF_WEEK_S] · [DAY] [MONTH_S] */
+  if(ctx.opts.folio){
+    s += T(240,84,14,th.mut,DAYS[ctx.d.getDay()]+' · '+ctx.d.getDate()+' '+MONTHS[ctx.d.getMonth()],{f:'JetBrains Mono'});
+  }
+  s += `<rect x="140" y="103" width="200" height="2.5" fill="${ruleC}"/>`;
+  /* AM/PM tag — [AMPM_STRING] gated on [IS_24_HOUR_MODE] */
+  if(tm.ap) s += T(352,140,13,th.mut,tm.ap,{f:'JetBrains Mono',a:'start'});
+  /* the masthead hour — TimeText format="hh", Fraunces Black static TTF */
+  s += T(240,266,190,th.ink,tm.hh,{f:'Fraunces',w:900});
+  s += `<rect x="140" y="291" width="200" height="2.5" fill="${ruleC}"/>`;
+  /* hairline minutes — TimeText format="mm", Fraunces Light (italic optional) */
+  s += T(240,376,96,th.acc,tm.mm,{f:'Fraunces',w:300,i:ctx.opts.italicMin});
+  /* seconds folio (interactive only) */
+  if(ctx.opts.secCounter && ctx.sec!=='off'){
+    s += T(240,406,12,th.mut,'· '+pad2(ctx.t.s)+' ·',{f:'JetBrains Mono'});
+  }
+  /* margin notes */
+  ['m1','m2','m3'].forEach(id=>{
+    const sl = ctx.slots[id]; if(!sl) return;
+    const [x,y] = ctx.face.slots.find(z=>z.id===id).anchor;
+    s += ic(sl.comp.icon, x-((sl.v.txt.length*4.2)+8), y-4.5, 13, th.mut, 2, .9);
+    s += T(x+8, y, 14, th.ink, sl.v.txt, {f:'JetBrains Mono',w:500});
+  });
+  return s;
+};
+
+/* ---------------- PARAGON — the poster lockup ---------------- */
+R.paragon = function(ctx){
+  const th = ctx.th, tm = mainTime(ctx);
+  if(ctx.aod){
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    s += T(184,240,150,AOD_INK,tm.hh,{f:'Space Mono',w:400});
+    s += T(292,356,150,AOD_MUT,tm.mm,{f:'Space Mono',w:400});
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* cardinals — 4 static hairline ticks */
+  if(ctx.opts.cardinals){
+    [[240,18,240,34],[240,446,240,462],[18,240,34,240],[446,240,462,240]].forEach(t=>{
+      s += `<line x1="${t[0]}" y1="${t[1]}" x2="${t[2]}" y2="${t[3]}" stroke="${th.mut}" stroke-width="2"/>`;
+    });
+  }
+  /* folio date */
+  if(ctx.opts.date){
+    s += T(240,62,13,th.mut,DAYS[ctx.d.getDay()]+' '+ctx.d.getDate()+' '+MONTHS[ctx.d.getMonth()],{f:'JetBrains Mono'});
+  }
+  /* the lockup — two static TimeTexts, minute drawn later = on top */
+  s += T(182,262,196,th.ink,tm.hh,{f:'Space Mono',w:700});
+  s += T(296,382,196,th.acc,tm.mm,{f:'Space Mono',w:700});
+  /* AM/PM tag */
+  if(tm.ap) s += T(240,442,12,th.mut,tm.ap,{f:'JetBrains Mono'});
+  /* seconds satellite — native AnalogClock Sweep dot */
+  if(ctx.opts.secDot && ctx.sec!=='off'){
+    const sa = (ctx.t.s + (ctx.sec==='sweep'? ctx.t.ms/1000 : 0))*6;
+    const [ox,oy] = pol(240,240,224,sa);
+    s += `<circle cx="${ox.toFixed(1)}" cy="${oy.toFixed(1)}" r="3" fill="${th.acc}"/>`;
+  }
+  /* corner slots */
+  ['cTR','cBL'].forEach(id=>{
+    const sl = ctx.slots[id]; if(!sl) return;
+    const [x,y] = ctx.face.slots.find(z=>z.id===id).anchor;
+    s += ic(sl.comp.icon, x, y-16, 13, th.mut, 2, .9);
+    s += T(x, y+10, 15, th.ink, sl.v.txt, {f:'Space Mono',w:700});
+  });
+  return s;
+};
+
+/* ---------------- PICA — the ledger sheet ---------------- */
+R.pica = function(ctx){
+  const th = ctx.th, tm = mainTime(ctx);
+  const L = 88, Rx = 392;
+  if(ctx.aod){
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    s += `<rect x="${L}" y="150" width="${Rx-L}" height="1.5" fill="${AOD_LINE}"/>`;
+    s += T(L,246,74,AOD_INK,tm.joined,{f:'IBM Plex Mono',w:300,a:'start'});
+    if(tm.ap) s += T(Rx,246,15,AOD_MUT,tm.ap,{f:'IBM Plex Mono',a:'end'});
+    s += `<rect x="${L}" y="276" width="${Rx-L}" height="1.5" fill="${AOD_LINE}"/>`;
+    s += T(L,318,18,AOD_MUT,DAYS[ctx.d.getDay()]+' '+ctx.d.getDate()+' '+MONTHS[ctx.d.getMonth()],{f:'IBM Plex Mono',a:'start'});
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* header */
+  s += T(L,74,12,th.mut,'LEDGER · Nº 02',{f:'IBM Plex Mono',a:'start'});
+  if(ctx.opts.weekNo) s += T(Rx,74,12,th.acc,'W'+isoWeek(ctx.d),{f:'IBM Plex Mono',w:600,a:'end'});
+  s += `<rect x="${L}" y="88" width="${Rx-L}" height="2" fill="${th.acc}"/>`;
+  /* TIME row — TimeText h:mm; :ss is a separate interactive-only element */
+  s += T(L,172,78,th.ink,tm.joined,{f:'IBM Plex Mono',w:600,a:'start'});
+  if(ctx.opts.secs && ctx.sec!=='off') s += T(Rx,146,17,th.acc,':'+pad2(ctx.t.s),{f:'IBM Plex Mono',w:500,a:'end'});
+  if(tm.ap) s += T(Rx,172,15,th.mut,tm.ap,{f:'IBM Plex Mono',a:'end'});
+  s += `<rect x="${L}" y="194" width="${Rx-L}" height="1.5" fill="${th.mut}" opacity=".4"/>`;
+  /* DATE row */
+  s += T(L,228,20,th.ink,DAYS[ctx.d.getDay()]+' '+ctx.d.getDate()+' '+MONTHS[ctx.d.getMonth()],{f:'IBM Plex Mono',w:500,a:'start'});
+  s += T(Rx,228,13,th.mut,'D'+dayOfYear(ctx.d),{f:'IBM Plex Mono',a:'end'});
+  /* complication rows */
+  const leader = (x0,x1,y)=> ctx.opts.leaders
+    ? `<line x1="${x0}" y1="${y-4}" x2="${x1}" y2="${y-4}" stroke="${th.mut}" stroke-width="1.5" stroke-dasharray="1.5 5" opacity=".55"/>` : '';
+  ['r1','r2','r3','r4'].forEach(id=>{
+    const sl = ctx.slots[id]; if(!sl) return;
+    const y = ctx.face.slots.find(z=>z.id===id).anchor[1] + 5;
+    s += T(L,y,15,th.mut,sl.comp.tab,{f:'IBM Plex Mono',a:'start'});
+    s += leader(L+62, 296, y);
+    s += T(346,y,18,th.ink,sl.v.txt,{f:'IBM Plex Mono',w:600,a:'end'});
+    if(sl.v.frac!=null){
+      /* proven mini ring-fill (Pulsar satellite pattern) */
+      s += `<circle cx="372" cy="${y-6}" r="9" fill="none" stroke="${th.mut}" stroke-width="2.5" opacity=".35"/>`;
+      if(sl.v.frac>0.003) s += `<path d="${arcPath(372,y-6,9,0,sl.v.frac*360)}" fill="none" stroke="${th.acc}" stroke-width="2.5" stroke-linecap="round"/>`;
+    } else {
+      s += ic(sl.comp.icon, 372, y-6, 13, th.acc, 2, .9);
+    }
+  });
+  /* elapsed row */
+  if(ctx.opts.elapsed){
+    const frac = (ctx.t.h*60+ctx.t.m)/1440;
+    const y = 419;
+    s += T(L,y,15,th.mut,'ELAPSED',{f:'IBM Plex Mono',a:'start'});
+    s += leader(L+78, 296, y);
+    s += T(346,y,18,th.acc,Math.floor(frac*100)+'%',{f:'IBM Plex Mono',w:600,a:'end'});
+    s += `<circle cx="372" cy="${y-6}" r="9" fill="none" stroke="${th.mut}" stroke-width="2.5" opacity=".35"/>`;
+    if(frac>0.003) s += `<path d="${arcPath(372,y-6,9,0,frac*360)}" fill="none" stroke="${th.acc}" stroke-width="2.5" stroke-linecap="round"/>`;
+  }
+  return s;
+};
+
+/* ---------------- BREVIER — the word clock ---------------- */
+/* fixed static grid — every word is static <Text>; active copies are
+   accent/ink duplicates alpha-gated by ONE two-comparison range ternary */
+const WGRID = [
+  {id:'it',      t:'IT',      x:96,  y:122},
+  {id:'is',      t:'IS',      x:142, y:122},
+  {id:'half',    t:'HALF',    x:188, y:122},
+  {id:'quarter', t:'QUARTER', x:96,  y:152},
+  {id:'tenM',    t:'TEN',     x:236, y:152},
+  {id:'twentyM', t:'TWENTY',  x:96,  y:182},
+  {id:'fiveM',   t:'FIVE',    x:222, y:182},
+  {id:'past',    t:'PAST',    x:96,  y:212},
+  {id:'to',      t:'TO',      x:182, y:212},
+  {id:'h1',      t:'ONE',     x:96,  y:242},
+  {id:'h2',      t:'TWO',     x:170, y:242},
+  {id:'h3',      t:'THREE',   x:252, y:242},
+  {id:'h4',      t:'FOUR',    x:96,  y:272},
+  {id:'h5',      t:'FIVE',    x:188, y:272},
+  {id:'h6',      t:'SIX',     x:274, y:272},
+  {id:'h7',      t:'SEVEN',   x:96,  y:302},
+  {id:'h8',      t:'EIGHT',   x:204, y:302},
+  {id:'h9',      t:'NINE',    x:302, y:302},
+  {id:'h10',     t:'TEN',     x:96,  y:332},
+  {id:'h11',     t:'ELEVEN',  x:168, y:332},
+  {id:'h12',     t:'TWELVE',  x:288, y:332},
+  {id:'oclock',  t:"O’CLOCK", x:96,  y:362}
+];
+function brevierActive(h, m){
+  const m5 = Math.floor(m/5)*5;
+  const act = ['it','is'];
+  const P = ['past'], TO = ['to'];
+  const phrase = {
+    0:['oclock'], 5:['fiveM',...P], 10:['tenM',...P], 15:['quarter',...P],
+    20:['twentyM',...P], 25:['twentyM','fiveM',...P], 30:['half',...P],
+    35:['twentyM','fiveM',...TO], 40:['twentyM',...TO], 45:['quarter',...TO],
+    50:['tenM',...TO], 55:['fiveM',...TO]
+  }[m5];
+  act.push(...phrase);
+  let hw = h % 12;
+  if(m5 >= 35) hw = (hw + 1) % 12;
+  if(hw === 0) hw = 12;
+  act.push('h'+hw);
+  return { act, hourId:'h'+hw };
+}
+R.brevier = function(ctx){
+  const th = ctx.th, tm = mainTime(ctx);
+  const {act, hourId} = brevierActive(ctx.t.h, ctx.t.m);
+  if(ctx.aod){
+    /* thin digital twin + static wordmark wink — full-word AOD is the costed option */
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    s += T(240,196,13,AOD_MUT,'IT IS',{f:'Archivo',w:600,op:.7});
+    s += T(240,290,96,AOD_INK,tm.joined,{f:'Archivo',w:500});
+    if(tm.ap) s += T(240,324,12,AOD_MUT,tm.ap,{f:'JetBrains Mono'});
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* ghost grid — one static muted layer, zero gates */
+  if(ctx.opts.ghost){
+    WGRID.forEach(w=>{ s += T(w.x,w.y,27,th.mut,w.t,{f:'Archivo',w:700,a:'start'}); });
+  }
+  /* lit words — duplicate-and-alpha-gate copies */
+  WGRID.forEach(w=>{
+    if(!act.includes(w.id)) return;
+    const col = (w.id===hourId && ctx.opts.accentHour) ? th.acc : th.ink;
+    s += T(w.x,w.y,27,col,w.t,{f:'Archivo',w:700,a:'start'});
+  });
+  /* exact-time corner — TimeText h:mm (replaces %-math minute dots) */
+  if(ctx.opts.exact){
+    s += T(384,404,16,th.acc,'— '+(ctx.prefs.h24? tm.joined : tm.joined+' '+tm.ap.toLowerCase()),{f:'JetBrains Mono',a:'end'});
+  }
+  /* slots */
+  const hd = ctx.slots.head;
+  if(hd){
+    s += ic(hd.comp.icon, 206, 62, 13, th.mut, 2, .9);
+    s += T(222,67,14,th.ink,hd.v.txt,{f:'JetBrains Mono',w:500,a:'start'});
+  }
+  const ft = ctx.slots.foot;
+  if(ft){
+    s += T(240,441,13,th.mut,'▸ '+ft.v.txt+' '+ft.v.sub,{f:'JetBrains Mono'});
+  }
+  return s;
+};
+
+/* ---------------- NONPAREIL — the numeral dial ---------------- */
+R.nonpareil = function(ctx){
+  const th = ctx.th, t = ctx.t;
+  const hourNow = ((t.h + 11) % 12) + 1;
+  const aod = ctx.aod;
+  const ink = aod ? AOD_MUT : th.ink;
+  let s = `<rect width="480" height="480" fill="${aod ? '#000' : th.bg}"/>`;
+  /* minute dot track — 60 static dots (Pulsar-proven static ring) */
+  if(!aod && ctx.opts.minuteTrack){
+    for(let i=0;i<60;i++){
+      const [dx,dy] = pol(240,240,222,i*6);
+      s += `<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="${i%5===0?2:1.1}" fill="${th.mut}" opacity=".55"/>`;
+    }
+  }
+  /* the twelve numerals — static <Text>, DM Serif Display */
+  for(let n=1;n<=12;n++){
+    const card = (n%3)===0;
+    const size = aod ? (card?44:30) : (card?58:38);
+    const [nx,ny] = pol(240,240,176,n*30);
+    const isNow = !aod && ctx.opts.hourAccent && n===hourNow;
+    s += T(nx.toFixed(1),(ny+size*0.34).toFixed(1),size,isNow?th.acc:ink,String(n),{f:'DM Serif Display',w:400});
+  }
+  /* date window */
+  const dw = ctx.slots.dateWin;
+  if(dw && !aod){
+    s += T(240,318,15,th.mut,dw.v.txt,{f:'JetBrains Mono'});
+  } else if(aod && state.cur[ctx.face.id].dateWin){
+    s += T(240,318,14,AOD_MUT,dateShort(),{f:'JetBrains Mono'});
+  }
+  /* inner slots */
+  if(!aod) ['innerL','innerR'].forEach(id=>{
+    const sl = ctx.slots[id]; if(!sl) return;
+    const [x,y] = ctx.face.slots.find(z=>z.id===id).anchor;
+    s += ic(sl.comp.icon, x, y-15, 13, th.mut, 2, .9);
+    s += T(x, y+11, 14, th.ink, sl.v.txt, {f:'JetBrains Mono',w:500});
+  });
+  /* hands — AnalogClock drawables; AOD twins are hairline strokes */
+  const ha = ((t.h%12) + t.m/60) * 30;
+  const ma = (t.m + t.s/60) * 6;
+  const hand = (ang, len, w, col, tail)=>{
+    const [x1,y1] = pol(240,240,tail||0,ang+180);
+    const [x2,y2] = pol(240,240,len,ang);
+    return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
+  };
+  if(aod){
+    s += hand(ha, 104, 3, AOD_INK, 14);
+    s += hand(ma, 156, 2, AOD_INK, 14);
+    s += `<circle cx="240" cy="240" r="4.5" fill="none" stroke="${AOD_INK}" stroke-width="1.5"/>`;
+  } else {
+    s += hand(ha, 104, 9, th.ink, 16);
+    s += hand(ma, 156, 5.5, th.ink, 16);
+    const [tx1,ty1] = pol(240,240,126,ma), [tx2,ty2] = pol(240,240,156,ma);
+    s += `<line x1="${tx1.toFixed(1)}" y1="${ty1.toFixed(1)}" x2="${tx2.toFixed(1)}" y2="${ty2.toFixed(1)}" stroke="${th.acc}" stroke-width="5.5" stroke-linecap="round"/>`;
+    /* seconds — native Sweep needle */
+    if(ctx.opts.secNeedle && ctx.sec!=='off'){
+      const sa = (t.s + (ctx.sec==='sweep'? t.ms/1000 : 0))*6;
+      s += hand(sa, 196, 1.6, th.acc, 34);
+      const [cx,cy] = pol(240,240,34,sa+180);
+      s += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="4" fill="${th.acc}"/>`;
+    }
+    s += `<circle cx="240" cy="240" r="7" fill="${th.ink}"/><circle cx="240" cy="240" r="3" fill="${th.bg}"/>`;
+  }
+  return s;
+};
+
+FACES.forEach(f=>{ f.render = R[f.id]; });
+
+/* =========================================================
+   SPEC SHEETS
+   ========================================================= */
+const PLATFORM = 'Watch Face Format <b>v1</b> (declarative XML — no code executes on the watch), minSdk 33 / Wear OS 4+ — the widest WFF install base. v1 is a deliberate choice: no LEDGER face needs Weather (v2), Flavors (v2), auto-sizing text (v3) or photos (v4). Each face ships as its own APK (com.ledger.&lt;face&gt;) with its own ≤8 complication slots — the settled Fable Collection packaging rule (complications are Scene-global, so per-face slots require one package per face). Fonts ship as static-instance TTFs per weight (variable-font axes are runtime-unverified).';
+const M = s => `<span class="mech">${s}</span>`;
+const SPECS = {
+canon:{
+  concept:'One number owns the dial. The hour is set at 190 px in Fraunces Black — a newspaper masthead weight — and the minutes answer it in a 96 px hairline italic below the rule. A folio date line sits on top like an edition marker, and complications are margin notes along the bottom. Nothing on this face is decoration; it is all typesetting.',
+  target:'The hero of the series and its store-listing shot. For people who want one beautiful, legible number on their wrist — the face that reads from across a room.',
+  type:['<b>Fraunces Black 900</b> (static TTF) — the masthead hour','<b>Fraunces Light 300 italic</b> (static TTF) — the answering minutes','<b>JetBrains Mono</b> — folio, AM/PM, margin notes','All type set tight — WFF has no letterSpacing, and this face never needs it'],
+  identity:['<b>Signature:</b> the 2:1 weight contrast between hour and minutes — pure type, zero effects '+M('two TimeTexts: format="hh" + format="mm", separate static font files'),'Editorial rules above and below the hour '+M('static PartDraw rects; accent↔muted via duplicate-and-alpha-gate on the Accent-rules toggle'),'Folio date line '+M('PartText — [DAY_OF_WEEK_S] · [DAY] [MONTH_S]'),'AM/PM tag beside the masthead '+M('[AMPM_STRING] PartText, alpha-gated [IS_24_HOUR_MODE] ? 0 : 255')],
+  motion:['Digits change by instant substitution — WFF has no digit transitions, and the design leans into it','Optional seconds folio counter, interactive only '+M('TimeText format="ss" — one text element, 1 eval/s'),'The system provides the AOD↔interactive crossfade; nothing else moves'],
+  custom:['5 themes (incl. one light dial) · ≤5 colour roles each','Accent ↔ muted rules · italic ↔ upright minutes','Folio on/off · seconds folio on/off','3 layout presets + free slot editing','12/24 h follows the system automatically'],
+  interact:['Tap a margin note → its provider app '+M('standard Launch tap action'),'Long-press → system watch-face editor'],
+  aod:['Structural thin twin: Fraunces Light hour + italic minutes in fixed light ink on black '+M('base alpha 0 + Variant AMBIENT 255 — the Series-01 timeAodLight pattern'),'Folio, margin notes and accent rules dropped; hairline rules only','≈ 8–10% lit pixels · updates once a minute'],
+  battery:['Static type + two rects — nothing re-evaluates faster than the minute except the optional seconds folio','No gradients, no images; the whole face is text and two rectangles'],
+  feas:[
+    ['Stacked hour / minutes','NATIVE','two TimeTexts (format="hh" / "mm") — the same element Solstice shipped; auto-follows the system 12/24-h setting'],
+    ['Folio date line','NATIVE','[DAY_OF_WEEK_S] · [DAY] [MONTH_S] tokens — XSD-verified in Series 01'],
+    ['AM/PM tag','NATIVE','[AMPM_STRING] + [IS_24_HOUR_MODE] gate — proven on-wrist'],
+    ['Accent-rule toggle','NATIVE','duplicate rules alpha-gated on a BooleanConfiguration — the proven single-boolean pattern'],
+    ['Margin-note slots ×3','PROVIDER','SHORT_TEXT/RANGED_VALUE; defaults from the v1 system list (STEP_COUNT, WATCH_BATTERY…)'],
+    ['Seconds folio','NATIVE','TimeText format="ss", ambient-hidden<span class="cost">1 eval/s while interactive — default OFF; purely optional</span>'],
+    ['All values on this page','SIM','generated so you can judge the design']
+  ]
+},
+paragon:{
+  concept:'A poster, not a dashboard. Two 196 px monospaced numerals collide on purpose — the hour set high-left in ink, the minutes low-right in colour, drawn over it like a second print pass. The monospaced font makes the collision geometry identical for every digit pair, so the lockup is designed once and holds at 09:41 and at 12:44.',
+  target:'The dress/statement face — for evenings, keynotes and anyone who wants their watch to look screen-printed. Photographs best of the five on OLED.',
+  type:['<b>Space Mono Bold 700</b> (static TTF) — both numerals; monospace = deterministic overlap','<b>Space Mono Regular 400</b> — the thin AOD twin','<b>JetBrains Mono</b> — folio and corner values','Overlap depth comes from draw order (later element renders on top) — no blending, no transparency tricks'],
+  identity:['<b>Signature:</b> the ink-under-colour collision '+M('two statically-positioned TimeTexts; scene order does the layering'),'Monospaced digits — every pair of numerals locks up identically '+M('fixed-advance font = fixed glyph boxes'),'A tiny folio and AM/PM tag are the only other type allowed','Optional cardinal ticks '+M('4 static PartDraw lines')],
+  motion:['Nothing animates but the optional seconds satellite '+M('native AnalogClock SecondHand Sweep — the platform drives it'),'Digit changes are instant substitution, honest to the renderer'],
+  custom:['5 themes (incl. one light dial) · ≤5 roles','Date line on/off · seconds satellite on/off · cardinal ticks on/off','3 layout presets + free slot editing','12/24 h follows the system'],
+  interact:['Tap a corner value → its provider app '+M('Launch'),'Long-press → system editor'],
+  aod:['Both numerals drop to Space Mono Regular at reduced size, fixed light inks, collision kept '+M('structural thin-twin pattern'),'Folio, corners, satellite gone','≈ 9% lit pixels'],
+  battery:['Two text elements and nothing else in the default preset — the cheapest interactive face in the series','Seconds satellite is opt-in and interactive-only'],
+  feas:[
+    ['Overlapping numerals','NATIVE','two TimeTexts + scene draw order — static positions, zero expressions'],
+    ['Deterministic collision','NATIVE','monospaced static TTF; glyph boxes are fixed by the font, not by logic'],
+    ['Date + AM/PM','NATIVE','[DAY_OF_WEEK_S]/[DAY]/[MONTH_S] · [AMPM_STRING] with the proven 12/24 gate'],
+    ['Seconds satellite','NATIVE','AnalogClock > SecondHand > Sweep frequency 15 — proven on-wrist in Series 01'],
+    ['Corner slots ×2','PROVIDER','SHORT_TEXT/RANGED_VALUE; v1 system defaults'],
+    ['Minute-on-top ↔ hour-on-top swap','NATIVE','would need all four copies duplicated + boolean-gated<span class="cost">4 gated text elements for a marginal option — CUT from the spec; draw order is fixed</span>'],
+    ['All values on this page','SIM','']
+  ]
+},
+pica:{
+  concept:'The series namesake: the whole dial is a typewriter-measure ledger sheet. Row one is the time at 78 px, row two the date, and rows three through six are whatever you post to them — each complication renders as a line item with a label, dotted leader, value and a small ring-fill total. A final ELAPSED row totals the day itself.',
+  target:'Productivity and data people who want density without gauges-cosplay. This face carries the “everything at a glance” marketing shot.',
+  type:['<b>IBM Plex Mono SemiBold 600</b> (static TTF) — the time and values','<b>IBM Plex Mono Regular/Light</b> — labels, header, AOD twin','Tabular by nature — a monospaced sheet needs no letterspacing, no alignment tricks','Row labels come from the complication itself '+M('[COMPLICATION.TITLE], with the icon as fallback')],
+  identity:['<b>Signature:</b> complications as ledger rows — data is the typography '+M('each row = one ComplicationSlot rendering [COMPLICATION.TEXT] + the proven mini ring-fill'),'Dotted leaders between label and value '+M('static pre-rendered dot-strip asset (WFF has no dashed stroke — Series 01 proved dashes need workarounds)'),'Header with edition number and ISO week '+M('static text + [WEEK_IN_YEAR]'),'ELAPSED row — the day as a running total '+M('numeric Template param + the proven Transform arc fill')],
+  motion:['The optional seconds entry ticks once a second, interactive only '+M('TimeText format="ss"'),'Ring-fills move only when their data does '+M('Transform target="endAngle" — the exact Pulsar battery-gauge mechanism'),'Nothing else moves'],
+  custom:['5 themes (incl. one light dial) · ≤5 roles','Week number · seconds entry · leaders · elapsed row — all toggles','3 layout presets + free slot editing on 4 row slots','12/24 h follows the system'],
+  interact:['Tap any ledger row → its provider app '+M('Launch per slot'),'Tap the time block → nothing; it is the sheet, not a button','Long-press → system editor'],
+  aod:['The sheet collapses to time + date between two hairline rules, thin weight, fixed light ink '+M('structural thin-twin'),'All rows, rings and the header dropped','≈ 7% lit pixels'],
+  battery:['Text rows re-evaluate only when their complication updates','Seconds entry is the only sub-minute element and is interactive-only + toggleable'],
+  feas:[
+    ['Time / date rows','NATIVE','TimeText h:mm + [DAY_OF_WEEK_S]/[DAY]/[MONTH_S] tokens'],
+    ['Complication rows ×4','PROVIDER','SHORT_TEXT/RANGED_VALUE per row; labels from [COMPLICATION.TITLE]; defaults from the v1 system list (HR/weather are user-added — no v1 default exists)'],
+    ['Mini ring-fills','NATIVE','Transform target="endAngle" on an Arc from [COMPLICATION.RANGED_VALUE_*] — proven on-wrist (Pulsar)'],
+    ['Day-elapsed row','NATIVE','arc = ([HOUR_0_23]*60+[MINUTE])/1440 fill (sun-marker-class arithmetic, proven); the % readout is a numeric Template param<span class="cost">%d formatting of a division needs one validation-round check (round() fallback ready)</span>'],
+    ['Dotted leaders','NATIVE','static dot-strip drawable per row — WFF has no dashed stroke; a 1-bit strip PNG costs ~nothing'],
+    ['Week number / day-of-year','NATIVE','[WEEK_IN_YEAR] · [DAY_OF_YEAR] — in the WFF reference; verify both against the v1 XSD at build (drop-in removal if absent)'],
+    ['Linear bar-fills instead of rings','CUSTOM','Transform target="width" is schema-plausible but runtime-unproven<span class="cost">one dedicated on-wrist diagnostic round — optional variant, rings are default and proven</span>'],
+    ['All values on this page','SIM','']
+  ]
+},
+brevier:{
+  concept:'The time as a sentence. A fixed grid of twenty-two words is set in tight Archivo caps; the words that are true right now light up — IT IS TWENTY FIVE PAST NINE — with the hour word in colour. The rest of the grid stays as faint ghost type, so the face reads as a full page of print with today’s line inked. A small corner readout gives the exact minutes.',
+  target:'The calm face — glanceable without numbers, a conversation piece. Buyers who want their watch quiet and literate.',
+  type:['<b>Archivo Bold 700</b> (static TTF) — the word grid, tight-set caps','<b>Archivo Medium 500</b> — the AOD digital twin','<b>JetBrains Mono</b> — the exact-time corner and footnote','English-only at ship — the grammar is static type; localisation = a per-locale grid, deferred deliberately'],
+  identity:['<b>Signature:</b> the lit sentence '+M('every word = static <Text>; lit copies are duplicates alpha-gated by ONE two-comparison range ternary each — the exact sun-disc gate shape proven in Series 01'),'Ghost grid as texture '+M('one static muted text layer, zero gates, zero cost'),'Accent hour word '+M('hour copies in accent, gated per hour'),'Exact-time corner '+M('TimeText h:mm — deliberately replaces QLOCKTWO’s +1…+4 dots, which would need the shelved % operator')],
+  motion:['Words switch on five-minute boundaries by instant substitution — the grid never scrolls, fades or slides (WFF cannot; the design never asks)','The corner readout steps once a minute','Nothing else moves — stillness is the identity'],
+  custom:['5 themes (incl. one light dial) · ≤5 roles','Ghost grid on/off · accent hour on/off · exact-time corner on/off','3 layout presets + free slot editing (header + footnote)','The word grammar itself is fixed — it is the face'],
+  interact:['Tap the footnote → its provider app '+M('Launch'),'Long-press → system editor'],
+  aod:['Thin centred digits + a faint static “IT IS” wink '+M('structural thin-twin; the wordmark is one static text'),'The word grid is dropped in AOD by default — see the costed option below','≈ 5% lit pixels — the best AOD economics in the series'],
+  battery:['All gates re-evaluate at minute frequency — effectively free','Ghost grid is static; the face has zero sub-minute elements'],
+  feas:[
+    ['Word grammar (lit sentence)','NATIVE','~38 gated word copies: minute-phrase words + 12 hour words × past/to forms, each ONE two-comparison range ternary on alpha, minute-frequency<span class="cost">~38 elements if [HOUR_1_12] validates (it is in the WFF reference); fallback = paired [HOUR_0_23] equality gates → ~62 elements. Either way one mechanical build, and a rejected gate drops ONE word — never the face</span>'],
+    ['Ghost grid','NATIVE','one static muted text layer — zero expressions'],
+    ['Accent hour word','NATIVE','the same gated copies in accent — duplicate-and-alpha-gate, proven'],
+    ['Exact-time corner','NATIVE','TimeText format="h:mm" + the proven AM/PM gate'],
+    ['Header / footnote slots','PROVIDER','SHORT_TEXT; v1 system defaults'],
+    ['Full-word AOD','NATIVE','possible: wrap the lit grid in an ambient-shown twin<span class="cost">doubles the gated words (~76–124 elements) for AOD identity — deferred; the thin digital twin ships first</span>'],
+    ['Localised grids (non-English)','CUSTOM','a per-locale static grid via Localization or per-market builds — optional, post-ship'],
+    ['All values on this page','SIM','']
+  ]
+},
+nonpareil:{
+  concept:'The one analog face, and still the type is the face: twelve oversized DM Serif numerals stand in a ring — the cardinals at 58 px, the rest at 38 — read by two slim typographic hands with an accent-tipped minute. The current hour’s numeral can ink itself in colour. A didone dress watch built from a type specimen.',
+  target:'Classic-watch buyers who’d never wear a digital face. Completes the series for the “I just want a beautiful watch” audience.',
+  type:['<b>DM Serif Display</b> (static TTF) — the numeral ring; a didone with real contrast','<b>JetBrains Mono</b> — date window and inner values','Numerals are static &lt;Text&gt; — type as dial furniture, zero logic in the ring itself'],
+  identity:['<b>Signature:</b> the didone numeral ring '+M('12 static <Text> elements — nothing to gate, nothing to break'),'Accent current-hour numeral '+M('12 accent copies, one single-comparison alpha gate each ([HOUR_1_12] == n), hourly evals'),'Typographic hands: ink shafts, accent-tipped minute '+M('AnalogClock Hour/MinuteHand drawables — two-tone artwork baked into the hand PNG'),'Seconds needle with counterweight '+M('native SecondHand Sweep frequency 15 — proven')],
+  motion:['The hands — driven natively by AnalogClock, nothing expression-rotated','Seconds needle sweeps at 15 Hz, interactive only, toggleable','Hour-accent changes once an hour by instant substitution'],
+  custom:['5 themes (incl. one light dial) · ≤5 roles','Accent hour on/off · seconds needle on/off · minute dot track on/off','3 layout presets + free slot editing','No 12/24 question — the dial is analog'],
+  interact:['Tap an inner value → its provider app '+M('Launch'),'Long-press → system editor'],
+  aod:['Numerals shrink and dim to fixed light ink; hands become hairlines '+M('ambient twin hand set: second AnalogClock with thin drawables, base alpha 0 + Variant AMBIENT 255 — structural, proven class'),'Seconds, inner slots and accent dropped; date kept','≈ 8% lit pixels'],
+  battery:['A static ring + native hands — near-zero expression load','The 60-dot minute track is static (the Pulsar-proven pattern); seconds is the only sub-minute element'],
+  feas:[
+    ['Numeral ring','NATIVE','12 static <Text> elements, DM Serif static TTF'],
+    ['Hands','NATIVE','AnalogClock HourHand/MinuteHand drawables — WFF’s most basic proven element; two-tone tips are baked into the PNG art'],
+    ['Seconds needle','NATIVE','SecondHand + Sweep frequency 15 — proven on-wrist in Series 01'],
+    ['Accent current hour','NATIVE','12 duplicate numerals, one equality gate each, hourly evals<span class="cost">12 gated copies + [HOUR_1_12] XSD check (fallback: paired [HOUR_0_23] gates → 24 copies). Optional toggle, not load-bearing</span>'],
+    ['Minute dot track','NATIVE','60 static PartDraw dots — the exact static tick ring Pulsar shipped'],
+    ['Date window + inner slots','PROVIDER','DATE default is a v1 system provider; inner slots SHORT_TEXT/RANGED_VALUE'],
+    ['Hour-strike accent flash','CUSTOM','a brief on-the-hour colour pulse would need PartAnimatedImage per theme<span class="cost">pre-rendered WebP × 5 themes against the 10 MB ambient gate — rejected; listed to show it was considered</span>'],
+    ['All values on this page','SIM','']
+  ]
+}
+};
+
+/* =========================================================
+   UI
+   ========================================================= */
+function hexDim(hex, a){
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function setAccent(face){
+  document.documentElement.style.setProperty('--accent', face.accent);
+  document.documentElement.style.setProperty('--accent-dim', hexDim(face.accent,.13));
+}
+function buildTabs(){
+  $('#tabs').innerHTML = FACES.map((f,i)=>
+    `<button class="tab ${i===state.f?'on':''}" data-tab="${i}"><span class="thumb"><svg id="th${i}" viewBox="0 0 480 480" aria-hidden="true"></svg></span><span class="tn"><b>${f.name}</b><span>${f.role}</span></span></button>`).join('');
+  document.querySelectorAll('[data-tab]').forEach(b=> b.addEventListener('click', ()=> selectFace(+b.dataset.tab)));
+}
+function renderThumbs(){
+  FACES.forEach((f,i)=>{
+    const el = $('#th'+i);
+    if(el) el.innerHTML = f.render(makeCtx(i, true));
+  });
+}
+function buildRack(){
+  const face = FACES[state.f];
+  const fid = face.id;
+  const thI = state.theme[fid];
+  const cfg = state.cfg[fid];
+  let h = '';
+  /* theme */
+  h += `<div class="panel"><h3>Colour theme <span class="hint">≤5 roles — the WFF v1 ColorOption cap</span></h3><div class="swatches">`;
+  face.themes.forEach((t,i)=>{
+    h += `<button class="sw ${i===thI?'on':''}" data-th="${i}" title="${t.n}"><i style="background:linear-gradient(135deg,${t.sw[0]} 50%,${t.sw[1]} 50%)"></i></button>`;
+  });
+  h += `</div><div class="swname">${face.themes[thI].n} — ${face.themes[thI].d}</div></div>`;
+  /* mode */
+  h += `<div class="panel"><h3>Display mode</h3><div class="segrow">
+    <button class="seg ${state.mode==='int'?'on':''}" data-mode="int">Interactive</button>
+    <button class="seg ${state.mode==='aod'?'on':''}" data-mode="aod">Always-On</button>
+    <button class="seg ${state.prefs.clean?'on':''}" data-clean="1">Product preview</button>
+  </div></div>`;
+  /* layout */
+  h += `<div class="panel"><h3>Layout preset <span class="hint">on-watch: saved slot/toggle states (Flavors = v2)</span></h3><div class="segrow">`;
+  face.configOrder.forEach(c=>{ h += `<button class="seg ${cfg===c?'on':''}" data-cfg="${c}">${c}</button>`; });
+  if(cfg==='Custom') h += `<button class="seg on">Custom</button>`;
+  h += `</div></div>`;
+  /* slots */
+  h += `<div class="panel"><h3>Complication slots <span class="hint">click a slot on the watch to locate it</span></h3>`;
+  face.slots.forEach((sd,i)=>{
+    const cur = state.cur[fid][sd.id] || '';
+    h += `<div class="slotrow ${state.sel===sd.id?'sel':''}" id="row-${sd.id}"><div class="sl"><b>${i+1} · ${sd.label}</b><span>${sd.pos}</span></div><select data-slot-sel="${sd.id}"><option value="">— empty —</option>`;
+    sd.allowed.forEach(k=>{ h += `<option value="${k}" ${cur===k?'selected':''}>${COMPS[k].name}</option>`; });
+    h += `</select></div>`;
+  });
+  h += `</div>`;
+  /* face options */
+  h += `<div class="panel"><h3>Customise ${face.name.toLowerCase()}</h3>`;
+  face.options.forEach(o=>{
+    const on = state.opts[fid][o.id];
+    h += `<div class="optrow"><label>${o.label}<span class="note">${o.note||''}</span></label><button class="tgl ${on?'on':''}" data-opt="${o.id}" aria-label="${o.label}"></button></div>`;
+  });
+  h += `</div>`;
+  /* global */
+  h += `<div class="panel"><h3>Global preferences</h3>
+    <div class="optrow"><label>24-hour time<span class="note">on the watch, TimeText follows the system setting automatically</span></label><button class="tgl ${state.prefs.h24?'on':''}" data-pref="h24"></button></div>
+    <div class="optrow"><label>Seconds rendering<span class="note">maps to real WFF: Sweep 15 Hz · Tick 1 Hz · hidden</span></label><span class="minirow">
+      <button class="mini ${state.prefs.sec==='sweep'?'on':''}" data-sec="sweep">Sweep</button>
+      <button class="mini ${state.prefs.sec==='tick'?'on':''}" data-sec="tick">Tick</button>
+      <button class="mini ${state.prefs.sec==='off'?'on':''}" data-sec="off">Off</button>
+    </span></div>
+  </div>`;
+  const rack = $('#rack');
+  rack.innerHTML = h;
+  rack.querySelectorAll('[data-th]').forEach(b=> b.addEventListener('click', ()=>{ state.theme[fid] = +b.dataset.th; buildRack(); renderThumbs(); }));
+  rack.querySelectorAll('[data-mode]').forEach(b=> b.addEventListener('click', ()=>{ state.mode = b.dataset.mode; syncMode(); buildRack(); }));
+  rack.querySelectorAll('[data-clean]').forEach(b=> b.addEventListener('click', ()=>{ state.prefs.clean = !state.prefs.clean; buildRack(); }));
+  rack.querySelectorAll('[data-cfg]').forEach(b=> b.addEventListener('click', ()=>{ state.cfg[fid] = b.dataset.cfg; state.cur[fid] = Object.assign({}, face.configs[b.dataset.cfg]); state.sel = null; buildRack(); }));
+  rack.querySelectorAll('[data-slot-sel]').forEach(sel=> sel.addEventListener('change', ()=>{
+    state.cur[fid][sel.dataset.slotSel] = sel.value || null;
+    state.cfg[fid] = 'Custom';
+    state.sel = sel.dataset.slotSel;
+    buildRack();
+  }));
+  rack.querySelectorAll('[data-opt]').forEach(b=> b.addEventListener('click', ()=>{ state.opts[fid][b.dataset.opt] = !state.opts[fid][b.dataset.opt]; buildRack(); }));
+  rack.querySelectorAll('[data-pref]').forEach(b=> b.addEventListener('click', ()=>{ state.prefs.h24 = !state.prefs.h24; buildRack(); }));
+  rack.querySelectorAll('[data-sec]').forEach(b=> b.addEventListener('click', ()=>{ state.prefs.sec = b.dataset.sec; buildRack(); }));
+}
+function syncMode(){
+  $('#screen').classList.toggle('aod', state.mode==='aod');
+  $('#modecap').innerHTML = state.mode==='aod'
+    ? `<b>ALWAYS-ON</b> · fixed light inks on black (Series-01 pattern) · 1 update/min · ≤15% lit pixels`
+    : `<b>INTERACTIVE</b> · live — this is your real local time`;
+}
+function buildSpecs(){
+  const face = FACES[state.f];
+  const S = SPECS[face.id];
+  const typeSet = new Set();
+  face.slots.forEach(sd=> sd.allowed.forEach(k=> typeSet.add(k)));
+  const chips = [...typeSet].map(k=>`<span class="tchip">${COMPS[k].name}</span>`).join('');
+  let slotRows = '';
+  face.slots.forEach((sd,i)=>{
+    slotRows += `<tr><td>${i+1} · ${sd.label}</td><td>${sd.pos}</td><td><span class="m">${sd.allowed.length} data types</span></td></tr>`;
+  });
+  let feasRows = '';
+  S.feas.forEach(r=>{
+    const cls = {NATIVE:'b-native',PROVIDER:'b-provider',SIM:'b-sim',CUSTOM:'b-custom'}[r[1]];
+    feasRows += `<tr><td>${r[0]}</td><td><span class="badge ${cls}">${r[1]}</span></td><td>${r[2]||''}</td></tr>`;
+  });
+  const themes = face.themes.map(t=>
+    `<div class="themerow"><span class="dots"><i style="background:${t.sw[0]}"></i><i style="background:${t.sw[1]}"></i></span><div><b>${t.n}</b><span>${t.d}</span></div></div>`).join('');
+  const ul = arr => `<ul>${arr.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  $('#specs').innerHTML = `
+  <div class="sechead"><h2>Specification — <em>${face.name}</em></h2><span>${face.slots.length} slots · ${face.themes.length} themes · ${face.configOrder.length}+1 layouts · WFF v1</span></div>
+  <div class="speccards">
+    <div class="scard wide"><h4>Concept &amp; positioning</h4><p>${S.concept}</p><p><b style="color:var(--ink)">Who it’s for —</b> ${S.target}</p></div>
+    <div class="scard"><h4>Typographic system</h4>${ul(S.type)}</div>
+    <div class="scard"><h4>Visual identity — with mechanisms</h4>${ul(S.identity)}</div>
+    <div class="scard wide"><h4>Complication system — this face’s own slots (one APK per face)</h4>
+      <table class="feastab">${slotRows}</table>
+      <p style="margin-top:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--faint)">DEFAULTS DRAWN FROM THE WFF V1 SYSTEM-PROVIDER LIST · HEART-RATE &amp; WEATHER ARE USER-ADDED (NO V1 DEFAULT EXISTS)</p>
+      <div class="typechips" style="margin-top:8px">${chips}</div>
+      <p style="margin-top:12px"><b style="color:var(--ink)">Layouts —</b> ${face.configOrder.join(' · ')} · Custom. On the watch these are editor states — every slot can be set Empty. One-tap presets would be v2 Flavors; deferred by the v1 decision.</p></div>
+    <div class="scard"><h4>Motion &amp; AOD reality</h4>${ul(S.motion)}</div>
+    <div class="scard"><h4>Customisation</h4>${ul(S.custom)}</div>
+    <div class="scard"><h4>Interaction</h4>${ul(S.interact)}</div>
+    <div class="scard"><h4>Colour themes</h4><div class="themelist">${themes}</div></div>
+    <div class="scard"><h4>Always-On Display</h4>${ul(S.aod)}</div>
+    <div class="scard wide"><h4>Battery &amp; performance</h4>${ul(S.battery)}<p style="margin-top:12px"><b style="color:var(--ink)">Format —</b> ${PLATFORM}</p></div>
+    <div class="scard wide"><h4>Feasibility — every claim carries its mechanism</h4><table class="feastab">${feasRows}</table></div>
+  </div>`;
+}
+function selectFace(i){
+  state.f = i; state.sel = null;
+  const face = FACES[i];
+  setAccent(face);
+  $('#fname').textContent = face.name;
+  $('#ftag').textContent = face.tagline;
+  buildTabs(); renderThumbs(); buildRack(); buildSpecs(); syncMode();
+}
+
+/* dial interaction */
+$('#dial').addEventListener('click', e=>{
+  const g = e.target.closest('[data-slot]');
+  if(!g) return;
+  const id = g.dataset.slot;
+  const face = FACES[state.f];
+  state.sel = (state.sel===id) ? null : id;
+  buildRack();
+  const row = document.getElementById('row-'+id);
+  if(row) row.scrollIntoView({block:'nearest', behavior:'smooth'});
+  const key = state.cur[face.id][id];
+  if(key && COMPS[key]){
+    const v = COMPS[key].get(state.prefs);
+    toast(`<b>${COMPS[key].name}</b> · now “${v.txt}${v.sub? ' '+v.sub:''}” — on the watch, tapping opens ${COMPS[key].tap}`);
+  } else {
+    toast('Empty slot — assign a data source in the rack on the right');
+  }
+});
+$('#btnAod').addEventListener('click', ()=>{
+  state.mode = state.mode==='aod' ? 'int' : 'aod';
+  syncMode(); buildRack();
+  toast(state.mode==='aod' ? 'Always-on — thin twins, fixed light inks, ≤15% pixels' : 'Interactive — live local time');
+});
+$('#btnMap').addEventListener('click', ()=>{
+  state.showMap = true;
+  toast('Slot map — numbered rings match the list on the right');
+  setTimeout(()=>{ state.showMap = false; }, 4200);
+});
+$('#btnShuffle').addEventListener('click', ()=>{ shuffleSim(); renderThumbs(); toast('Simulated data shuffled — steps, HR, battery, weather, event'); });
+
+/* deep links: #f=2&mode=aod&theme=1&cfg=Full&clean=1&h24=1 */
+(function(){
+  const q = {};
+  location.hash.replace(/^#/,'').split('&').forEach(kv=>{ const p = kv.split('='); if(p[0]) q[p[0]] = decodeURIComponent(p[1]||''); });
+  if(q.f!=null && FACES[+q.f]) state.f = +q.f;
+  if(q.mode==='aod') state.mode = 'aod';
+  if(q.theme!=null) state.theme[FACES[state.f].id] = clamp(+q.theme||0, 0, 4);
+  if(q.cfg && FACES[state.f].configs[q.cfg]){ state.cfg[FACES[state.f].id] = q.cfg; state.cur[FACES[state.f].id] = Object.assign({}, FACES[state.f].configs[q.cfg]); }
+  if(q.clean==='1') state.prefs.clean = true;
+  if(q.h24==='1') state.prefs.h24 = true;
+})();
+
+/* render loop */
+let lastMs = 0, lastThumbs = 0;
+function loop(now){
+  requestAnimationFrame(loop);
+  const interval = state.mode==='aod' ? 500 : (state.prefs.sec==='sweep' ? 40 : 200);
+  if(now - lastMs < interval) return;
+  lastMs = now;
+  const ctx = makeCtx(state.f, false);
+  $('#dial').innerHTML = ctx.face.render(ctx) + hitOverlay(ctx);
+  if(now - lastThumbs > 30000){ lastThumbs = now; renderThumbs(); }
+}
+selectFace(state.f);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
