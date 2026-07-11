@@ -13,6 +13,21 @@
 - **QA'd per Gate 4**: 7 headless-Chrome screenshots read back (5 faces incl. light themes + CANON/BREVIER AOD) — BREVIER sentence verified correct against live time (10:28 → "IT IS TWENTY FIVE PAST TEN", hour word accent); DOM-dump grep confirmed spec tables/badges/cost notes/legend/walls/roadmap all render. Chrome: `C:\Program Files (x86)\Google\Chrome\Application\chrome.exe` (Bash sandbox can't exec it — run sandbox-off).
 - **NEXT for LEDGER (owner-gated, later phase):** owner reviews the showcase → pick the first face to build (CANON is the intended hero) → scaffold `Ledger-<Face>/` per the per-face-APK pattern → validate → adversarial review → tag `ledger-<face>-v0.1.0`. Build-time verifies queued in the spec sheets: [HOUR_1_12] / [WEEK_IN_YEAR] / [DAY_OF_YEAR] vs the v1 XSD; %d formatting of division params.
 
+## SERIES 03 · ARMATURE — Phase 1 design SHIPPED (2026-07-11) ✅
+- `FABLE-Armature-Showcase.html` — interactive design simulator for all 5 ARMATURE faces ("Mechanical instruments, skeletons and gauges"), same feasibility-LOCKED architecture as LEDGER (live local clock, 5 themes/face ≤5 roles + one light dial each, layout presets, slot editor, AOD toggle, spec sheets w/ badges + ⚠ build-cost notes, deep links `#f=0..4`). **The series' load-bearing insight: rotation is WFF's ONE native motion — an AnalogClock hand can carry ANY artwork (gear/orb/needle) with any pivot** (proven by Solstice's centre-pivot seconds dot + tintColor tinting).
+- **The 5 faces (mechanical-instrument names), all WFF v1, one APK per face:**
+  1. **CALIPER** (skeleton/hero) — openworked static bridges/screws/jewels + a live brass gear (1 rev/min = `SecondHand` gear art, centre pivot, native Sweep; one white PNG tinted per theme) + a second gear at 1 rev/hr (`MinuteHand`) — a true two-speed, same-direction train.
+  2. **SECTOR** (retrograde/instrument) — minute needle climbs a 150° fan, one step/min (`Transform target="angle" = [MINUTE]*2.5−75` — the proven sun-marker class); snap home at :00 is an INSTANT jump, stated honestly; hour = big `TimeText` figure (no `%` maths); reserve fans = proven arc fills. Needle is minute-frequency → survives into AOD legally.
+  3. **ODOMETER** (counters/data) — time in framed odometer windows + tally-counter complications; the platform's instant digit substitution IS the mechanism's aesthetic. Zero risky expressions — safest face in the collection.
+  4. **ORRERY** (mystery dial/dress) — no hands: hour orb + minute orb are Hour/MinuteHand artwork (orb at the tip), read against an engraved scale; seconds comet = the shipped Solstice comet verbatim.
+  5. **REGULATOR** (separated axes/classic) — 3 × AnalogClock (centre minutes, hour subdial @12, seconds subdial @6 honouring Sweep/Tick/off) — multiple AnalogClocks proven via Solstice's twins.
+- **Mechanical walls designed out (documented on-page):** oscillating balance/escapement (no reciprocating motion), rolling odometer wheels, counter-rotating meshed gears (smooth rotation = clockwise clock-rates only), animated retrograde fly-back, redline zones that light up (colour logic impossible → printed static zones), moving complication slots, curved/letterspaced engraving.
+- **Dark-mode line rule applied:** every spec sheet states the pure-black toggle + light themes readable via the proven light-ink twin pattern ([[fable-dark-mode-rule]] — auto-exemption impossible).
+- CUSTOM badge only on rejected/optional extras (oscillating escapement, rolling wheels, recolouring needle, moon-phase orb, custom odometer metric — each listed with why).
+- **QA'd per Gate 4:** 7 headless-Chrome screenshots read back (5 faces incl. light Blueprint theme + CALIPER/SECTOR AOD) at live time 5:57 PM — SECTOR needle at 57 min + "5 PM" correct, ORRERY orbs at true positions, REGULATOR axes correct; DOM-grep confirmed spec tables/badges/cost notes/walls/roadmap render.
+- **Build-time verifies queued:** [DAY_OF_YEAR] (ODOMETER day stamp) vs v1 XSD; gear-PNG memory check at validation (trivial, one tinted asset).
+- **NEXT for ARMATURE (owner-gated, later phase):** owner reviews → pick first build (CALIPER is the intended hero) → `Armature-<Face>/` per-face APK → validate → adversarial review → tag `armature-<face>-v0.1.0`. NO APK work now per the standing gate.
+
 # SERIES 01 · ARCLIGHT
 
 ## Done
