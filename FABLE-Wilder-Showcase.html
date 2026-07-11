@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WILDER — Series 04 · Fable Watch Faces · Design Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,900;1,9..144,300&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Jost:wght@300;400;500&family=Quicksand:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0a09; --panel:#14120f; --panel2:#191713; --line:#2a2620; --line2:#37322a;
+  --ink:#ede8dc; --sub:#c9c2b2; --mut:#8f8877; --faint:#5c5749;
+  --accent:#ffa94d; --accent-dim:rgba(255,169,77,.14);
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --body:'Inter',system-ui,sans-serif;
+  --r:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:#0b0a09}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer}
+.wrap{max-width:1360px;margin:0 auto;padding:0 30px}
+.mono{font-family:var(--mono)}
+
+/* ---------- hero ---------- */
+header.hero{padding:66px 0 40px;position:relative;overflow:hidden}
+.hero-type{position:absolute;right:-40px;top:-60px;font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:560px;line-height:1;color:var(--ink);opacity:.045;pointer-events:none;user-select:none}
+.kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.32em;color:var(--mut);text-transform:uppercase;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kicker .tag{border:1px solid var(--line2);border-radius:999px;padding:4px 12px;color:var(--sub);letter-spacing:.18em}
+h1.title{font-family:'Fraunces',Georgia,serif;font-weight:400;font-size:clamp(64px,9vw,124px);line-height:.98;letter-spacing:-.015em;margin:26px 0 6px}
+h1.title em{font-style:italic;font-weight:300;color:var(--accent);transition:color .5s}
+.subtitle{max-width:64ch;color:var(--sub);font-size:17px;margin-top:14px}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.chip{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--sub);border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 14px}
+.chip b{color:var(--accent);font-weight:500;transition:color .5s}
+.why{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+.why div{border-top:1px solid var(--line);padding-top:14px}
+.why h4{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--accent);font-weight:500;text-transform:uppercase;margin-bottom:7px;transition:color .5s}
+.why p{font-size:13.5px;color:var(--mut)}
+@media(max-width:900px){.why{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- face tabs ---------- */
+nav.tabs{position:sticky;top:0;z-index:50;background:rgba(11,10,9,.82);backdrop-filter:blur(14px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tabs-inner{display:flex;gap:6px;padding:10px 0;overflow-x:auto}
+.tab{display:flex;align-items:center;gap:12px;background:none;border:1px solid transparent;border-radius:14px;padding:8px 16px 8px 9px;color:var(--mut);transition:all .25s;white-space:nowrap;flex:1;min-width:150px}
+.tab:hover{background:var(--panel);color:var(--sub)}
+.tab.on{background:var(--panel2);border-color:var(--line2);color:var(--ink)}
+.tab .thumb{width:52px;height:52px;border-radius:50%;background:#000;flex:none;border:1px solid var(--line2);overflow:hidden;position:relative}
+.tab.on .thumb{border-color:var(--accent)}
+.tab .thumb svg{display:block;width:100%;height:100%}
+.tab .tn{text-align:left}
+.tab .tn b{display:block;font-family:'Space Grotesk';font-size:14.5px;font-weight:600;letter-spacing:.06em}
+.tab .tn span{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.tab.on .tn span{color:var(--accent)}
+
+/* ---------- simulator layout ---------- */
+main{padding:46px 0 10px}
+.sim{display:grid;grid-template-columns:minmax(0,1fr) 408px;gap:40px;align-items:start}
+@media(max-width:1060px){.sim{grid-template-columns:1fr}}
+.stage{position:sticky;top:96px;display:flex;flex-direction:column;align-items:center;padding:30px 0 10px}
+@media(max-width:1060px){.stage{position:static}}
+.stage::before{content:'';position:absolute;top:-20px;left:50%;transform:translateX(-50%);width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.045),transparent 62%);pointer-events:none}
+.device{position:relative;width:min(66vw,430px);aspect-ratio:1;margin-top:10px}
+.bezel{position:absolute;inset:-16px;border-radius:50%;
+  background:conic-gradient(from 220deg,#41403e,#131312 22%,#565553 47%,#0e0e0d 71%,#3c3b39 100%);
+  box-shadow:0 34px 90px rgba(0,0,0,.72),0 4px 18px rgba(0,0,0,.5),inset 0 1px 1px rgba(255,255,255,.22),inset 0 -2px 6px rgba(0,0,0,.7)}
+.crown{position:absolute;right:-26px;top:39%;width:16px;height:34px;border-radius:5px;
+  background:linear-gradient(90deg,#4a4947,#1b1a19);box-shadow:inset 0 1px 1px rgba(255,255,255,.2),0 3px 8px rgba(0,0,0,.5)}
+.crown::after{content:'';position:absolute;inset:4px 5px;border-radius:3px;background:repeating-linear-gradient(180deg,#333 0 2px,#1a1a19 2px 4px)}
+.sbtn{position:absolute;right:-20px;top:58%;width:10px;height:24px;border-radius:4px;background:linear-gradient(90deg,#3c3b39,#161514)}
+.screen{position:absolute;inset:0;border-radius:50%;overflow:hidden;background:#000;
+  box-shadow:inset 0 0 0 9px #000,inset 0 0 40px rgba(0,0,0,.85)}
+.screen svg{display:block;width:100%;height:100%}
+.screen .glass{position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:radial-gradient(130% 95% at 30% 10%,rgba(255,255,255,.09),rgba(255,255,255,0) 44%)}
+.screen.aod svg{filter:brightness(.8) saturate(.85)}
+.facemeta{margin-top:34px;text-align:center}
+.facemeta h2{font-family:'Space Grotesk';font-size:26px;font-weight:600;letter-spacing:.14em}
+.facemeta p{color:var(--mut);font-size:13.5px;margin-top:4px;max-width:46ch}
+.modecap{font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);margin-top:12px}
+.modecap b{color:var(--accent);font-weight:500;transition:color .5s}
+.stagebtns{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center}
+.sbt{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--sub);background:var(--panel);border:1px solid var(--line2);border-radius:999px;padding:8px 16px;transition:all .2s}
+.sbt:hover{border-color:var(--accent);color:var(--ink)}
+
+/* rack */
+.rack{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+.panel h3{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--mut);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.panel h3 .hint{letter-spacing:.05em;color:var(--faint);text-transform:none;font-size:10px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:40px;height:40px;border-radius:50%;border:2px solid transparent;padding:2px;background:none;transition:all .2s;position:relative}
+.sw i{display:block;width:100%;height:100%;border-radius:50%;border:1px solid rgba(255,255,255,.14)}
+.sw.on{border-color:var(--accent)}
+.sw:hover{transform:scale(1.08)}
+.swname{font-family:var(--mono);font-size:11px;color:var(--sub);letter-spacing:.1em;margin-top:10px;min-height:15px}
+.segrow{display:flex;gap:8px;flex-wrap:wrap}
+.seg{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--mut);background:none;border:1px solid var(--line2);border-radius:999px;padding:7px 14px;transition:all .2s}
+.seg:hover{color:var(--sub);border-color:var(--faint)}
+.seg.on{background:var(--accent-dim);border-color:var(--accent);color:var(--ink)}
+.slotrow{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;margin:0 -10px;transition:background .2s}
+.slotrow.sel{background:var(--accent-dim)}
+.slotrow .sl{flex:1;min-width:0}
+.slotrow .sl b{display:block;font-size:12.5px;font-weight:600;letter-spacing:.02em}
+.slotrow .sl span{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.06em}
+.slotrow select{background:var(--panel2);color:var(--sub);border:1px solid var(--line2);border-radius:9px;padding:7px 10px;font-family:var(--mono);font-size:11.5px;max-width:168px;outline:none}
+.slotrow select:focus-visible{border-color:var(--accent)}
+.optrow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.optrow:last-child{border-bottom:none}
+.optrow label{font-size:13px;color:var(--sub)}
+.optrow .note{font-family:var(--mono);font-size:9.5px;color:var(--faint);letter-spacing:.06em;display:block}
+.tgl{width:40px;height:22px;border-radius:999px;background:var(--line);border:none;position:relative;transition:background .2s;flex:none}
+.tgl::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#8f8877;transition:all .2s}
+.tgl.on{background:var(--accent)}
+.tgl.on::after{left:21px;background:#0b0a09}
+.minirow{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.mini{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--mut);background:none;border:1px solid var(--line);border-radius:8px;padding:5px 10px;transition:all .2s}
+.mini:hover{color:var(--sub);border-color:var(--faint)}
+.mini.on{color:var(--ink);border-color:var(--accent);background:var(--accent-dim)}
+
+/* ---------- specs ---------- */
+section.specs{padding:70px 0 30px}
+.sechead{display:flex;align-items:baseline;gap:18px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:28px}
+.sechead h2{font-family:'Fraunces',Georgia,serif;font-size:34px;font-weight:400}
+.sechead h2 em{font-style:italic;color:var(--accent);transition:color .5s}
+.sechead span{font-family:var(--mono);font-size:11px;letter-spacing:.26em;color:var(--faint);text-transform:uppercase}
+.speccards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.speccards{grid-template-columns:1fr}}
+.scard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px}
+.scard.wide{grid-column:1/-1}
+.scard h4{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;transition:color .5s}
+.scard p{font-size:14px;color:var(--sub);margin-bottom:10px}
+.scard p:last-child{margin-bottom:0}
+.scard ul{list-style:none}
+.scard li{font-size:13.5px;color:var(--sub);padding:5.5px 0 5.5px 18px;position:relative;border-bottom:1px solid rgba(255,255,255,.035)}
+.scard li:last-child{border-bottom:none}
+.scard li::before{content:'';position:absolute;left:1px;top:13px;width:8px;height:8px;border:1.5px solid var(--accent);border-radius:50%;border-bottom-color:transparent;border-left-color:transparent;transform:rotate(-45deg)}
+.scard li b{color:var(--ink);font-weight:600}
+.scard li .m{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.05em}
+.typechips{display:flex;flex-wrap:wrap;gap:7px}
+.tchip{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--sub);border:1px solid var(--line2);border-radius:7px;padding:4px 9px}
+.feastab{width:100%;border-collapse:collapse}
+.feastab td{padding:8px 10px 8px 0;font-size:13px;color:var(--sub);border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+.feastab td:first-child{color:var(--ink);font-weight:500;width:26%}
+.feastab tr:last-child td{border-bottom:none}
+.badge{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.14em;border-radius:5px;padding:3px 8px;vertical-align:1px}
+.b-native{background:rgba(104,211,145,.12);color:#7fdfa4;border:1px solid rgba(104,211,145,.3)}
+.b-provider{background:rgba(99,179,237,.12);color:#8ec9f5;border:1px solid rgba(99,179,237,.3)}
+.b-sim{background:rgba(246,213,92,.1);color:#efd47f;border:1px solid rgba(246,213,92,.3)}
+.b-custom{background:rgba(237,100,166,.1);color:#f096c0;border:1px solid rgba(237,100,166,.3)}
+.cost{display:block;margin-top:4px;font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:#efd47f}
+.cost::before{content:'⚠ build cost — ';color:#efd47f}
+.mech{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.02em}
+.themelist{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:640px){.themelist{grid-template-columns:1fr}}
+.themerow{display:flex;align-items:center;gap:11px;padding:7px 0}
+.themerow .dots{display:flex;flex:none}
+.themerow .dots i{width:16px;height:16px;border-radius:50%;border:1px solid rgba(255,255,255,.15);margin-left:-5px}
+.themerow .dots i:first-child{margin-left:0}
+.themerow div b{display:block;font-size:13px;font-weight:600}
+.themerow div span{font-size:11.5px;color:var(--mut)}
+
+/* ---------- global sections ---------- */
+section.global{padding:36px 0}
+.gtitle{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);margin-bottom:22px;display:flex;align-items:center;gap:16px}
+.gtitle::after{content:'';flex:1;height:1px;background:var(--line)}
+.legend{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.legend{grid-template-columns:repeat(2,1fr)}}
+.leg{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.leg p{font-size:12.5px;color:var(--mut);margin-top:9px}
+.walls{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.walls{grid-template-columns:1fr}}
+.wall{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.wall b{display:block;font-size:13.5px;color:var(--ink);margin-bottom:5px}
+.wall b s{color:var(--faint);font-weight:400}
+.wall p{font-size:12.5px;color:var(--mut)}
+.wall p em{color:var(--sub);font-style:normal;font-weight:600}
+.roadmap{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:900px){.roadmap{grid-template-columns:1fr 1fr}}
+.road{border:1px solid var(--line);border-radius:14px;padding:16px;background:linear-gradient(180deg,var(--panel),transparent)}
+.road.now{border-color:var(--accent)}
+.road .n{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--faint)}
+.road.now .n{color:var(--accent)}
+.road b{display:block;font-family:'Space Grotesk';font-size:15px;letter-spacing:.08em;margin:7px 0 4px}
+.road p{font-size:11.5px;color:var(--mut)}
+.protonote{background:var(--panel);border:1px solid var(--line2);border-left:3px solid var(--accent);border-radius:12px;padding:18px 22px;font-size:13.5px;color:var(--sub)}
+footer{border-top:1px solid var(--line);margin-top:50px;padding:30px 0 44px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer .f1{font-family:'Fraunces',Georgia,serif;font-size:19px}
+footer .f1 em{font-style:italic;color:var(--accent)}
+footer p{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--faint)}
+
+#toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,80px);background:#1d1a15;border:1px solid var(--line2);color:var(--sub);font-size:12.5px;font-family:var(--mono);letter-spacing:.03em;padding:11px 20px;border-radius:999px;transition:transform .35s cubic-bezier(.2,.9,.3,1.2);z-index:99;max-width:86vw;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+#toast.show{transform:translate(-50%,0)}
+#toast b{color:var(--accent)}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-type" aria-hidden="true">04</div>
+  <div class="wrap">
+    <div class="kicker">
+      <span>Fable Watch Faces</span><span>·</span><span>Series 04</span>
+      <span class="tag">Phase 1 — design prototype · no production code</span>
+    </div>
+    <h1 class="title">Wil<em>der</em></h1>
+    <p class="subtitle">Five nature watch faces built on what nature and Watch Face Format genuinely share: <em>things that change because time changes.</em> The sun travels because the hour advances. Seasons turn because the month does. The night sky rotates because the hour hand rotates. Nothing here drifts, sways, rains or flickers — scenes are still by design, and everything that moves does so at a clock rate with a proven mechanism behind it.</p>
+    <div class="chips">
+      <span class="chip"><b>5</b> faces · one APK each</span>
+      <span class="chip"><b>25</b> colour themes · ≤5 roles each</span>
+      <span class="chip"><b>WFF v1</b> · Wear OS 4+ · widest reach</span>
+      <span class="chip">per-face complications · <b>≤8</b> slots</span>
+      <span class="chip">pure-black toggle · <b>every face</b></span>
+      <span class="chip">live simulator · <b>your local time</b></span>
+    </div>
+    <div class="why">
+      <div><h4>Time is the weather</h4><p>The scene reacts to the clock and calendar — sun position, day/night, seasons — because those are the data sources WFF actually has.</p></div>
+      <div><h4>Still by design</h4><p>No drifting clouds, no falling leaves, no fireflies. If it can't move at a clock rate, it doesn't move — and the designs never need it to.</p></div>
+      <div><h4>Ship-safe by construction</h4><p>Every signature maps to an on-wrist-proven pattern: the Solstice sun transform, time-range gates, native hand rotation, arc fills.</p></div>
+      <div><h4>OLED economics</h4><p>Night scenes, silhouettes and star fields are mostly black already — dramatic interactive, effortless under the 15% ambient gate.</p></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Watch faces"><div class="wrap"><div class="tabs-inner" id="tabs"></div></div></nav>
+
+<main>
+  <div class="wrap sim">
+    <div class="stage">
+      <div class="device">
+        <div class="bezel"></div>
+        <div class="crown"></div><div class="sbtn"></div>
+        <div class="screen" id="screen"><svg id="dial" viewBox="0 0 480 480" role="img" aria-label="Watch face simulator"></svg><div class="glass"></div></div>
+      </div>
+      <div class="facemeta"><h2 id="fname"></h2><p id="ftag"></p></div>
+      <div class="modecap" id="modecap"></div>
+      <div class="stagebtns">
+        <button class="sbt" id="btnAod">◐ toggle always-on</button>
+        <button class="sbt" id="btnMap">◎ show slot map</button>
+        <button class="sbt" id="btnShuffle">⤨ shuffle simulated data</button>
+      </div>
+    </div>
+    <div class="rack" id="rack"></div>
+  </div>
+
+  <div class="wrap">
+    <section class="specs" id="specs"></section>
+
+    <section class="global">
+      <div class="gtitle">How to read the feasibility badges</div>
+      <div class="legend">
+        <div class="leg"><span class="badge b-native">NATIVE</span><p>Built into Watch Face Format itself and drawn by a mechanism named in the row — time-driven transforms, time-range gates, native hand rotation, static tinted assets, arc fills. Ships in the face with no dependencies.</p></div>
+        <div class="leg"><span class="badge b-provider">PROVIDER</span><p>Data arrives through standard Wear OS complication providers. Defaults are restricted to the WFF v1 system-provider list (SUNRISE_SUNSET is one!); heart-rate and weather can be user-added but can never be a default.</p></div>
+        <div class="leg"><span class="badge b-sim">SIMULATED</span><p>Shown live in this prototype with generated values so you can judge the design. The real face binds the same slot to a real provider. Nothing renders here that the real WFF face couldn't draw.</p></div>
+        <div class="leg"><span class="badge b-custom">CUSTOM</span><p>Would need our own complication provider or companion app. In WILDER this badge appears only on optional, non-signature extras — no face depends on one to ship.</p></div>
+      </div>
+      <p style="margin-top:14px;font-family:var(--mono);font-size:11px;color:#efd47f;letter-spacing:.04em">⚠ build cost — rows carrying this note are possible-but-costly: the mechanism is real, but it multiplies elements/assets or needs one dedicated verification round. Costed here so nothing is discovered after building.</p>
+    </section>
+
+    <section class="global">
+      <div class="gtitle">Designed inside the format — the natural walls WILDER was built against</div>
+      <div class="walls">
+        <div class="wall"><b><s>Drifting clouds, waves, rain, fireflies</s></b><p>WFF has no particle systems and no ambient motion — only clock-rate rotation and data-driven fills. <em>Scenes are still. The sun moves because time moves; that is the whole animation budget, spent well.</em></p></div>
+        <div class="wall"><b><s>Weather-reactive scenery</s></b><p>WFF v1 has NO weather source, and even v2's can be absent. <em>Weather is user-added complication data in a slot — the landscape never pretends to know if it's raining.</em> Staying v1 keeps Wear OS 4 devices.</p></div>
+        <div class="wall"><b><s>Moon-phase arithmetic</s></b><p>Phase maths needs the shelved % operator and epoch-day sources that don't exist. <em>Moon phase is a provider slot only; the drawn moon is a time-of-night marker, not a phase display.</em></p></div>
+        <div class="wall"><b><s>Organic vector shapes</s></b><p>PartDraw draws lines, rectangles, ellipses and arcs — no freeform paths. <em>Mountains, branches, petals and contours ship as static tinted PNG assets</em>, each costed against the 10 MB ambient gate (all are small, mostly-transparent, single-tint).</p></div>
+        <div class="wall"><b><s>True 24-hour sky rotation</s></b><p>Native smooth rotation exists at hand rates (12 h for an hour hand). <em>PLANISPHERE uses a stylised 12-hour sky natively; a true 24-h rotation is a costed option via the proven minute-stepped angle Transform.</em></p></div>
+        <div class="wall"><b><s>Wind, temperature or heart-rate driving motion</s></b><p>Data drives FILLS (the proven arc transforms), never movement. <em>Growth, tide and bloom metaphors are fills and gates — not kinetics.</em></p></div>
+        <div class="wall"><b><s>Hemisphere / location awareness</s></b><p>No location source exists in the format. <em>ALMANAC's automatic seasons use northern-hemisphere month mapping, with a manual season picker (the proven ListConfiguration switch) for everyone else.</em></p></div>
+        <div class="wall"><b><s>True sunrise/sunset geometry</s></b><p>No astronomy source in v1. <em>Drawn sun paths use fixed equinox presets (the shipped Solstice compromise); real times arrive as SUNRISE_SUNSET provider text — a genuine v1 default.</em></p></div>
+      </div>
+    </section>
+
+    <section class="global">
+      <div class="gtitle">Series roadmap — five categories, twenty-five single-face APKs</div>
+      <div class="roadmap">
+        <div class="road"><span class="n">SERIES 01 · BUILDING</span><b>ARCLIGHT</b><p>Arcs &amp; curves. Solstice + Pulsar shipped as standalone APKs.</p></div>
+        <div class="road"><span class="n">SERIES 02 · DESIGNED</span><b>LEDGER</b><p>Typographic dials — the numerals are the face.</p></div>
+        <div class="road"><span class="n">SERIES 03 · DESIGNED</span><b>ARMATURE</b><p>Mechanical instruments, skeletons and gauges.</p></div>
+        <div class="road now"><span class="n">SERIES 04 · THIS PROTOTYPE</span><b>WILDER</b><p>Nature, weather and organic slow motion.</p></div>
+        <div class="road"><span class="n">SERIES 05 · QUEUED</span><b>AFTERGLOW</b><p>Retro-digital light: LCD, phosphor and neon.</p></div>
+      </div>
+    </section>
+
+    <section class="global">
+      <div class="gtitle">About this prototype</div>
+      <div class="protonote">
+        This page is a <b>design simulator, not a build</b>. The clock is your real local time and all complication values are generated placeholders. No Wear OS project, APK or production code exists for WILDER yet — that is a deliberate Phase-1 gate. Like the LEDGER and ARMATURE showcases, this simulator is <b>feasibility-locked</b>: the sun and sky move only at clock rates, day/night and seasons switch by instant substitution through proven gates, nothing drifts or sways, and every rendered element corresponds to a named WFF v1 mechanism already proven on a real watch in Series 01. If it renders here, it can ship.
+      </div>
+    </section>
+
+    <footer>
+      <div>
+        <div class="f1">Fable · Wil<em>der</em></div>
+        <p>SERIES 04 · PHASE 1 DESIGN PROTOTYPE · 2026</p>
+      </div>
+      <p>PIXEL WATCH &amp; GALAXY WATCH · WATCH FACE FORMAT V1 · DESIGNED IN THE BROWSER, HONEST ABOUT THE WATCH</p>
+    </footer>
+  </div>
+</main>
+
+<div id="toast"></div>
+<script>
+'use strict';
+/* =========================================================
+   WILDER — Series 04 · Fable Watch Faces
+   Phase-1 interactive design prototype. Browser-only.
+   Feasibility-locked: motion only at clock rates; day/night
+   and seasons switch by instant substitution through proven
+   gates; no particles, no drift, no glows.
+   ========================================================= */
+
+const $ = s => document.querySelector(s);
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const pad2 = n => String(n).padStart(2,'0');
+const fmtInt = n => Math.round(n).toLocaleString('en-US');
+const DAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+
+function pol(cx, cy, r, a){
+  const t = (a - 90) * Math.PI / 180;
+  return [cx + r*Math.cos(t), cy + r*Math.sin(t)];
+}
+function arcPath(cx, cy, r, a0, a1){
+  let sweep = clamp(a1 - a0, 0.05, 359.9);
+  const [x0,y0] = pol(cx,cy,r,a0), [x1,y1] = pol(cx,cy,r,a0+sweep);
+  const large = sweep > 180 ? 1 : 0;
+  return `M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+}
+
+/* ---------- icon library ---------- */
+const ICONS = {
+  steps:'<ellipse cx="8.2" cy="7.2" rx="2.9" ry="4.3"/><path d="M8.2 14.6v2.4"/><ellipse cx="15.8" cy="12.4" rx="2.9" ry="4.3"/><path d="M15.8 19.8v1.2"/>',
+  hr:'<path d="M12 20.5C7.4 16.8 3.5 13.4 3.5 9.3 3.5 6.6 5.5 4.5 8 4.5c1.5 0 3 .7 4 2 1-1.3 2.5-2 4-2 2.5 0 4.5 2.1 4.5 4.8 0 4.1-3.9 7.5-8.5 11.2Z"/>',
+  weather:'<circle cx="8" cy="8.2" r="2.7"/><path d="M8 3.4v1.3M3.2 8.2h1.3M4.8 5l1 1"/><path d="M10.6 20h6.1a3.3 3.3 0 0 0 .6-6.6A4.6 4.6 0 0 0 8.7 12 3.6 3.6 0 0 0 10.6 20Z"/>',
+  battery:'<rect x="3" y="8" width="15" height="9" rx="2.2"/><path d="M20.6 11v3M6.6 11.5v2M9.6 11.5v2"/>',
+  calendar:'<rect x="3.8" y="5.5" width="16.4" height="15" rx="2.6"/><path d="M3.8 10.4h16.4M9 3.4v4M15 3.4v4"/>',
+  date:'<rect x="3.8" y="5.5" width="16.4" height="15" rx="2.6"/><path d="M3.8 10.4h16.4M9 3.4v4M15 3.4v4"/><circle cx="12" cy="15.2" r="1.3"/>',
+  alarm:'<circle cx="12" cy="13.6" r="6.8"/><path d="M12 10v3.8l2.6 1.6M4.6 5.4 7 3.6M19.4 5.4 17 3.6"/>',
+  worldclock:'<circle cx="12" cy="12" r="8.4"/><path d="M3.6 12h16.8M12 3.6c2.5 2.3 3.8 5.1 3.8 8.4s-1.3 6.1-3.8 8.4c-2.5-2.3-3.8-5.1-3.8-8.4s1.3-6.1 3.8-8.4Z"/>',
+  sunrise:'<path d="M3.5 18.5h17M7.2 18.5a4.8 4.8 0 0 1 9.6 0M12 5.2v3M5.8 8.8l1.4 1.4M18.2 8.8l-1.4 1.4"/>',
+  calories:'<path d="M12 21.2c-3.5 0-6.1-2.4-6.1-5.8 0-2.3 1.3-4 2.5-5.5 1.2-1.4 2.2-3 2.1-5.5 2.7 1.6 4.4 3.9 4.8 6.2.6-.5 1.1-1.3 1.4-2.3 1.5 1.6 2.5 3.6 2.5 5.8 0 3.4-2.7 7.1-7.2 7.1Z"/>',
+  distance:'<circle cx="6.2" cy="18.6" r="2.4"/><circle cx="17.8" cy="5.4" r="2.4"/><path d="M8.8 18.6h6a3.4 3.4 0 0 0 0-6.8H9.2a3.4 3.4 0 0 1 0-6.8h6.2"/>',
+  notif:'<path d="M6.4 15.8V11a5.6 5.6 0 0 1 11.2 0v4.8l1.7 2.4H4.7l1.7-2.4Z"/><path d="M10.2 20.6a2 2 0 0 0 3.6 0"/>'
+};
+function ic(name, x, y, s, col, sw, op){
+  const k = s/24;
+  return `<g transform="translate(${(x-s/2).toFixed(1)} ${(y-s/2).toFixed(1)}) scale(${k.toFixed(3)})" fill="none" stroke="${col}" stroke-width="${(sw||2)/k}" stroke-linecap="round" stroke-linejoin="round" opacity="${op==null?1:op}">${ICONS[name]||''}</g>`;
+}
+
+/* ---------- simulated data ---------- */
+const sim = {
+  steps: 6432, stepGoal: 10000, hrv: 68, batt: 78, temp: 24,
+  cal: 412, dist: 4.6, notif: 3,
+  eventTitle: 'Design review', eventH: 14.5,
+  alarmH: 6.5, sunriseH: 6.0, sunsetH: 18.0,
+  wcCity: 'NYC', wcOffset: -9.5
+};
+function shuffleSim(){
+  sim.steps = 2200 + Math.floor(Math.random()*9500);
+  sim.hrv = 54 + Math.floor(Math.random()*68);
+  sim.batt = 18 + Math.floor(Math.random()*80);
+  sim.temp = 9 + Math.floor(Math.random()*26);
+  sim.cal = 150 + Math.floor(Math.random()*600);
+  sim.dist = +(1 + Math.random()*9).toFixed(1);
+  sim.notif = Math.floor(Math.random()*6);
+  const ev = [['Design review',14.5],['Standup',9.5],['1:1 with Maya',11.0],['Flight BLR → DEL',17.75],['Gym',18.5]];
+  const e = ev[Math.floor(Math.random()*ev.length)];
+  sim.eventTitle = e[0]; sim.eventH = e[1];
+}
+setInterval(()=>{
+  sim.hrv = clamp(sim.hrv + Math.round(Math.random()*4-2), 52, 148);
+  if(Math.random() < .5) sim.steps += Math.floor(Math.random()*9);
+}, 2600);
+
+function fmtClock(hf, h24){
+  let h = Math.floor(hf), m = Math.round((hf - h)*60);
+  if(m === 60){ h++; m = 0; }
+  if(h24) return pad2(h) + ':' + pad2(m);
+  const hh = ((h + 11) % 12) + 1;
+  return hh + ':' + pad2(m) + (h < 12 ? 'a' : 'p');
+}
+function dateShort(){ const d = new Date(); return DAYS[d.getDay()] + ' ' + d.getDate(); }
+
+/* ---------- complication registry ---------- */
+const COMPS = {
+  steps:     { name:'Steps',        tab:'STEPS', icon:'steps',      wff:'RANGED_VALUE',  tap:'the fitness app', get:p=>({txt:fmtInt(sim.steps), sub:'STEPS', frac:clamp(sim.steps/sim.stepGoal,0,1)}) },
+  hr:        { name:'Heart rate',   tab:'PULSE', icon:'hr',         wff:'RANGED_VALUE',  tap:'the heart-rate app', get:p=>({txt:String(sim.hrv), sub:'BPM', frac:clamp((sim.hrv-40)/140,0,1)}) },
+  weather:   { name:'Weather',      tab:'WTHR',  icon:'weather',    wff:'SHORT_TEXT + ICON', tap:'the weather app', get:p=>({txt:sim.temp+'°', sub:'PARTLY CLOUDY', frac:null}) },
+  battery:   { name:'Watch battery',tab:'BATT',  icon:'battery',    wff:'RANGED_VALUE',  tap:'battery settings', get:p=>({txt:sim.batt+'%', sub:'BATTERY', frac:sim.batt/100}) },
+  calendar:  { name:'Next event',   tab:'EVENT', icon:'calendar',   wff:'SHORT/LONG_TEXT', tap:'the event in Calendar', get:p=>({txt:fmtClock(sim.eventH,p.h24), sub:sim.eventTitle.toUpperCase(), frac:null}) },
+  alarm:     { name:'Next alarm',   tab:'ALARM', icon:'alarm',      wff:'SHORT_TEXT',    tap:'Clock — alarms', get:p=>({txt:fmtClock(sim.alarmH,p.h24), sub:'ALARM', frac:null}) },
+  worldclock:{ name:'World clock',  tab:'WORLD', icon:'worldclock', wff:'NATIVE TZ CLOCK', tap:'Clock — world clock', get:p=>{
+      const d = new Date(Date.now() + sim.wcOffset*3600000);
+      const h = d.getHours(), m = d.getMinutes();
+      return {txt: p.h24 ? pad2(h)+':'+pad2(m) : (((h+11)%12)+1)+':'+pad2(m), sub:sim.wcCity, frac:null}; } },
+  sunrise:   { name:'Sunrise / sunset', tab:'SUNRS', icon:'sunrise', wff:'SHORT_TEXT',   tap:'the weather provider', get:p=>({txt:fmtClock(sim.sunriseH,p.h24), sub:'SET '+fmtClock(sim.sunsetH,p.h24).toUpperCase(), frac:null}) },
+  calories:  { name:'Calories',     tab:'KCAL',  icon:'calories',   wff:'RANGED_VALUE',  tap:'the fitness app', get:p=>({txt:fmtInt(sim.cal), sub:'KCAL', frac:clamp(sim.cal/600,0,1)}) },
+  distance:  { name:'Distance',     tab:'DIST',  icon:'distance',   wff:'RANGED_VALUE',  tap:'the fitness app', get:p=>({txt:sim.dist.toFixed(1), sub:'KM', frac:clamp(sim.dist/8,0,1)}) },
+  notif:     { name:'Notifications',tab:'NOTIF', icon:'notif',      wff:'SHORT_TEXT',    tap:'the notification stream', get:p=>({txt:String(sim.notif), sub:'UNREAD', frac:null}) },
+  date:      { name:'Date',         tab:'DATE',  icon:'date',       wff:'NATIVE',        tap:'Calendar', get:p=>({txt:dateShort(), sub:MONTHS[new Date().getMonth()], frac:null}) }
+};
+
+/* =========================================================
+   FACE DEFINITIONS
+   ========================================================= */
+const GEN = ['steps','hr','weather','battery','calendar','calories','distance','notif','alarm','worldclock','sunrise'];
+const MICRO = ['steps','battery','hr','notif','calories'];
+
+const FACES = [
+{
+  id:'ridgeline', name:'RIDGELINE', role:'Landscape · hero',
+  accent:'#ffa94d',
+  tagline:'A living landscape — the sun crosses the sky in real time, sets behind the ridge, and the stars come out. The scene is still; the day is not.',
+  themes:[
+    {n:'Alpenglow', d:'Indigo sky, alpen-orange sun, black ridge', c:{bg:'#131a2e',ridge:'#0a0d18',ink:'#f0ead8',acc:'#ffa94d',mut:'#7d829c'}, sw:['#ffa94d','#131a2e']},
+    {n:'High Noon', d:'Light dial — pale sky, slate ridges', c:{bg:'#dfe9f0',ridge:'#9fb2c0',ink:'#1a1e26',acc:'#f0a03c',mut:'#8a97a6'}, sw:['#f0a03c','#dfe9f0']},
+    {n:'Pine Dusk', d:'Forest night, warm lantern sun', c:{bg:'#0c1410',ridge:'#071009',ink:'#e4efe2',acc:'#ffc46a',mut:'#6a8272'}, sw:['#ffc46a','#0c1410']},
+    {n:'Desert', d:'Umber night over mesa black', c:{bg:'#1a100c',ridge:'#100806',ink:'#f4e8da',acc:'#ff7a50',mut:'#96806e'}, sw:['#ff7a50','#1a100c']},
+    {n:'Fjord', d:'Cold water sky, ice-blue sun', c:{bg:'#0a1218',ridge:'#061014',ink:'#e2eef2',acc:'#7fd0e8',mut:'#5f7e8c'}, sw:['#7fd0e8','#0a1218']}
+  ],
+  slots:[
+    {id:'v1', label:'Valley · left',   pos:'row along the foothills', allowed:GEN, anchor:[140,420]},
+    {id:'v2', label:'Valley · centre', pos:'row along the foothills', allowed:GEN, anchor:[240,426]},
+    {id:'v3', label:'Valley · right',  pos:'row along the foothills', allowed:GEN, anchor:[340,420]}
+  ],
+  configOrder:['Scenic','Balanced','Full'],
+  defCfg:'Balanced',
+  configs:{
+    'Scenic':   {v1:null,v2:null,v3:null},
+    'Balanced': {v1:null,v2:'steps',v3:null},
+    'Full':     {v1:'battery',v2:'steps',v3:'calendar'}
+  },
+  options:[
+    {id:'sunPath', label:'Sun path arc', def:true, note:'faint static track the sun travels'},
+    {id:'stars', label:'Night stars', def:true, note:'static star field · night-gated group'},
+    {id:'dateLn', label:'Date line', def:true, note:'under the time'}
+  ]
+},
+{
+  id:'almanac', name:'ALMANAC', role:'Seasonal page · calendar',
+  accent:'#8fbf5f',
+  tagline:'A farmer’s-almanac page — the day of the month is the hero, and the branch in the margin blossoms, leafs, turns and bares with the seasons.',
+  themes:[
+    {n:'Herbarium', d:'Pressed-plant black, brass figures, leaf green', c:{bg:'#0e100b',ink:'#ece9d8',acc:'#d9a441',mut:'#6f6d58',leaf:'#8fbf5f'}, sw:['#8fbf5f','#0e100b']},
+    {n:'Field Notes', d:'Light dial — cream paper, ochre ink', c:{bg:'#f1ecdc',ink:'#211d12',acc:'#b3691f',mut:'#99917c',leaf:'#6a9a42'}, sw:['#b3691f','#f1ecdc']},
+    {n:'Nocturne Garden', d:'Blue night page, moonlit foliage', c:{bg:'#0c0d14',ink:'#e8e9f2',acc:'#b48cff',mut:'#666a80',leaf:'#7fa8d0'}, sw:['#b48cff','#0c0d14']},
+    {n:'Ember Fall', d:'Autumn black, embered figures', c:{bg:'#140d08',ink:'#f2e6d8',acc:'#e0713f',mut:'#8a7360',leaf:'#cf8f3f'}, sw:['#e0713f','#140d08']},
+    {n:'Meadow', d:'Deep green page, buttercup accent', c:{bg:'#0b120d',ink:'#e2f0e4',acc:'#f2c94c',mut:'#5f7a66',leaf:'#63c47f'}, sw:['#f2c94c','#0b120d']}
+  ],
+  slots:[
+    {id:'top', label:'Margin note', pos:'top centre, above the page', allowed:['steps','battery','notif','worldclock','alarm'], anchor:[240,100]},
+    {id:'srss', label:'Sun row', pos:'below the time', allowed:['sunrise','worldclock','alarm','weather'], anchor:[240,404]}
+  ],
+  configOrder:['Page','Desk','Full'],
+  defCfg:'Desk',
+  configs:{
+    'Page': {top:null,srss:'sunrise'},
+    'Desk': {top:'battery',srss:'sunrise'},
+    'Full': {top:'steps',srss:'sunrise'}
+  },
+  options:[
+    {id:'branches', label:'Season branches', def:true, note:'4 static artworks · month-range gates · manual picker on-watch'},
+    {id:'monthLine', label:'Month line', def:true, note:'JUL under the numeral'},
+    {id:'italTime', label:'Italic time', def:true, note:'off = upright hairline'}
+  ]
+},
+{
+  id:'planisphere', name:'PLANISPHERE', role:'Rotating sky · dress',
+  accent:'#9fb4ff',
+  tagline:'The night sky as the hour hand — a star-map disc turns through the night, and its pointer star reads the hour on the bezel. Only a thin minute hand rides above.',
+  themes:[
+    {n:'Observatory', d:'Deep space black, moonlight scale', c:{bg:'#05070d',ink:'#e6eaf4',acc:'#9fb4ff',mut:'#4a5166',star:'#cdd8f2'}, sw:['#9fb4ff','#05070d']},
+    {n:'Vellum Chart', d:'Light dial — an astronomer’s vellum', c:{bg:'#efe8d5',ink:'#241f14',acc:'#a86a28',mut:'#a49a82',star:'#6b6046'}, sw:['#a86a28','#efe8d5']},
+    {n:'Deep Field', d:'Violet space, lilac constellations', c:{bg:'#070510',ink:'#ece6f6',acc:'#c49fff',mut:'#564d70',star:'#b9a9e6'}, sw:['#c49fff','#070510']},
+    {n:'Boreal', d:'Polar green-black, aurora scale', c:{bg:'#04100e',ink:'#dff2ec',acc:'#5fe0c0',mut:'#47695f',star:'#a8e0d0'}, sw:['#5fe0c0','#04100e']},
+    {n:'Halley', d:'Warm observatory brass on black', c:{bg:'#0d0a06',ink:'#f0e8d6',acc:'#ffb84d',mut:'#6e644e',star:'#e0cfa4'}, sw:['#ffb84d','#0d0a06']}
+  ],
+  slots:[
+    {id:'north', label:'North note', pos:'top centre, inside the scale', allowed:['battery','steps','notif','alarm','worldclock'], anchor:[240,104]},
+    {id:'dateWin', label:'Date window', pos:'lower centre', allowed:['date'], anchor:[240,372]}
+  ],
+  configOrder:['Sky','Charted','Full'],
+  defCfg:'Charted',
+  configs:{
+    'Sky':     {north:null,dateWin:null},
+    'Charted': {north:null,dateWin:'date'},
+    'Full':    {north:'battery',dateWin:'date'}
+  },
+  options:[
+    {id:'constellations', label:'Constellation lines', def:true, note:'printed on the rotating disc'},
+    {id:'comet', label:'Seconds comet', def:true, note:'the shipped Solstice comet · interactive only'},
+    {id:'digital', label:'Digital confirm', def:false, note:'small h:mm for fast reading'}
+  ]
+},
+{
+  id:'bloom', name:'BLOOM', role:'Day-flower · wellness',
+  accent:'#f28fb8',
+  tagline:'A flower that blooms through your day — one petal opens every two hours over a faint ghost of the whole bloom. Full flower by ten, shed at midnight.',
+  themes:[
+    {n:'Night Garden', d:'Soft black, rose petals, moss stem', c:{bg:'#120d12',ink:'#f4ecf0',acc:'#f28fb8',mut:'#71606a',stem:'#7fae8a'}, sw:['#f28fb8','#120d12']},
+    {n:'Paper Press', d:'Light dial — pressed-flower paper', c:{bg:'#f2ede2',ink:'#241c1a',acc:'#d16084',mut:'#9c9186',stem:'#6a9a6e'}, sw:['#d16084','#f2ede2']},
+    {n:'Lotus', d:'Still-water black, pale blue lotus', c:{bg:'#0a1014',ink:'#e6f0f2',acc:'#8fd0e8',mut:'#5c7480',stem:'#6fae9a'}, sw:['#8fd0e8','#0a1014']},
+    {n:'Marigold', d:'Warm dusk, marigold petals', c:{bg:'#12100a',ink:'#f2ecda',acc:'#ffb340',mut:'#7a7258',stem:'#a0a05a'}, sw:['#ffb340','#12100a']},
+    {n:'Violet Hour', d:'Deep violet, twilight bloom', c:{bg:'#0e0a16',ink:'#eee6f8',acc:'#b89fff',mut:'#665c80',stem:'#8a7fc0'}, sw:['#b89fff','#0e0a16']}
+  ],
+  slots:[
+    {id:'top', label:'Dew note', pos:'top centre, above the bloom', allowed:['hr','battery','notif','weather','date'], anchor:[240,92]},
+    {id:'stem', label:'Stem ring', pos:'below the time', allowed:['steps','calories','distance','battery'], anchor:[240,420]}
+  ],
+  configOrder:['Calm','Tended','Full'],
+  defCfg:'Tended',
+  configs:{
+    'Calm':   {top:null,stem:null},
+    'Tended': {top:null,stem:'steps'},
+    'Full':   {top:'battery',stem:'steps'}
+  },
+  options:[
+    {id:'ghost', label:'Ghost bloom', def:true, note:'the full flower stays faintly visible'},
+    {id:'edge', label:'Petal edges', def:false, note:'hairline ink edge on open petals'},
+    {id:'ampm', label:'AM/PM tag', def:true, note:'hidden automatically in 24-h mode'}
+  ]
+},
+{
+  id:'contour', name:'CONTOUR', role:'Trail map · outdoor',
+  accent:'#4fb8a8',
+  tagline:'A topographic dial — contour lines for terrain, elevation figures for hours, waypoint pins for your data, and a compass-needle second hand.',
+  themes:[
+    {n:'Basecamp', d:'Night map, teal route, faint contours', c:{bg:'#0c0e0d',ink:'#e8ece6',acc:'#4fb8a8',mut:'#5f6a62',line:'#3a4a42'}, sw:['#4fb8a8','#0c0e0d']},
+    {n:'Field Map', d:'Light dial — paper map, trail red', c:{bg:'#ece7d8',ink:'#1e1a12',acc:'#cf5a2e',mut:'#9a917c',line:'#c4b998'}, sw:['#cf5a2e','#ece7d8']},
+    {n:'Night Nav', d:'Chart blue-black, amber bearing', c:{bg:'#0a0d14',ink:'#e4eaf4',acc:'#ffb340',mut:'#5a6478',line:'#29344a'}, sw:['#ffb340','#0a0d14']},
+    {n:'Crater', d:'Volcanic black, ember route', c:{bg:'#100b0a',ink:'#f0e6de',acc:'#ef6a50',mut:'#7d6c64',line:'#3d2e28'}, sw:['#ef6a50','#100b0a']},
+    {n:'Glacier Route', d:'Ice-field black, crevasse blue', c:{bg:'#081014',ink:'#e0eef4',acc:'#6fc8e8',mut:'#567080',line:'#1d3440'}, sw:['#6fc8e8','#081014']}
+  ],
+  slots:[
+    {id:'wp1', label:'Waypoint · NW', pos:'pin on the map', allowed:MICRO, anchor:[132,160]},
+    {id:'wp2', label:'Waypoint · E',  pos:'pin on the map', allowed:MICRO, anchor:[356,188]},
+    {id:'wp3', label:'Waypoint · SW', pos:'pin on the map', allowed:GEN, anchor:[152,346]},
+    {id:'dateLeg', label:'Map legend', pos:'bottom centre', allowed:['date'], anchor:[240,428]}
+  ],
+  configOrder:['Trail','Marked','Full'],
+  defCfg:'Marked',
+  configs:{
+    'Trail':  {wp1:null,wp2:null,wp3:null,dateLeg:'date'},
+    'Marked': {wp1:null,wp2:'battery',wp3:null,dateLeg:'date'},
+    'Full':   {wp1:'steps',wp2:'battery',wp3:'calendar',dateLeg:'date'}
+  },
+  options:[
+    {id:'contours', label:'Contour lines', def:true, note:'static tinted terrain asset'},
+    {id:'secNeedle', label:'Compass seconds', def:true, note:'native Sweep · hidden in AOD'},
+    {id:'grid', label:'Grid lines', def:false, note:'faint static graticule'}
+  ]
+}
+];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const state = {
+  f: 0,
+  theme: {},
+  mode: 'int',
+  cfg: {},
+  cur: {},
+  opts: {},
+  prefs: { h24:false, sec:'sweep', clean:false },
+  sel: null,
+  showMap: false
+};
+FACES.forEach(f=>{
+  state.theme[f.id] = 0;
+  state.cfg[f.id] = f.defCfg;
+  state.cur[f.id] = Object.assign({}, f.configs[f.defCfg]);
+  state.opts[f.id] = {};
+  f.options.forEach(o=> state.opts[f.id][o.id] = o.def);
+});
+
+let toastTimer = null;
+function toast(msg){
+  const t = $('#toast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 3000);
+}
+
+function makeCtx(fi, forThumb){
+  const face = FACES[fi];
+  const th = face.themes[state.theme[face.id]].c;
+  const d = new Date();
+  const aod = !forThumb && state.mode === 'aod';
+  const clean = !forThumb && state.prefs.clean;
+  const slots = {};
+  face.slots.forEach(s=>{
+    const key = state.cur[face.id][s.id];
+    if(key && !clean && COMPS[key]) slots[s.id] = { key, comp: COMPS[key], v: COMPS[key].get(state.prefs) };
+    else slots[s.id] = null;
+  });
+  return {
+    face, th, d,
+    t: { h: d.getHours(), m: d.getMinutes(), s: d.getSeconds(), ms: d.getMilliseconds() },
+    aod, clean, slots,
+    prefs: state.prefs,
+    sec: (aod || forThumb) ? 'off' : state.prefs.sec,
+    opts: state.opts[face.id],
+    sel: forThumb ? null : state.sel,
+    showMap: forThumb ? false : state.showMap,
+    thumb: !!forThumb
+  };
+}
+
+function hitOverlay(ctx){
+  if(ctx.thumb) return '';
+  let s = '';
+  ctx.face.slots.forEach((sd, i)=>{
+    const [x,y] = sd.anchor;
+    const active = !!ctx.slots[sd.id];
+    if(ctx.showMap){
+      const on = active;
+      s += `<g opacity="${on?1:.45}">
+        <circle cx="${x}" cy="${y}" r="26" fill="none" stroke="${on?'#ffd479':'#8f8877'}" stroke-width="1.4" stroke-dasharray="4 5"/>
+        <circle cx="${x}" cy="${y}" r="10.5" fill="#0b0a09" stroke="${on?'#ffd479':'#8f8877'}" stroke-width="1.2"/>
+        <text x="${x}" y="${y+3.8}" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="${on?'#ffd479':'#b8b0a0'}">${i+1}</text></g>`;
+    }
+    if(ctx.sel === sd.id){
+      s += `<circle cx="${x}" cy="${y}" r="30" fill="none" stroke="#ffffff" stroke-opacity=".85" stroke-width="1.6" stroke-dasharray="3 6" stroke-linecap="round"/>`;
+    }
+    if(active || ctx.showMap){
+      s += `<circle cx="${x}" cy="${y}" r="30" fill="rgba(0,0,0,0)" data-slot="${sd.id}" style="cursor:pointer"/>`;
+    }
+  });
+  return s;
+}
+
+/* =========================================================
+   RENDERERS — 480×480. FEASIBILITY LOCK:
+   · motion only at clock rates (sun transform, hand rotation)
+   · day/night & seasons switch by instant gated substitution
+   · organic shapes = static tinted assets (PNG in the build)
+   · AOD = fixed light inks (#d8d4cc / #8f8877 / #26241f)
+   ========================================================= */
+function T(x,y,s,fill,str,o){
+  o = o || {};
+  return `<text x="${x}" y="${y}" font-size="${s}" fill="${fill}" text-anchor="${o.a||'middle'}" font-family="${o.f||'Inter'}" font-weight="${o.w||500}"${o.i?' font-style="italic"':''}${o.op!=null?` opacity="${o.op}"`:''}>${str}</text>`;
+}
+const AOD_INK = '#d8d4cc', AOD_MUT = '#8f8877', AOD_LINE = '#26241f';
+function hand(cx, cy, ang, len, w, col, tail){
+  const [x1,y1] = pol(cx,cy,tail||0,ang+180);
+  const [x2,y2] = pol(cx,cy,len,ang);
+  return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
+}
+function poly(pts, fill, op){
+  return `<polygon points="${pts.map(p=>p[0]+','+p[1]).join(' ')}" fill="${fill}"${op!=null?` opacity="${op}"`:''}/>`;
+}
+const R = {};
+
+/* ---------------- RIDGELINE — the landscape ---------------- */
+const STARS = [[70,80,1.4],[120,52,1],[170,96,1.7],[214,60,1],[262,84,1.3],[308,50,1],[352,92,1.6],[398,120,1],[96,140,1],[150,168,1.2],[330,150,1],[380,180,1.4],[240,40,1],[60,190,1.1],[420,80,1.2],[286,130,1],[196,128,1],[110,102,1.2]];
+const FAR_RIDGE = [[0,340],[60,300],[120,330],[190,282],[260,326],[330,296],[400,332],[480,306],[480,480],[0,480]];
+const NEAR_RIDGE = [[0,376],[80,330],[150,362],[230,318],[310,366],[390,336],[480,372],[480,480],[0,480]];
+R.ridgeline = function(ctx){
+  const th = ctx.th, t = ctx.t;
+  const nowH = t.h + t.m/60;
+  const SR = 6, SS = 18;                       /* fixed equinox preset — the shipped Solstice compromise */
+  const isDay = nowH >= SR && nowH < SS;
+  const PX = 240, PY = 352, PR = 212;
+  const frac = isDay ? (nowH - SR)/12 : ((nowH >= SS ? nowH - SS : nowH + 6)/12);
+  const ang = -90 + frac*180;
+  const [mx,my] = pol(PX,PY,PR,ang);
+  const tm = ctx.prefs.h24 ? pad2(t.h)+':'+pad2(t.m) : (((t.h+11)%12)+1)+':'+pad2(t.m);
+  const ap = ctx.prefs.h24 ? '' : (t.h<12?'AM':'PM');
+  if(ctx.aod){
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    let pl = NEAR_RIDGE.slice(0,7).map(p=>p[0]+','+p[1]).join(' ');
+    s += `<polyline points="${pl}" fill="none" stroke="${AOD_MUT}" stroke-width="1.6"/>`;
+    s += `<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="6" fill="none" stroke="${AOD_INK}" stroke-width="1.6"/>`;
+    s += T(240,196,84,AOD_INK,tm,{f:'Jost',w:300});
+    if(ap) s += T(240,228,12,AOD_MUT,ap,{f:'JetBrains Mono'});
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* night state — one time-range gate on an overlay + a star group */
+  if(!isDay){
+    s += `<rect width="480" height="480" fill="#000000" opacity=".42"/>`;
+    if(ctx.opts.stars) STARS.forEach(st=>{ s += `<circle cx="${st[0]}" cy="${st[1]}" r="${st[2]}" fill="${th.ink}" opacity=".8"/>`; });
+  }
+  /* sun path */
+  if(ctx.opts.sunPath) s += `<path d="${arcPath(PX,PY,PR,-90,90)}" fill="none" stroke="${th.ink}" stroke-width="1" opacity=".1"/>`;
+  /* sun / moon marker — the shipped Solstice angle transform + day/night gates */
+  if(isDay){
+    s += `<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="13" fill="${th.acc}"/>`;
+  } else {
+    s += `<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="12" fill="${th.ink}"/><circle cx="${(mx-4).toFixed(1)}" cy="${(my-3).toFixed(1)}" r="9.5" fill="${th.bg}"/>`;
+  }
+  /* ridges — static tinted assets in the build */
+  s += poly(FAR_RIDGE, th.mut, .5);
+  s += poly(NEAR_RIDGE, th.ridge);
+  /* time in the sky */
+  s += T(240,196,86,th.ink,tm,{f:'Jost',w:300});
+  if(ap) s += T(304,168,13,th.mut,ap,{f:'JetBrains Mono',a:'start'});
+  if(ctx.opts.dateLn) s += T(240,228,12,th.mut,DAYS[ctx.d.getDay()]+' '+ctx.d.getDate()+' '+MONTHS[ctx.d.getMonth()],{f:'JetBrains Mono'});
+  /* valley slots */
+  ['v1','v2','v3'].forEach(id=>{
+    const sl = ctx.slots[id]; if(!sl) return;
+    const [x,y] = ctx.face.slots.find(z=>z.id===id).anchor;
+    s += ic(sl.comp.icon, x-((sl.v.txt.length*4.2)+8), y-4.5, 13, th.mut, 2, .95);
+    s += T(x+8, y, 14, th.ink, sl.v.txt, {f:'JetBrains Mono',w:500});
+  });
+  return s;
+};
+
+/* ---------------- ALMANAC — the seasonal page ---------------- */
+function branchArt(season, th){
+  /* static artwork — a tinted PNG per season in the build; month-gated */
+  let s = `<g fill="none" stroke="${th.mut}" stroke-width="2" stroke-linecap="round" opacity=".85">`;
+  s += `<path d="M 26 34 L 152 138"/><path d="M 70 70 L 96 44"/><path d="M 108 102 L 138 82"/><path d="M 58 60 L 66 88"/>`;
+  s += `</g>`;
+  const leaves = [[96,44],[138,82],[66,88],[152,138],[118,110]];
+  if(season==='spring'){
+    leaves.forEach(p=>{ s += `<circle cx="${p[0]}" cy="${p[1]}" r="4.5" fill="${th.acc}" opacity=".9"/>`; });
+  } else if(season==='summer'){
+    leaves.forEach((p,i)=>{ s += `<ellipse cx="${p[0]}" cy="${p[1]}" rx="10" ry="5" fill="${th.leaf}" opacity=".9" transform="rotate(${i*36-40} ${p[0]} ${p[1]})"/>`; });
+  } else if(season==='autumn'){
+    leaves.slice(0,3).forEach((p,i)=>{ s += `<ellipse cx="${p[0]}" cy="${p[1]}" rx="9" ry="4.5" fill="${th.acc}" opacity=".85" transform="rotate(${i*44-30} ${p[0]} ${p[1]})"/>`; });
+    s += `<ellipse cx="150" cy="196" rx="8" ry="4" fill="${th.acc}" opacity=".55" transform="rotate(70 150 196)"/>`;
+  }
+  return s;
+}
+R.almanac = function(ctx){
+  const th = ctx.th, t = ctx.t;
+  const mo = ctx.d.getMonth()+1;
+  const season = (mo>=3&&mo<=5)?'spring':(mo>=6&&mo<=8)?'summer':(mo>=9&&mo<=11)?'autumn':'winter';
+  const tm = ctx.prefs.h24 ? pad2(t.h)+':'+pad2(t.m) : (((t.h+11)%12)+1)+':'+pad2(t.m);
+  const ap = ctx.prefs.h24 ? '' : (t.h<12?'AM':'PM');
+  if(ctx.aod){
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    s += T(240,140,15,AOD_MUT,DAYS[ctx.d.getDay()]+' · '+MONTHS[ctx.d.getMonth()],{f:'JetBrains Mono'});
+    s += T(240,296,158,AOD_INK,String(ctx.d.getDate()),{f:'Fraunces',w:300});
+    s += T(240,368,38,AOD_MUT,tm,{f:'Fraunces',w:300,i:true});
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* season branches — static tinted assets, month-range gated (Auto) or list-picked (manual) */
+  if(ctx.opts.branches){
+    s += branchArt(season, th);
+    s += `<g transform="rotate(180 240 240)">${branchArt(season, th)}</g>`;
+  }
+  /* the page */
+  s += T(240,126,17,th.mut,DAYS[ctx.d.getDay()],{f:'JetBrains Mono'});
+  s += `<rect x="196" y="142" width="88" height="2" fill="${th.acc}"/>`;
+  s += T(240,300,176,th.ink,String(ctx.d.getDate()),{f:'Fraunces',w:900});
+  if(ctx.opts.monthLine) s += T(240,338,15,th.acc,MONTHS[ctx.d.getMonth()],{f:'JetBrains Mono',w:500});
+  /* time */
+  s += T(240,384,44,th.ink,tm,{f:'Fraunces',w:300,i:ctx.opts.italTime});
+  if(ap) s += T(300,380,12,th.mut,ap,{f:'JetBrains Mono',a:'start'});
+  /* slots */
+  const tp = ctx.slots.top;
+  if(tp){
+    s += ic(tp.comp.icon, 216, 96, 13, th.mut, 2, .9);
+    s += T(232,101,14,th.ink,tp.v.txt,{f:'JetBrains Mono',w:500,a:'start'});
+  }
+  const sr = ctx.slots.srss;
+  if(sr){
+    s += ic(sr.comp.icon, 168, 406, 14, th.leaf, 2, .95);
+    s += T(184,411,13,th.mut,sr.v.txt+' · '+sr.v.sub,{f:'JetBrains Mono',a:'start'});
+  }
+  return s;
+};
+
+/* ---------------- PLANISPHERE — the rotating sky ---------------- */
+const DISC_STARS = [[24,15,1.4],[42,80,1],[56,150,1.8],[38,210,1.2],[66,262,1],[84,40,1.6],[92,118,1],[104,188,1.4],[78,330,1.2],[112,300,1],[126,66,1.8],[132,140,1],[144,236,1.5],[120,20,1],[150,318,1.2],[158,102,1],[64,10,1.2],[96,352,1.5],[140,172,1],[30,120,1],[52,300,1.4],[108,238,1],[162,42,1.2],[88,208,1],[136,352,1.4],[46,338,1],[74,132,1],[118,88,1.2],[154,206,1],[100,22,1.3]];
+const CHAIN_A = [[60,15],[85,40],[110,30],[130,55]];
+const CHAIN_B = [[40,200],[70,225],[95,210],[125,235],[150,222]];
+R.planisphere = function(ctx){
+  const th = ctx.th, t = ctx.t;
+  const hourAng = ((t.h % 12) + t.m/60) * 30;
+  const ma = (t.m + t.s/60) * 6;
+  if(ctx.aod){
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    for(let i=0;i<12;i++){
+      const [x1,y1] = pol(240,240,214,i*30), [x2,y2] = pol(240,240,224,i*30);
+      s += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${AOD_MUT}" stroke-width="1.5"/>`;
+    }
+    const [px,py] = pol(240,240,150,hourAng);
+    s += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="6" fill="none" stroke="${AOD_INK}" stroke-width="1.6"/>`;
+    s += hand(240,240,ma,198,2,AOD_INK,16);
+    s += `<circle cx="240" cy="240" r="4" fill="none" stroke="${AOD_INK}" stroke-width="1.4"/>`;
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* bezel scale */
+  for(let i=0;i<60;i++){
+    const maj = i%5===0;
+    const [x1,y1] = pol(240,240,maj?214:220,i*6), [x2,y2] = pol(240,240,226,i*6);
+    s += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${maj?th.ink:th.mut}" stroke-width="${maj?2:0.8}" opacity="${maj?.9:.4}"/>`;
+  }
+  for(let n=1;n<=12;n++){
+    const card = n%3===0;
+    const [nx,ny] = pol(240,240,200,n*30);
+    s += T(nx.toFixed(1),(ny+9).toFixed(1),card?28:20,card?th.ink:th.mut,String(n),{f:'Cormorant Garamond',w:600});
+  }
+  /* THE DISC — HourHand artwork, centre pivot: the sky rotates with the hour */
+  s += `<circle cx="240" cy="240" r="172" fill="none" stroke="${th.mut}" stroke-width="1" opacity=".3"/>`;
+  DISC_STARS.forEach(st=>{
+    const [sx,sy] = pol(240,240,st[0],st[1]+hourAng);
+    s += `<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="${st[2]}" fill="${th.star}" opacity=".9"/>`;
+  });
+  if(ctx.opts.constellations){
+    [CHAIN_A, CHAIN_B].forEach(chain=>{
+      const pts = chain.map(c=>{ const [x,y]=pol(240,240,c[0],c[1]+hourAng); return x.toFixed(1)+','+y.toFixed(1); }).join(' ');
+      s += `<polyline points="${pts}" fill="none" stroke="${th.star}" stroke-width="1" opacity=".45"/>`;
+      chain.forEach(c=>{ const [x,y]=pol(240,240,c[0],c[1]+hourAng); s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2" fill="${th.star}"/>`; });
+    });
+  }
+  /* pointer star — printed on the disc, reads the hour on the bezel */
+  const [px,py] = pol(240,240,150,hourAng);
+  const [lx,ly] = pol(240,240,186,hourAng);
+  s += `<line x1="${px.toFixed(1)}" y1="${py.toFixed(1)}" x2="${lx.toFixed(1)}" y2="${ly.toFixed(1)}" stroke="${th.acc}" stroke-width="1.4" opacity=".7"/>`;
+  s += `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="5" fill="${th.acc}"/>`;
+  /* minute hand above the sky */
+  s += hand(240,240,ma,198,3.5,th.ink,18);
+  const [mtx1,mty1] = pol(240,240,168,ma), [mtx2,mty2] = pol(240,240,198,ma);
+  s += `<line x1="${mtx1.toFixed(1)}" y1="${mty1.toFixed(1)}" x2="${mtx2.toFixed(1)}" y2="${mty2.toFixed(1)}" stroke="${th.acc}" stroke-width="3.5" stroke-linecap="round"/>`;
+  s += `<circle cx="240" cy="240" r="5" fill="${th.ink}"/><circle cx="240" cy="240" r="2" fill="${th.bg}"/>`;
+  /* seconds comet */
+  if(ctx.opts.comet && ctx.sec!=='off'){
+    const sa = (t.s + (ctx.sec==='sweep'? t.ms/1000 : 0))*6;
+    const [ox,oy] = pol(240,240,228,sa);
+    s += `<circle cx="${ox.toFixed(1)}" cy="${oy.toFixed(1)}" r="2.2" fill="${th.ink}" opacity=".85"/>`;
+  }
+  if(ctx.opts.digital){
+    const tmj = ctx.prefs.h24 ? pad2(t.h)+':'+pad2(t.m) : (((t.h+11)%12)+1)+':'+pad2(t.m);
+    s += T(240,300,16,th.mut,tmj,{f:'JetBrains Mono'});
+  }
+  const np = ctx.slots.north;
+  if(np){
+    s += ic(np.comp.icon, 216, 100, 13, th.mut, 2, .9);
+    s += T(232,105,14,th.ink,np.v.txt,{f:'JetBrains Mono',w:500,a:'start'});
+  }
+  const dw = ctx.slots.dateWin;
+  if(dw) s += T(240,376,14,th.mut,dw.v.txt+' '+MONTHS[ctx.d.getMonth()],{f:'JetBrains Mono'});
+  return s;
+};
+
+/* ---------------- BLOOM — the day-flower ---------------- */
+R.bloom = function(ctx){
+  const th = ctx.th, t = ctx.t;
+  const litCount = clamp(Math.floor(t.h/2)+1, 1, 12);   /* petal n opens at hour 2n−2 */
+  const CX = 240, CY = 220;
+  const tm = ctx.prefs.h24 ? pad2(t.h)+':'+pad2(t.m) : (((t.h+11)%12)+1)+':'+pad2(t.m);
+  const ap = ctx.prefs.h24 ? '' : (t.h<12?'AM':'PM');
+  const petal = (i, fill, stroke, op)=>{
+    const a = i*30;
+    const [px,py] = pol(CX,CY,62,a);
+    return `<ellipse cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" rx="25" ry="58" fill="${fill}" stroke="${stroke}" stroke-width="1.4"${op!=null?` opacity="${op}"`:''} transform="rotate(${a} ${px.toFixed(1)} ${py.toFixed(1)})"/>`;
+  };
+  if(ctx.aod){
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    for(let i=0;i<12;i++) s += petal(i,'none',AOD_MUT,.7);
+    s += `<circle cx="${CX}" cy="${CY}" r="20" fill="none" stroke="${AOD_INK}" stroke-width="1.6"/>`;
+    s += T(240,392,52,AOD_INK,tm,{f:'Quicksand',w:500});
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* ghost bloom — one static faint layer */
+  if(ctx.opts.ghost) for(let i=0;i<12;i++) s += petal(i,'none',th.mut,.35);
+  /* open petals — 12 copies, one single-comparison gate each */
+  for(let i=0;i<litCount;i++){
+    s += petal(i, th.acc, ctx.opts.edge? th.ink : 'none', .82);
+  }
+  /* core */
+  s += `<circle cx="${CX}" cy="${CY}" r="24" fill="${th.stem}"/><circle cx="${CX}" cy="${CY}" r="9" fill="${th.bg}" opacity=".5"/>`;
+  /* time */
+  s += T(240,388,54,th.ink,tm,{f:'Quicksand',w:600});
+  if(ap && ctx.opts.ampm) s += T(240,414,11,th.mut,ap,{f:'JetBrains Mono'});
+  /* slots */
+  const tp = ctx.slots.top;
+  if(tp){
+    s += ic(tp.comp.icon, 214, 88, 13, th.mut, 2, .9);
+    s += T(230,93,14,th.ink,tp.v.txt,{f:'JetBrains Mono',w:500,a:'start'});
+  }
+  const st = ctx.slots.stem;
+  if(st){
+    const y = 432;
+    s += `<circle cx="196" cy="${y-5}" r="9" fill="none" stroke="${th.mut}" stroke-width="2.4" opacity=".35"/>`;
+    if(st.v.frac!=null && st.v.frac>0.005) s += `<path d="${arcPath(196,y-5,9,0,st.v.frac*360)}" fill="none" stroke="${th.stem}" stroke-width="2.4" stroke-linecap="round"/>`;
+    s += T(212,y,14,th.ink,st.v.txt+' '+st.comp.tab,{f:'JetBrains Mono',a:'start'});
+  }
+  return s;
+};
+
+/* ---------------- CONTOUR — the trail map ---------------- */
+function blob(cx, cy, rBase, mults, col, w){
+  const n = mults.length;
+  let pts = [];
+  for(let i=0;i<n;i++){
+    const [x,y] = pol(cx, cy, rBase*mults[i], i*(360/n));
+    pts.push(x.toFixed(1)+','+y.toFixed(1));
+  }
+  return `<polygon points="${pts.join(' ')}" fill="none" stroke="${col}" stroke-width="${w}"/>`;
+}
+const M1 = [1,1.15,.95,1.2,1.05,.9,1.1,1,.85,1.12,1.04,.92,1.08,.98];
+const M2 = [1.05,.9,1.12,1,1.18,.95,1.02,1.1,.9,1.05,1.15,.96,1.06,1];
+R.contour = function(ctx){
+  const th = ctx.th, t = ctx.t;
+  const ha = ((t.h % 12) + t.m/60) * 30;
+  const ma = (t.m + t.s/60) * 6;
+  if(ctx.aod){
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    for(let i=0;i<12;i++){
+      const [x1,y1] = pol(240,240,212,i*30), [x2,y2] = pol(240,240,222,i*30);
+      s += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${AOD_MUT}" stroke-width="1.5"/>`;
+    }
+    s += hand(240,240,ha,100,3,AOD_INK,14);
+    s += hand(240,240,ma,152,2,AOD_INK,14);
+    s += `<circle cx="240" cy="240" r="4.5" fill="none" stroke="${AOD_INK}" stroke-width="1.5"/>`;
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* contour terrain — one static tinted asset in the build */
+  if(ctx.opts.contours){
+    [30,56,84].forEach((r,i)=> s += blob(300,178,r,i%2?M2:M1,th.line,1.3));
+    [26,50,76].forEach((r,i)=> s += blob(152,304,r,i%2?M1:M2,th.line,1.3));
+    s += blob(206,86,24,M2,th.line,1.3);
+  }
+  if(ctx.opts.grid){
+    s += `<line x1="240" y1="30" x2="240" y2="450" stroke="${th.line}" stroke-width="1" opacity=".5"/>`;
+    s += `<line x1="30" y1="240" x2="450" y2="240" stroke="${th.line}" stroke-width="1" opacity=".5"/>`;
+  }
+  /* chapter */
+  for(let i=0;i<60;i++){
+    const maj = i%5===0;
+    const [x1,y1] = pol(240,240,maj?208:214,i*6), [x2,y2] = pol(240,240,222,i*6);
+    s += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${maj?th.ink:th.mut}" stroke-width="${maj?2.2:1}" opacity="${maj?1:.5}"/>`;
+  }
+  [[240,74,'12'],[406,251,'3'],[240,438,'6'],[74,251,'9']].forEach(n=>{
+    s += T(n[0],n[1],30,th.ink,n[2],{f:'IBM Plex Mono',w:600});
+  });
+  /* waypoint pins */
+  ['wp1','wp2','wp3'].forEach(id=>{
+    const sl = ctx.slots[id]; if(!sl) return;
+    const [x,y] = ctx.face.slots.find(z=>z.id===id).anchor;
+    s += `<circle cx="${x}" cy="${y}" r="3.5" fill="${th.acc}"/><circle cx="${x}" cy="${y}" r="8" fill="none" stroke="${th.acc}" stroke-width="1.3" opacity=".6"/>`;
+    s += T(x+14, y+4, 14, th.ink, sl.v.txt, {f:'IBM Plex Mono',w:500,a:'start'});
+    s += T(x+14, y+18, 9.5, th.mut, sl.comp.tab, {f:'IBM Plex Mono',a:'start'});
+  });
+  const dl = ctx.slots.dateLeg;
+  if(dl){
+    const doy = Math.floor((ctx.d - new Date(ctx.d.getFullYear(),0,0)) / 86400000);
+    s += T(240,431,12,th.mut,DAYS[ctx.d.getDay()]+' '+ctx.d.getDate()+' '+MONTHS[ctx.d.getMonth()]+' · D'+doy,{f:'IBM Plex Mono'});
+  }
+  /* hands */
+  s += hand(240,240,ha,100,9,th.ink,16);
+  s += hand(240,240,ma,152,5.5,th.ink,16);
+  const [mtx1,mty1] = pol(240,240,122,ma), [mtx2,mty2] = pol(240,240,152,ma);
+  s += `<line x1="${mtx1.toFixed(1)}" y1="${mty1.toFixed(1)}" x2="${mtx2.toFixed(1)}" y2="${mty2.toFixed(1)}" stroke="${th.acc}" stroke-width="5.5" stroke-linecap="round"/>`;
+  if(ctx.opts.secNeedle && ctx.sec!=='off'){
+    const sa = (t.s + (ctx.sec==='sweep'? t.ms/1000 : 0))*6;
+    s += hand(240,240,sa,192,1.6,th.acc,32);
+    const [cwx,cwy] = pol(240,240,32,sa+180);
+    s += `<circle cx="${cwx.toFixed(1)}" cy="${cwy.toFixed(1)}" r="4" fill="${th.acc}"/>`;
+  }
+  s += `<circle cx="240" cy="240" r="7" fill="${th.ink}"/><circle cx="240" cy="240" r="3" fill="${th.bg}"/>`;
+  return s;
+};
+
+FACES.forEach(f=>{ f.render = R[f.id]; });
+
+/* =========================================================
+   SPEC SHEETS
+   ========================================================= */
+const PLATFORM = 'Watch Face Format <b>v1</b> (declarative XML — no code executes on the watch), minSdk 33 / Wear OS 4+ — the widest WFF install base. v1 is deliberate: WILDER pointedly does NOT use the v2 weather source (it can be absent even on v2, and the bump would cut Wear OS 4 devices) — weather is provider-slot data only. Each face ships as its own APK (com.wilder.&lt;face&gt;) with its own ≤8 complication slots. <b>Line rule:</b> every face carries the pure-black dark-mode toggle; light themes stay readable under it via the proven light-ink twin pattern. Organic artwork ships as small single-tint PNG assets (PartDraw cannot draw freeform shapes); fonts ship as static-instance TTFs per weight.';
+const M = s => `<span class="mech">${s}</span>`;
+const SPECS = {
+ridgeline:{
+  concept:'A landscape that keeps real time. Two ridge silhouettes layer the lower third; above them, the sun crosses a fixed arc through the day — dropping behind the ridge at dusk, replaced by a moon, while a static star field switches on. The time floats in the sky in a thin geometric hand. Nothing in the scene animates; the composition simply IS different at 7 am, 3 pm and midnight — which is the point.',
+  target:'The hero of the series and its store shot. For people who want a view, not a dashboard — the face you glance at and briefly remember the outdoors.',
+  type:['<b>The daylight engine:</b> the sun/moon marker rides Transform angle = (h + m/60)×15 − offset about the scene pivot — the exact shipped Solstice sun-marker mechanism, re-aimed at a horizon','Day/night switching '+M('the shipped two-comparison time-range alpha gate (sun-disc pattern) on the marker pair, the star group and the night overlay'),'<b>Jost Light</b> sky time · <b>JetBrains Mono</b> captions','Ridges = 2 static single-tint PNG assets; stars = one static gated dot group'],
+  identity:['<b>Signature:</b> the travelling sun that sets behind the ridge '+M('marker drawn BEFORE the ridge layers — depth by draw order, zero effects'),'Night: moon + static stars + a darkening overlay '+M('one gated literal-colour overlay — the shipped Solstice sky-depth trick'),'Layered ridge silhouettes '+M('static PartImage PNGs, tintColor-themed (same colour attribute proven on the shipped second-dot)'),'Faint sun-path arc '+M('static stroke')],
+  motion:['The sun moves at time rate — re-evaluated once a minute, imperceptible and honest','Day/night and stars switch by instant gated substitution at dawn/dusk','Nothing drifts: no clouds, no wind, no parallax — stated, not hidden'],
+  custom:['5 themes (incl. one light dial) · ≤5 roles (sky, ridge, ink, sun, muted)','Sun path on/off · stars on/off · date line on/off','Pure-black toggle (line rule); High Noon readable via light-ink twins','3 layout presets + free slot editing'],
+  interact:['Tap a valley slot → its provider app '+M('Launch'),'Long-press → system editor'],
+  aod:['Ridge crest as a single hairline polyline, marker as an outline ring at its true position (minute-rate — AOD-legal), thin time '+M('structural thin-twin + a 1-bit hairline ridge asset'),'Stars, overlay, slots dropped','≈ 7% lit pixels'],
+  battery:['Everything re-evaluates at minute rate or slower; the face has zero sub-minute elements by default'],
+  feas:[
+    ['Travelling sun / moon','NATIVE','Transform angle=(h+m/60)*15−offset on a Group — the shipped Solstice sun-marker mechanism'],
+    ['Day/night scene states','NATIVE','two-comparison time-range alpha gates — the shipped sun-disc pattern; fixed 6:00/18:00 equinox preset'],
+    ['Ridge silhouettes','NATIVE','static PartImage PNGs, tintColor-themed<span class="cost">2 interactive assets + 1 hairline AOD asset — small, single-tint; verify tintColor-on-PartImage once at validation (same attribute class proven on the shipped SecondHand)</span>'],
+    ['Night stars + overlay','NATIVE','one static dot group + one literal-colour overlay, each behind ONE night gate'],
+    ['Sky time + date','NATIVE','TimeText + the proven token set'],
+    ['Valley slots ×3','PROVIDER','SHORT_TEXT/RANGED_VALUE; v1 system defaults'],
+    ['True sunrise/sunset geometry','CUSTOM','no astro source in v1 — the drawn path uses the fixed preset (the shipped Solstice compromise); real times available as a SUNRISE_SUNSET provider slot'],
+    ['All values on this page','SIM','generated so you can judge the design']
+  ]
+},
+almanac:{
+  concept:'A page from a living almanac: the day of the month set enormous in Fraunces Black, the weekday above the rule, the month stamped beneath, the time in a hairline italic below — and in the margins, a botanical branch that blossoms in spring, fills out in summer, turns in autumn and bares in winter. The face changes four times a year without anyone touching it.',
+  target:'Calendar-first people — the face for planners, gardeners and anyone who reads the date before the time. The seasonal turn makes it a long-term companion.',
+  type:['<b>The season engine:</b> 4 static branch artworks, alpha-gated on [MONTH] ranges — the proven two-comparison gate shape at month frequency (effectively free)','Manual override '+M('a "Season" ListConfiguration — the proven structural scene-switch; also the southern-hemisphere answer, since no location source exists'),'<b>Fraunces Black 900</b> hero numeral · <b>Fraunces Light italic</b> time · <b>JetBrains Mono</b> stamps','Branches = 4 small single-tint PNG assets (PartDraw cannot draw organic curves)'],
+  identity:['<b>Signature:</b> the seasonal margin branches '+M('4 gated static artworks — instant substitution at the month boundary, stated honestly'),'Giant day-of-month numeral '+M('[DAY] PartText — the shipped token'),'Weekday rule + month stamp '+M('[DAY_OF_WEEK_S] / [MONTH_S] tokens'),'Sunrise/sunset row '+M('a slot whose DEFAULT is the real v1 SUNRISE_SUNSET system provider')],
+  motion:['Nothing moves. The page turns at midnight and the branch turns four times a year — both by instant substitution','The time line updates once a minute'],
+  custom:['5 themes (incl. one light dial) · ≤5 roles (page, ink, accent, muted, leaf)','Branches on/off · month line on/off · italic time on/off','Season: Auto / Spring / Summer / Autumn / Winter (manual = structural switch)','Pure-black toggle (line rule); Field Notes readable via light-ink twins'],
+  interact:['Tap the sun row → its provider '+M('Launch'),'Long-press → system editor'],
+  aod:['Weekday · month line, thin hero numeral, thin italic time — fixed light inks '+M('structural thin-twin'),'Branches and slots dropped','≈ 8% lit pixels'],
+  battery:['Month-, day- and minute-frequency evals only — among the cheapest faces in the collection'],
+  feas:[
+    ['Hero date page','NATIVE','[DAY] + [DAY_OF_WEEK_S] + [MONTH_S] — all shipped tokens'],
+    ['Seasonal branches (Auto)','NATIVE','4 static artworks × ONE [MONTH] range gate each, month-frequency<span class="cost">[MONTH] numeric token is in the WFF reference — verify against the v1 XSD at build; fallback = manual-only season picker (zero gates)</span>'],
+    ['Season picker / hemisphere','NATIVE','ListConfiguration structural scene-switch — the proven face-switch grammar'],
+    ['Sunrise/sunset row','PROVIDER','SUNRISE_SUNSET is a genuine v1 system default — the rare provider row that works out of the box'],
+    ['Time line','NATIVE','TimeText + the proven AM/PM gate'],
+    ['Margin note slot','PROVIDER','SHORT_TEXT; v1 system defaults'],
+    ['Blossom that falls / leaves that drift','CUSTOM','listed to show it was considered — needs pre-rendered animation per theme; REJECTED, the branch is still'],
+    ['All values on this page','SIM','']
+  ]
+},
+planisphere:{
+  concept:'A planisphere you wear: the star disc — thirty stars, two constellations, a bright pointer star — rotates with the hour, so the sky you see at 9 pm tonight is where it was last night at 9. The pointer star reads the hour against a Cormorant-numbered bezel; a thin accent-tipped minute hand rides above the sky. There is no hour hand, because the sky is the hour hand.',
+  target:'The dress statement of the series — for clear-night people, stargazers, and anyone who wants a watch that rewards a second look.',
+  type:['<b>The sky engine:</b> the disc is HourHand artwork with a CENTRE pivot — the ARMATURE gear insight at dial scale: native, smooth, zero expressions','Stylised 12-hour rotation, stated plainly '+M('a true 24-h sky is a costed option via the proven minute-stepped Transform angle=(h+m/60)*15'),'<b>Cormorant Garamond</b> bezel numerals · <b>JetBrains Mono</b> windows','Disc = one mostly-transparent single-tint PNG (stars + constellation lines + pointer star)'],
+  identity:['<b>Signature:</b> the rotating star disc with its pointer star '+M('HourHand + centre pivot — proven mechanism class, shipped twice in this collection’s lineage'),'Bezel hour scale '+M('static ticks + static text'),'Accent-tipped minute hand '+M('two-tone hand PNG'),'Seconds comet '+M('the shipped Solstice comet, verbatim — optional')],
+  motion:['The sky rotates at hour-hand rate — imperceptible, continuous, native','The minute hand is the only fast-read element; the comet is optional and interactive-only','Stars do not twinkle. Nothing pulses. The stillness is astronomical'],
+  custom:['5 themes (incl. one light Vellum dial) · ≤5 roles (sky, ink, accent, muted, starlight)','Constellations on/off · comet on/off · digital confirm on/off','Pure-black toggle (line rule); Vellum Chart readable via light-ink twins','3 layout presets + free slot editing'],
+  interact:['Tap the north note → its provider '+M('Launch'),'Long-press → system editor'],
+  aod:['12 hairline ticks, the pointer star as an outline ring at its true hour position, hairline minute hand — fixed light inks '+M('ambient twin: a minimal marker asset on the same native rotation'),'Disc, comet, slots dropped','≈ 5% lit pixels — the best AOD economics in the series'],
+  battery:['Two native rotations + an optional comet — an analog watch’s cost'],
+  feas:[
+    ['Rotating star disc','NATIVE','HourHand artwork, centre pivot, native rotation<span class="cost">one ~450px mostly-transparent PNG vs the memory optimizer — small, single-tint; 12-h stylisation is a stated design choice</span>'],
+    ['Pointer-star hour reading','NATIVE','printed on the disc — the disc IS the hour hand'],
+    ['Bezel scale + numerals','NATIVE','static ticks + static <Text> (tight-set)'],
+    ['Minute hand + comet','NATIVE','hand drawable + the shipped SecondHand Sweep comet'],
+    ['True 24-h astronomical rotation','NATIVE','possible via Transform angle=(h+m/60)*15 — the proven sun-marker class<span class="cost">loses native smoothness (minute steps); offered as a build-time option, not the default</span>'],
+    ['North note + date window','PROVIDER','SHORT_TEXT; v1 system defaults'],
+    ['Real star positions for the user’s location','CUSTOM','no location source exists — the sky is decorative and honest about it'],
+    ['All values on this page','SIM','']
+  ]
+},
+bloom:{
+  concept:'A twelve-petal flower is the day. One petal opens every two hours — dawn finds the bloom small; by ten at night it is whole. The full flower waits underneath as a faint ghost, so you always see both what the day has been and what remains. Steps fill a small stem ring below the rounded time. At midnight the flower sheds — instantly, because that is how the format changes state, and the design owns it.',
+  target:'The calm face — wellness buyers, gentle-progress people, anyone tired of being shouted at by a gauge. Progress you feel, not a number you chase.',
+  type:['<b>The bloom engine:</b> 12 petal copies, each behind ONE single-comparison gate ([HOUR_0_23] >= 2n−2) — the BREVIER word-grid pattern at a twelfth the element count, hourly evals','Ghost bloom '+M('one static faint layer, zero gates'),'<b>Quicksand</b> rounded time · <b>JetBrains Mono</b> notes','Petals = one artwork instanced at 12 static angles (parts carry a static angle attribute)'],
+  identity:['<b>Signature:</b> the accumulating petals '+M('duplicate-and-alpha-gate — the Series-01-proven pattern, one comparison per petal'),'Ghost of the full bloom '+M('static muted layer'),'Stem ring fed by steps '+M('[STEP_PERCENT] arc fill — the shipped Pulsar mechanism'),'Soft rounded time '+M('TimeText, Quicksand static TTF')],
+  motion:['A petal opens on the even hour — instant substitution, no unfurl animation (none exists; none is pretended)','The stem ring moves only when your steps do '+M('data-driven arc fill'),'The midnight shed is instant and honest — the day simply begins again'],
+  custom:['5 themes (incl. one light dial) · ≤5 roles (bg, ink, petal, muted, stem)','Ghost bloom on/off · petal edges on/off · AM/PM tag on/off','Pure-black toggle (line rule); Paper Press readable via light-ink twins','3 layout presets + free slot editing'],
+  interact:['Tap the stem ring → the fitness app '+M('Launch'),'Long-press → system editor'],
+  aod:['The full flower as 12 hairline petal outlines + thin time — fixed light inks '+M('structural thin-twin; outlines are strokes, comfortably under the pixel gate'),'Open-petal state, slots and core dropped','≈ 6% lit pixels'],
+  battery:['Hourly petal gates + minute-rate time — effectively free; no sub-minute elements exist on this face'],
+  feas:[
+    ['Petal bloom (12 stages)','NATIVE','12 duplicate petals × ONE comparison gate each, hourly evals<span class="cost">24 petal elements total (ghost + lit) — mechanical build, a rejected gate drops one petal only</span>'],
+    ['Ghost bloom','NATIVE','one static faint layer — zero expressions'],
+    ['Stem ring','NATIVE','[STEP_PERCENT] endAngle arc — proven on-wrist (Pulsar)'],
+    ['Rounded time + AM/PM','NATIVE','TimeText + the proven [AMPM_STRING]/[IS_24_HOUR_MODE] gate'],
+    ['Dew note slot','PROVIDER','SHORT_TEXT; v1 system defaults (HR is user-added)'],
+    ['Unfurling petal animation','CUSTOM','listed to show it was considered — PartAnimatedImage per theme vs the memory gate; REJECTED, petals appear'],
+    ['All values on this page','SIM','']
+  ]
+},
+contour:{
+  concept:'A trail map with hands. Contour clusters texture the dial like terrain; the chapter ring reads like elevation graduations with big monospaced figures at the cardinals; your data lives in waypoint pins dropped on the map; and the second hand sweeps like a compass needle finding north. The date sits at the bottom set like a map legend, with the day-of-year as a route marker.',
+  target:'Outdoor and gear people — the face for hikers, runners and everyone whose favourite app has a topo layer. The most conventional-to-read face of the five.',
+  type:['<b>IBM Plex Mono</b> — elevation figures, waypoint values, the legend','Contour terrain = one static single-tint PNG (organic curves are impossible in PartDraw)','Hands, ticks, pins — the proven instrument toolkit throughout'],
+  identity:['<b>Signature:</b> waypoint-pin complications on the terrain '+M('standard slots rendered as pin + value + label — geometry static, as slots must be'),'Contour texture '+M('one tinted static asset'),'Compass-needle seconds '+M('native SecondHand Sweep — shipped'),'Map-legend date with day-of-year '+M('[DAY]/[DAY_OF_WEEK_S]/[MONTH_S] + [DAY_OF_YEAR] (XSD-verify queued from ODOMETER)')],
+  motion:['Hands at native rates; the compass needle honours the global Sweep/Tick/Off choice','Nothing else moves — the map does not pan, pins do not drift'],
+  custom:['5 themes (incl. one light Field Map dial) · ≤5 roles (bg, ink, route, muted, contour)','Contours on/off · compass seconds on/off · grid on/off','Pure-black toggle (line rule); Field Map readable via light-ink twins','3 layout presets + free slot editing on 4 slots'],
+  interact:['Tap a waypoint pin → its provider app '+M('Launch'),'Long-press → system editor'],
+  aod:['Hairline chapter + hairline hands, fixed light inks '+M('structural thin-twin'),'Contours, pins, needle, legend dropped','≈ 7% lit pixels'],
+  battery:['An analog watch’s cost; the seconds needle is the only sub-minute element and is toggleable'],
+  feas:[
+    ['Contour terrain','NATIVE','one static tinted PNG — PartDraw has no freeform paths<span class="cost">single small single-tint asset; the optimizer quantizes it to ~nothing</span>'],
+    ['Chapter + hands + seconds','NATIVE','shipped element classes throughout (ticks, hand drawables, Sweep)'],
+    ['Waypoint pins ×3','PROVIDER','SHORT_TEXT/RANGED_VALUE slots rendered as map pins; v1 system defaults'],
+    ['Map legend + day-of-year','NATIVE','proven date tokens + [DAY_OF_YEAR] (verify at build; drop-in removal if absent)'],
+    ['Grid graticule','NATIVE','2 static faint lines (solid — WFF has no dashed stroke)'],
+    ['Live GPS position / route line','CUSTOM','no location source exists in the format — the map is decorative and says so; optional companion-app idea only'],
+    ['All values on this page','SIM','']
+  ]
+}
+};
+
+/* =========================================================
+   UI
+   ========================================================= */
+function hexDim(hex, a){
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function setAccent(face){
+  document.documentElement.style.setProperty('--accent', face.accent);
+  document.documentElement.style.setProperty('--accent-dim', hexDim(face.accent,.13));
+}
+function buildTabs(){
+  $('#tabs').innerHTML = FACES.map((f,i)=>
+    `<button class="tab ${i===state.f?'on':''}" data-tab="${i}"><span class="thumb"><svg id="th${i}" viewBox="0 0 480 480" aria-hidden="true"></svg></span><span class="tn"><b>${f.name}</b><span>${f.role}</span></span></button>`).join('');
+  document.querySelectorAll('[data-tab]').forEach(b=> b.addEventListener('click', ()=> selectFace(+b.dataset.tab)));
+}
+function renderThumbs(){
+  FACES.forEach((f,i)=>{
+    const el = $('#th'+i);
+    if(el) el.innerHTML = f.render(makeCtx(i, true));
+  });
+}
+function buildRack(){
+  const face = FACES[state.f];
+  const fid = face.id;
+  const thI = state.theme[fid];
+  const cfg = state.cfg[fid];
+  let h = '';
+  h += `<div class="panel"><h3>Colour theme <span class="hint">≤5 roles — the WFF v1 ColorOption cap</span></h3><div class="swatches">`;
+  face.themes.forEach((t,i)=>{
+    h += `<button class="sw ${i===thI?'on':''}" data-th="${i}" title="${t.n}"><i style="background:linear-gradient(135deg,${t.sw[0]} 50%,${t.sw[1]} 50%)"></i></button>`;
+  });
+  h += `</div><div class="swname">${face.themes[thI].n} — ${face.themes[thI].d}</div></div>`;
+  h += `<div class="panel"><h3>Display mode</h3><div class="segrow">
+    <button class="seg ${state.mode==='int'?'on':''}" data-mode="int">Interactive</button>
+    <button class="seg ${state.mode==='aod'?'on':''}" data-mode="aod">Always-On</button>
+    <button class="seg ${state.prefs.clean?'on':''}" data-clean="1">Product preview</button>
+  </div></div>`;
+  h += `<div class="panel"><h3>Layout preset <span class="hint">on-watch: saved slot/toggle states (Flavors = v2)</span></h3><div class="segrow">`;
+  face.configOrder.forEach(c=>{ h += `<button class="seg ${cfg===c?'on':''}" data-cfg="${c}">${c}</button>`; });
+  if(cfg==='Custom') h += `<button class="seg on">Custom</button>`;
+  h += `</div></div>`;
+  h += `<div class="panel"><h3>Complication slots <span class="hint">click a slot on the watch to locate it</span></h3>`;
+  face.slots.forEach((sd,i)=>{
+    const cur = state.cur[fid][sd.id] || '';
+    h += `<div class="slotrow ${state.sel===sd.id?'sel':''}" id="row-${sd.id}"><div class="sl"><b>${i+1} · ${sd.label}</b><span>${sd.pos}</span></div><select data-slot-sel="${sd.id}"><option value="">— empty —</option>`;
+    sd.allowed.forEach(k=>{ h += `<option value="${k}" ${cur===k?'selected':''}>${COMPS[k].name}</option>`; });
+    h += `</select></div>`;
+  });
+  h += `</div>`;
+  h += `<div class="panel"><h3>Customise ${face.name.toLowerCase()}</h3>`;
+  face.options.forEach(o=>{
+    const on = state.opts[fid][o.id];
+    h += `<div class="optrow"><label>${o.label}<span class="note">${o.note||''}</span></label><button class="tgl ${on?'on':''}" data-opt="${o.id}" aria-label="${o.label}"></button></div>`;
+  });
+  h += `</div>`;
+  h += `<div class="panel"><h3>Global preferences</h3>
+    <div class="optrow"><label>24-hour time<span class="note">on the watch, TimeText follows the system setting automatically</span></label><button class="tgl ${state.prefs.h24?'on':''}" data-pref="h24"></button></div>
+    <div class="optrow"><label>Seconds rendering<span class="note">maps to real WFF: Sweep 15 Hz · Tick 1 Hz · hidden</span></label><span class="minirow">
+      <button class="mini ${state.prefs.sec==='sweep'?'on':''}" data-sec="sweep">Sweep</button>
+      <button class="mini ${state.prefs.sec==='tick'?'on':''}" data-sec="tick">Tick</button>
+      <button class="mini ${state.prefs.sec==='off'?'on':''}" data-sec="off">Off</button>
+    </span></div>
+  </div>`;
+  const rack = $('#rack');
+  rack.innerHTML = h;
+  rack.querySelectorAll('[data-th]').forEach(b=> b.addEventListener('click', ()=>{ state.theme[fid] = +b.dataset.th; buildRack(); renderThumbs(); }));
+  rack.querySelectorAll('[data-mode]').forEach(b=> b.addEventListener('click', ()=>{ state.mode = b.dataset.mode; syncMode(); buildRack(); }));
+  rack.querySelectorAll('[data-clean]').forEach(b=> b.addEventListener('click', ()=>{ state.prefs.clean = !state.prefs.clean; buildRack(); }));
+  rack.querySelectorAll('[data-cfg]').forEach(b=> b.addEventListener('click', ()=>{ state.cfg[fid] = b.dataset.cfg; state.cur[fid] = Object.assign({}, face.configs[b.dataset.cfg]); state.sel = null; buildRack(); }));
+  rack.querySelectorAll('[data-slot-sel]').forEach(sel=> sel.addEventListener('change', ()=>{
+    state.cur[fid][sel.dataset.slotSel] = sel.value || null;
+    state.cfg[fid] = 'Custom';
+    state.sel = sel.dataset.slotSel;
+    buildRack();
+  }));
+  rack.querySelectorAll('[data-opt]').forEach(b=> b.addEventListener('click', ()=>{ state.opts[fid][b.dataset.opt] = !state.opts[fid][b.dataset.opt]; buildRack(); }));
+  rack.querySelectorAll('[data-pref]').forEach(b=> b.addEventListener('click', ()=>{ state.prefs.h24 = !state.prefs.h24; buildRack(); }));
+  rack.querySelectorAll('[data-sec]').forEach(b=> b.addEventListener('click', ()=>{ state.prefs.sec = b.dataset.sec; buildRack(); }));
+}
+function syncMode(){
+  $('#screen').classList.toggle('aod', state.mode==='aod');
+  $('#modecap').innerHTML = state.mode==='aod'
+    ? `<b>ALWAYS-ON</b> · fixed light inks on black (Series-01 pattern) · 1 update/min · ≤15% lit pixels`
+    : `<b>INTERACTIVE</b> · live — this is your real local time`;
+}
+function buildSpecs(){
+  const face = FACES[state.f];
+  const S = SPECS[face.id];
+  const typeSet = new Set();
+  face.slots.forEach(sd=> sd.allowed.forEach(k=> typeSet.add(k)));
+  const chips = [...typeSet].map(k=>`<span class="tchip">${COMPS[k].name}</span>`).join('');
+  let slotRows = '';
+  face.slots.forEach((sd,i)=>{
+    slotRows += `<tr><td>${i+1} · ${sd.label}</td><td>${sd.pos}</td><td><span class="m">${sd.allowed.length} data types</span></td></tr>`;
+  });
+  let feasRows = '';
+  S.feas.forEach(r=>{
+    const cls = {NATIVE:'b-native',PROVIDER:'b-provider',SIM:'b-sim',CUSTOM:'b-custom'}[r[1]];
+    feasRows += `<tr><td>${r[0]}</td><td><span class="badge ${cls}">${r[1]}</span></td><td>${r[2]||''}</td></tr>`;
+  });
+  const themes = face.themes.map(t=>
+    `<div class="themerow"><span class="dots"><i style="background:${t.sw[0]}"></i><i style="background:${t.sw[1]}"></i></span><div><b>${t.n}</b><span>${t.d}</span></div></div>`).join('');
+  const ul = arr => `<ul>${arr.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  $('#specs').innerHTML = `
+  <div class="sechead"><h2>Specification — <em>${face.name}</em></h2><span>${face.slots.length} slots · ${face.themes.length} themes · ${face.configOrder.length}+1 layouts · WFF v1</span></div>
+  <div class="speccards">
+    <div class="scard wide"><h4>Concept &amp; positioning</h4><p>${S.concept}</p><p><b style="color:var(--ink)">Who it’s for —</b> ${S.target}</p></div>
+    <div class="scard"><h4>Scene system</h4>${ul(S.type)}</div>
+    <div class="scard"><h4>Visual identity — with mechanisms</h4>${ul(S.identity)}</div>
+    <div class="scard wide"><h4>Complication system — this face’s own slots (one APK per face)</h4>
+      <table class="feastab">${slotRows}</table>
+      <p style="margin-top:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--faint)">DEFAULTS DRAWN FROM THE WFF V1 SYSTEM-PROVIDER LIST · HEART-RATE &amp; WEATHER ARE USER-ADDED (NO V1 DEFAULT EXISTS)</p>
+      <div class="typechips" style="margin-top:8px">${chips}</div>
+      <p style="margin-top:12px"><b style="color:var(--ink)">Layouts —</b> ${face.configOrder.join(' · ')} · Custom. On the watch these are editor states — every slot can be set Empty. One-tap presets would be v2 Flavors; deferred by the v1 decision.</p></div>
+    <div class="scard"><h4>Motion &amp; AOD reality</h4>${ul(S.motion)}</div>
+    <div class="scard"><h4>Customisation</h4>${ul(S.custom)}</div>
+    <div class="scard"><h4>Interaction</h4>${ul(S.interact)}</div>
+    <div class="scard"><h4>Colour themes</h4><div class="themelist">${themes}</div></div>
+    <div class="scard"><h4>Always-On Display</h4>${ul(S.aod)}</div>
+    <div class="scard wide"><h4>Battery &amp; performance</h4>${ul(S.battery)}<p style="margin-top:12px"><b style="color:var(--ink)">Format —</b> ${PLATFORM}</p></div>
+    <div class="scard wide"><h4>Feasibility — every claim carries its mechanism</h4><table class="feastab">${feasRows}</table></div>
+  </div>`;
+}
+function selectFace(i){
+  state.f = i; state.sel = null;
+  const face = FACES[i];
+  setAccent(face);
+  $('#fname').textContent = face.name;
+  $('#ftag').textContent = face.tagline;
+  buildTabs(); renderThumbs(); buildRack(); buildSpecs(); syncMode();
+}
+
+$('#dial').addEventListener('click', e=>{
+  const g = e.target.closest('[data-slot]');
+  if(!g) return;
+  const id = g.dataset.slot;
+  const face = FACES[state.f];
+  state.sel = (state.sel===id) ? null : id;
+  buildRack();
+  const row = document.getElementById('row-'+id);
+  if(row) row.scrollIntoView({block:'nearest', behavior:'smooth'});
+  const key = state.cur[face.id][id];
+  if(key && COMPS[key]){
+    const v = COMPS[key].get(state.prefs);
+    toast(`<b>${COMPS[key].name}</b> · now “${v.txt}${v.sub? ' '+v.sub:''}” — on the watch, tapping opens ${COMPS[key].tap}`);
+  } else {
+    toast('Empty slot — assign a data source in the rack on the right');
+  }
+});
+$('#btnAod').addEventListener('click', ()=>{
+  state.mode = state.mode==='aod' ? 'int' : 'aod';
+  syncMode(); buildRack();
+  toast(state.mode==='aod' ? 'Always-on — thin twins, fixed light inks, ≤15% pixels' : 'Interactive — live local time');
+});
+$('#btnMap').addEventListener('click', ()=>{
+  state.showMap = true;
+  toast('Slot map — numbered rings match the list on the right');
+  setTimeout(()=>{ state.showMap = false; }, 4200);
+});
+$('#btnShuffle').addEventListener('click', ()=>{ shuffleSim(); renderThumbs(); toast('Simulated data shuffled — steps, HR, battery, weather, event'); });
+
+/* deep links: #f=2&mode=aod&theme=1&cfg=Full&clean=1&h24=1 */
+(function(){
+  const q = {};
+  location.hash.replace(/^#/,'').split('&').forEach(kv=>{ const p = kv.split('='); if(p[0]) q[p[0]] = decodeURIComponent(p[1]||''); });
+  if(q.f!=null && FACES[+q.f]) state.f = +q.f;
+  if(q.mode==='aod') state.mode = 'aod';
+  if(q.theme!=null) state.theme[FACES[state.f].id] = clamp(+q.theme||0, 0, 4);
+  if(q.cfg && FACES[state.f].configs[q.cfg]){ state.cfg[FACES[state.f].id] = q.cfg; state.cur[FACES[state.f].id] = Object.assign({}, FACES[state.f].configs[q.cfg]); }
+  if(q.clean==='1') state.prefs.clean = true;
+  if(q.h24==='1') state.prefs.h24 = true;
+})();
+
+/* render loop */
+let lastMs = 0, lastThumbs = 0;
+function loop(now){
+  requestAnimationFrame(loop);
+  const interval = state.mode==='aod' ? 500 : (state.prefs.sec==='sweep' ? 40 : 200);
+  if(now - lastMs < interval) return;
+  lastMs = now;
+  const ctx = makeCtx(state.f, false);
+  $('#dial').innerHTML = ctx.face.render(ctx) + hitOverlay(ctx);
+  if(now - lastThumbs > 30000){ lastThumbs = now; renderThumbs(); }
+}
+selectFace(state.f);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

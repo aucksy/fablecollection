@@ -28,6 +28,20 @@
 - **Build-time verifies queued:** [DAY_OF_YEAR] (ODOMETER day stamp) vs v1 XSD; gear-PNG memory check at validation (trivial, one tinted asset).
 - **NEXT for ARMATURE (owner-gated, later phase):** owner reviews → pick first build (CALIPER is the intended hero) → `Armature-<Face>/` per-face APK → validate → adversarial review → tag `armature-<face>-v0.1.0`. NO APK work now per the standing gate.
 
+## SERIES 04 · WILDER — Phase 1 design SHIPPED (2026-07-11) ✅
+- `FABLE-Wilder-Showcase.html` — 5 nature faces, same feasibility-LOCKED architecture. **Series thesis: nature and WFF share exactly one thing — things that change because time changes.** Scenes are STILL by design (no particles/drift/sway); motion = the shipped Solstice sun transform, native hand rotation, arc fills; states switch via proven gates.
+- **The 5 faces (all WFF v1 — v2 weather deliberately NOT used; weather = provider-slot data only):**
+  1. **RIDGELINE** (landscape/hero) — sun crosses a fixed sky arc (shipped Solstice angle Transform), sets behind static tinted-PNG ridge silhouettes (depth = draw order), moon + static star group + darkening overlay behind ONE night gate (shipped sun-disc pattern). Fixed 6/18 equinox preset (the Solstice compromise).
+  2. **ALMANAC** (seasonal page/calendar) — giant [DAY] hero + weekday/month tokens; **4 season branch artworks gated on [MONTH] ranges** (month-frequency; XSD-verify queued; fallback = manual-only); manual "Season" ListConfiguration = the southern-hemisphere answer (no location source exists). SUNRISE_SUNSET = a genuine v1 default for the sun row.
+  3. **PLANISPHERE** (rotating sky/dress) — star-map disc = **HourHand artwork, centre pivot** (the ARMATURE gear insight at dial scale); pointer star reads the hour on a Cormorant bezel; NO hour hand — the sky is the hour hand. 12-h stylisation stated; true 24-h = costed minute-stepped option.
+  4. **BLOOM** (day-flower/wellness) — 12 petals, ONE single-comparison gate each ([HOUR_0_23] >= 2n−2, hourly evals — BREVIER pattern at 1/12 scale) over a static ghost bloom; stem ring = shipped [STEP_PERCENT] arc; midnight shed = instant, owned honestly.
+  5. **CONTOUR** (trail map/outdoor) — topo texture = one static tinted PNG (PartDraw has no freeform paths); waypoint-pin complications; compass-needle Sweep seconds; D-of-year legend.
+- **Natural walls documented on-page:** no drifting clouds/waves/rain/fireflies; weather can't drive scenery (v1 has no source; v2's can be absent); no moon-phase math (% shelved); organic shapes = PNG assets; hemisphere/location unknowable; sunrise/sunset geometry = fixed presets + provider text.
+- Dark-mode line rule stated per face; CUSTOM only on rejected/optional extras (falling blossom, unfurl animation, real star positions, GPS route).
+- **QA'd per Gate 4:** 7 headless-Chrome screenshots at live 6:27 PM — RIDGELINE correctly in just-after-sunset state (moon low-left, stars out), ALMANAC light theme with July/summer branches, PLANISPHERE pointer at hour 6, BLOOM exactly 10/12 petals at 18:27, CONTOUR pins+legend correct, RIDGELINE/BLOOM AODs sparse; DOM-grep confirmed spec tables/badges/cost notes/walls render.
+- **Build-time verifies queued:** [MONTH] numeric token (ALMANAC auto-seasons) + tintColor-on-PartImage (RIDGELINE ridges) vs v1 XSD/validation; [DAY_OF_YEAR] carried from ODOMETER.
+- **NEXT for WILDER (owner-gated):** owner review → first build (RIDGELINE is the intended hero) → `Wilder-<Face>/` per-face APK. NO APK work now. **Series 05 · AFTERGLOW is the last design remaining.**
+
 # SERIES 01 · ARCLIGHT
 
 ## Done
