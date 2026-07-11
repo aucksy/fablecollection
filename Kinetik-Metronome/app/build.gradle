@@ -1,0 +1,38 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.kinetik.metronome'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.kinetik.metronome'
+        // Watch Face Format v2 requires Wear OS 5 (API 34) or later.
+        minSdk 34
+        targetSdk 34
+        versionCode 10
+        versionName '0.1.0'
+    }
+
+    // Stable debug key committed to the repo so every CI test build shares ONE
+    // signature and can update in place (no uninstall between builds). This is a
+    // throwaway debug key (well-known password), NOT a release/Play key.
+    signingConfigs {
+        debug {
+            storeFile file("$rootDir/fable-debug.keystore")
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+// Resource-only Watch Face Format app: no code, no dependencies.

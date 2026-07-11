@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-feature android:name="android.hardware.type.watch" android:required="true" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_launcher"
+        android:hasCode="false">
+
+        <!-- Watch Face Format version 2 (Wear OS 5+): weather sources, HEART_RATE
+             default provider, text decorations (Outline/OutGlow), dashed strokes,
+             TextCircular, bitmap fonts — all used by this design line. -->
+        <property
+            android:name="com.google.wear.watchface.format.version"
+            android:value="2" />
+
+        <!-- Installable without a companion phone app -->
+        <meta-data
+            android:name="com.google.android.wearable.standalone"
+            android:value="true" />
+    </application>
+</manifest>
