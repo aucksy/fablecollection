@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFTERGLOW — Series 05 · Fable Watch Faces · Design Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,900;1,9..144,300&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Mr+Dafoe&family=Share+Tech+Mono&family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0b; --panel:#131315; --panel2:#18181b; --line:#27272b; --line2:#333338;
+  --ink:#eae8e4; --sub:#c6c2ba; --mut:#8b877d; --faint:#5a574f;
+  --accent:#ffd23f; --accent-dim:rgba(255,210,63,.14);
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --body:'Inter',system-ui,sans-serif;
+  --r:18px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:#0a0a0b}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer}
+.wrap{max-width:1360px;margin:0 auto;padding:0 30px}
+.mono{font-family:var(--mono)}
+
+/* ---------- hero ---------- */
+header.hero{padding:66px 0 40px;position:relative;overflow:hidden}
+.hero-type{position:absolute;right:-40px;top:-60px;font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:560px;line-height:1;color:var(--ink);opacity:.045;pointer-events:none;user-select:none}
+.kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.32em;color:var(--mut);text-transform:uppercase;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.kicker .tag{border:1px solid var(--line2);border-radius:999px;padding:4px 12px;color:var(--sub);letter-spacing:.18em}
+h1.title{font-family:'Fraunces',Georgia,serif;font-weight:400;font-size:clamp(64px,9vw,124px);line-height:.98;letter-spacing:-.015em;margin:26px 0 6px}
+h1.title em{font-style:italic;font-weight:300;color:var(--accent);transition:color .5s}
+.subtitle{max-width:64ch;color:var(--sub);font-size:17px;margin-top:14px}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.chip{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--sub);border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 14px}
+.chip b{color:var(--accent);font-weight:500;transition:color .5s}
+.why{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+.why div{border-top:1px solid var(--line);padding-top:14px}
+.why h4{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--accent);font-weight:500;text-transform:uppercase;margin-bottom:7px;transition:color .5s}
+.why p{font-size:13.5px;color:var(--mut)}
+@media(max-width:900px){.why{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- face tabs ---------- */
+nav.tabs{position:sticky;top:0;z-index:50;background:rgba(10,10,11,.82);backdrop-filter:blur(14px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tabs-inner{display:flex;gap:6px;padding:10px 0;overflow-x:auto}
+.tab{display:flex;align-items:center;gap:12px;background:none;border:1px solid transparent;border-radius:14px;padding:8px 16px 8px 9px;color:var(--mut);transition:all .25s;white-space:nowrap;flex:1;min-width:150px}
+.tab:hover{background:var(--panel);color:var(--sub)}
+.tab.on{background:var(--panel2);border-color:var(--line2);color:var(--ink)}
+.tab .thumb{width:52px;height:52px;border-radius:50%;background:#000;flex:none;border:1px solid var(--line2);overflow:hidden;position:relative}
+.tab.on .thumb{border-color:var(--accent)}
+.tab .thumb svg{display:block;width:100%;height:100%}
+.tab .tn{text-align:left}
+.tab .tn b{display:block;font-family:'Space Grotesk';font-size:14.5px;font-weight:600;letter-spacing:.06em}
+.tab .tn span{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.tab.on .tn span{color:var(--accent)}
+
+/* ---------- simulator layout ---------- */
+main{padding:46px 0 10px}
+.sim{display:grid;grid-template-columns:minmax(0,1fr) 408px;gap:40px;align-items:start}
+@media(max-width:1060px){.sim{grid-template-columns:1fr}}
+.stage{position:sticky;top:96px;display:flex;flex-direction:column;align-items:center;padding:30px 0 10px}
+@media(max-width:1060px){.stage{position:static}}
+.stage::before{content:'';position:absolute;top:-20px;left:50%;transform:translateX(-50%);width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.045),transparent 62%);pointer-events:none}
+.device{position:relative;width:min(66vw,430px);aspect-ratio:1;margin-top:10px}
+.bezel{position:absolute;inset:-16px;border-radius:50%;
+  background:conic-gradient(from 220deg,#41403e,#131312 22%,#565553 47%,#0e0e0d 71%,#3c3b39 100%);
+  box-shadow:0 34px 90px rgba(0,0,0,.72),0 4px 18px rgba(0,0,0,.5),inset 0 1px 1px rgba(255,255,255,.22),inset 0 -2px 6px rgba(0,0,0,.7)}
+.crown{position:absolute;right:-26px;top:39%;width:16px;height:34px;border-radius:5px;
+  background:linear-gradient(90deg,#4a4947,#1b1a19);box-shadow:inset 0 1px 1px rgba(255,255,255,.2),0 3px 8px rgba(0,0,0,.5)}
+.crown::after{content:'';position:absolute;inset:4px 5px;border-radius:3px;background:repeating-linear-gradient(180deg,#333 0 2px,#1a1a19 2px 4px)}
+.sbtn{position:absolute;right:-20px;top:58%;width:10px;height:24px;border-radius:4px;background:linear-gradient(90deg,#3c3b39,#161514)}
+.screen{position:absolute;inset:0;border-radius:50%;overflow:hidden;background:#000;
+  box-shadow:inset 0 0 0 9px #000,inset 0 0 40px rgba(0,0,0,.85)}
+.screen svg{display:block;width:100%;height:100%}
+.screen .glass{position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:radial-gradient(130% 95% at 30% 10%,rgba(255,255,255,.09),rgba(255,255,255,0) 44%)}
+.screen.aod svg{filter:brightness(.8) saturate(.85)}
+.facemeta{margin-top:34px;text-align:center}
+.facemeta h2{font-family:'Space Grotesk';font-size:26px;font-weight:600;letter-spacing:.14em}
+.facemeta p{color:var(--mut);font-size:13.5px;margin-top:4px;max-width:46ch}
+.modecap{font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);margin-top:12px}
+.modecap b{color:var(--accent);font-weight:500;transition:color .5s}
+.stagebtns{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center}
+.sbt{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--sub);background:var(--panel);border:1px solid var(--line2);border-radius:999px;padding:8px 16px;transition:all .2s}
+.sbt:hover{border-color:var(--accent);color:var(--ink)}
+
+/* rack */
+.rack{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+.panel h3{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--mut);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.panel h3 .hint{letter-spacing:.05em;color:var(--faint);text-transform:none;font-size:10px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:40px;height:40px;border-radius:50%;border:2px solid transparent;padding:2px;background:none;transition:all .2s;position:relative}
+.sw i{display:block;width:100%;height:100%;border-radius:50%;border:1px solid rgba(255,255,255,.14)}
+.sw.on{border-color:var(--accent)}
+.sw:hover{transform:scale(1.08)}
+.swname{font-family:var(--mono);font-size:11px;color:var(--sub);letter-spacing:.1em;margin-top:10px;min-height:15px}
+.segrow{display:flex;gap:8px;flex-wrap:wrap}
+.seg{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--mut);background:none;border:1px solid var(--line2);border-radius:999px;padding:7px 14px;transition:all .2s}
+.seg:hover{color:var(--sub);border-color:var(--faint)}
+.seg.on{background:var(--accent-dim);border-color:var(--accent);color:var(--ink)}
+.slotrow{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;margin:0 -10px;transition:background .2s}
+.slotrow.sel{background:var(--accent-dim)}
+.slotrow .sl{flex:1;min-width:0}
+.slotrow .sl b{display:block;font-size:12.5px;font-weight:600;letter-spacing:.02em}
+.slotrow .sl span{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.06em}
+.slotrow select{background:var(--panel2);color:var(--sub);border:1px solid var(--line2);border-radius:9px;padding:7px 10px;font-family:var(--mono);font-size:11.5px;max-width:168px;outline:none}
+.slotrow select:focus-visible{border-color:var(--accent)}
+.optrow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.optrow:last-child{border-bottom:none}
+.optrow label{font-size:13px;color:var(--sub)}
+.optrow .note{font-family:var(--mono);font-size:9.5px;color:var(--faint);letter-spacing:.06em;display:block}
+.tgl{width:40px;height:22px;border-radius:999px;background:var(--line);border:none;position:relative;transition:background .2s;flex:none}
+.tgl::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#8b877d;transition:all .2s}
+.tgl.on{background:var(--accent)}
+.tgl.on::after{left:21px;background:#0a0a0b}
+.minirow{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.mini{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--mut);background:none;border:1px solid var(--line);border-radius:8px;padding:5px 10px;transition:all .2s}
+.mini:hover{color:var(--sub);border-color:var(--faint)}
+.mini.on{color:var(--ink);border-color:var(--accent);background:var(--accent-dim)}
+
+/* ---------- specs ---------- */
+section.specs{padding:70px 0 30px}
+.sechead{display:flex;align-items:baseline;gap:18px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:28px}
+.sechead h2{font-family:'Fraunces',Georgia,serif;font-size:34px;font-weight:400}
+.sechead h2 em{font-style:italic;color:var(--accent);transition:color .5s}
+.sechead span{font-family:var(--mono);font-size:11px;letter-spacing:.26em;color:var(--faint);text-transform:uppercase}
+.speccards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.speccards{grid-template-columns:1fr}}
+.scard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px}
+.scard.wide{grid-column:1/-1}
+.scard h4{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;transition:color .5s}
+.scard p{font-size:14px;color:var(--sub);margin-bottom:10px}
+.scard p:last-child{margin-bottom:0}
+.scard ul{list-style:none}
+.scard li{font-size:13.5px;color:var(--sub);padding:5.5px 0 5.5px 18px;position:relative;border-bottom:1px solid rgba(255,255,255,.035)}
+.scard li:last-child{border-bottom:none}
+.scard li::before{content:'';position:absolute;left:1px;top:13px;width:8px;height:8px;border:1.5px solid var(--accent);border-radius:50%;border-bottom-color:transparent;border-left-color:transparent;transform:rotate(-45deg)}
+.scard li b{color:var(--ink);font-weight:600}
+.scard li .m{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.05em}
+.typechips{display:flex;flex-wrap:wrap;gap:7px}
+.tchip{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--sub);border:1px solid var(--line2);border-radius:7px;padding:4px 9px}
+.feastab{width:100%;border-collapse:collapse}
+.feastab td{padding:8px 10px 8px 0;font-size:13px;color:var(--sub);border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+.feastab td:first-child{color:var(--ink);font-weight:500;width:26%}
+.feastab tr:last-child td{border-bottom:none}
+.badge{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:500;letter-spacing:.14em;border-radius:5px;padding:3px 8px;vertical-align:1px}
+.b-native{background:rgba(104,211,145,.12);color:#7fdfa4;border:1px solid rgba(104,211,145,.3)}
+.b-provider{background:rgba(99,179,237,.12);color:#8ec9f5;border:1px solid rgba(99,179,237,.3)}
+.b-sim{background:rgba(246,213,92,.1);color:#efd47f;border:1px solid rgba(246,213,92,.3)}
+.b-custom{background:rgba(237,100,166,.1);color:#f096c0;border:1px solid rgba(237,100,166,.3)}
+.cost{display:block;margin-top:4px;font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:#efd47f}
+.cost::before{content:'⚠ build cost — ';color:#efd47f}
+.mech{font-family:var(--mono);font-size:10.5px;color:var(--faint);letter-spacing:.02em}
+.themelist{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:640px){.themelist{grid-template-columns:1fr}}
+.themerow{display:flex;align-items:center;gap:11px;padding:7px 0}
+.themerow .dots{display:flex;flex:none}
+.themerow .dots i{width:16px;height:16px;border-radius:50%;border:1px solid rgba(255,255,255,.15);margin-left:-5px}
+.themerow .dots i:first-child{margin-left:0}
+.themerow div b{display:block;font-size:13px;font-weight:600}
+.themerow div span{font-size:11.5px;color:var(--mut)}
+
+/* ---------- global sections ---------- */
+section.global{padding:36px 0}
+.gtitle{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);margin-bottom:22px;display:flex;align-items:center;gap:16px}
+.gtitle::after{content:'';flex:1;height:1px;background:var(--line)}
+.legend{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:900px){.legend{grid-template-columns:repeat(2,1fr)}}
+.leg{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.leg p{font-size:12.5px;color:var(--mut);margin-top:9px}
+.walls{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.walls{grid-template-columns:1fr}}
+.wall{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.wall b{display:block;font-size:13.5px;color:var(--ink);margin-bottom:5px}
+.wall b s{color:var(--faint);font-weight:400}
+.wall p{font-size:12.5px;color:var(--mut)}
+.wall p em{color:var(--sub);font-style:normal;font-weight:600}
+.roadmap{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:900px){.roadmap{grid-template-columns:1fr 1fr}}
+.road{border:1px solid var(--line);border-radius:14px;padding:16px;background:linear-gradient(180deg,var(--panel),transparent)}
+.road.now{border-color:var(--accent)}
+.road .n{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--faint)}
+.road.now .n{color:var(--accent)}
+.road b{display:block;font-family:'Space Grotesk';font-size:15px;letter-spacing:.08em;margin:7px 0 4px}
+.road p{font-size:11.5px;color:var(--mut)}
+.protonote{background:var(--panel);border:1px solid var(--line2);border-left:3px solid var(--accent);border-radius:12px;padding:18px 22px;font-size:13.5px;color:var(--sub)}
+footer{border-top:1px solid var(--line);margin-top:50px;padding:30px 0 44px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer .f1{font-family:'Fraunces',Georgia,serif;font-size:19px}
+footer .f1 em{font-style:italic;color:var(--accent)}
+footer p{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--faint)}
+
+#toast{position:fixed;bottom:26px;left:50%;transform:translate(-50%,80px);background:#1c1c20;border:1px solid var(--line2);color:var(--sub);font-size:12.5px;font-family:var(--mono);letter-spacing:.03em;padding:11px 20px;border-radius:999px;transition:transform .35s cubic-bezier(.2,.9,.3,1.2);z-index:99;max-width:86vw;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+#toast.show{transform:translate(-50%,0)}
+#toast b{color:var(--accent)}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-type" aria-hidden="true">05</div>
+  <div class="wrap">
+    <div class="kicker">
+      <span>Fable Watch Faces</span><span>·</span><span>Series 05</span>
+      <span class="tag">Phase 1 — design prototype · no production code · the final series design</span>
+    </div>
+    <h1 class="title">After<em>glow</em></h1>
+    <p class="subtitle">Five watch faces from the light of old displays — arcade pixels, phosphor terminals, neon tubes, bedside LEDs and the pocket-calculator LCD. Watch Face Format cannot glow, so nothing here glows: <em>neon is a lighter line inside a darker line, phosphor is a palette, a ghost 88:88 is free static text, and digits substitute instantly — which is exactly how real segment displays behave.</em> The format's bluntest limits are this series' native behaviour.</p>
+    <div class="chips">
+      <span class="chip"><b>5</b> faces · one APK each</span>
+      <span class="chip"><b>25</b> colour themes · ≤5 roles each</span>
+      <span class="chip"><b>WFF v1</b> · Wear OS 4+ · widest reach</span>
+      <span class="chip">per-face complications · <b>≤8</b> slots</span>
+      <span class="chip">pure-black toggle · <b>every face</b></span>
+      <span class="chip">live simulator · <b>your local time</b></span>
+    </div>
+    <div class="why">
+      <div><h4>Ghost segments are free</h4><p>A static 88:88 in a seven-segment font behind the live time is the cheapest richness in the whole collection — pure static text, zero expressions, pure LCD soul.</p></div>
+      <div><h4>Instant is authentic</h4><p>WFF digits substitute instantly, with no transition frames. That is precisely how LCD, LED and VFD displays have always behaved. For once the wall IS the aesthetic.</p></div>
+      <div><h4>Neon without glow</h4><p>No blur, bloom or blend modes exist in v1. A tube is a lighter core stroke laid inside a darker casing stroke — flat, crisp, and it reads as neon at arm's length.</p></div>
+      <div><h4>OLED economics</h4><p>Black grounds with thin bright strokes and sparse type: dramatic interactive faces that walk under the 15% always-on pixel gate without dieting.</p></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Watch faces"><div class="wrap"><div class="tabs-inner" id="tabs"></div></div></nav>
+
+<main>
+  <div class="wrap sim">
+    <div class="stage">
+      <div class="device">
+        <div class="bezel"></div>
+        <div class="crown"></div><div class="sbtn"></div>
+        <div class="screen" id="screen"><svg id="dial" viewBox="0 0 480 480" role="img" aria-label="Watch face simulator"></svg><div class="glass"></div></div>
+      </div>
+      <div class="facemeta"><h2 id="fname"></h2><p id="ftag"></p></div>
+      <div class="modecap" id="modecap"></div>
+      <div class="stagebtns">
+        <button class="sbt" id="btnAod">◐ toggle always-on</button>
+        <button class="sbt" id="btnMap">◎ show slot map</button>
+        <button class="sbt" id="btnShuffle">⤨ shuffle simulated data</button>
+      </div>
+    </div>
+    <div class="rack" id="rack"></div>
+  </div>
+
+  <div class="wrap">
+    <section class="specs" id="specs"></section>
+
+    <section class="global">
+      <div class="gtitle">How to read the feasibility badges</div>
+      <div class="legend">
+        <div class="leg"><span class="badge b-native">NATIVE</span><p>Built into Watch Face Format itself and drawn by a mechanism named in the row — static text and strokes, threshold-gated duplicate cells, time-range gates, native hand rotation, TimeText. Ships in the face with no dependencies.</p></div>
+        <div class="leg"><span class="badge b-provider">PROVIDER</span><p>Data arrives through standard Wear OS complication providers. Defaults are restricted to the WFF v1 system-provider list; heart-rate and weather can be user-added but can never be a default.</p></div>
+        <div class="leg"><span class="badge b-sim">SIMULATED</span><p>Shown live in this prototype with generated values so you can judge the design. The real face binds the same slot to a real provider. Nothing renders here that the real WFF face couldn't draw.</p></div>
+        <div class="leg"><span class="badge b-custom">CUSTOM</span><p>Would need our own provider, companion app, or an unproven runtime mechanism. In AFTERGLOW this badge appears only on rejected or optional non-signature extras — no face depends on one to ship.</p></div>
+      </div>
+      <p style="margin-top:14px;font-family:var(--mono);font-size:11px;color:#efd47f;letter-spacing:.04em">⚠ build cost — rows carrying this note are possible-but-costly: the mechanism is real, but it multiplies elements/assets or needs one dedicated verification round. Costed here so nothing is discovered after building.</p>
+    </section>
+
+    <section class="global">
+      <div class="gtitle">Designed inside the format — the retro walls AFTERGLOW was built against</div>
+      <div class="walls">
+        <div class="wall"><b><s>Glow, bloom, halos, light bleed</s></b><p>WFF v1/v2 has no filter pipeline — no blur, no shadow, no blend modes. <em>Neon is layered flat strokes: a lighter core inside a darker casing. A soft halo is impossible and never appears in this simulator.</em></p></div>
+        <div class="wall"><b><s>Phosphor trails, decay, afterimages</s></b><p>Nothing in the format can fade or persist — elements are visible or they are not. <em>The "afterglow" is a palette and a ghost underlay, never a motion effect.</em></p></div>
+        <div class="wall"><b><s>Flicker, scan roll, CRT wobble</s></b><p>No shader, no animated texture, no opacity animation. <em>Scanlines are ONE static texture asset; the screen never rolls, hums or jitters.</em></p></div>
+        <div class="wall"><b><s>Blinking colon / blinking cursor</s></b><p>A 1 Hz blink needs [SECOND] % 2 — and the % operator died silently on a real watch (shelved). <em>Every colon and cursor in AFTERGLOW is steady, by design.</em> A 2-frame animated-image blink exists in theory but is runtime-unproven — listed as a costed non-signature option only.</p></div>
+        <div class="wall"><b><s>Marching sprites, demo-scene motion</s></b><p>The only motion in the format is clock-rate rotation and data-driven fills. <em>Sprites stand still; score digits change because the data changed — like a real cabinet between plays (attract mode is the one thing we don't simulate).</em></p></div>
+        <div class="wall"><b><s>Low battery turns the display red</s></b><p>No conditionals exist in any colour attribute, ever. <em>State is shown by discrete threshold-gated CELLS (each its own element with ONE comparison) — bars drain like real segment meters instead of recolouring.</em></p></div>
+        <div class="wall"><b><s>Letter-spaced terminal type</s></b><p>Fonts have no letterSpacing attribute in WFF. <em>Segment, pixel and terminal fonts are naturally tabular and tight-set — the one type family where the wall costs nothing.</em></p></div>
+        <div class="wall"><b><s>Press-to-backlight</s></b><p>TAP triggers can only play pre-rendered image sequences — they cannot recolour the scene, and an Indiglo-style flood is a theme, not an event. <em>The backlit look ships as a colour theme (SEGMENT's "Indiglo") the user selects.</em></p></div>
+      </div>
+    </section>
+
+    <section class="global">
+      <div class="gtitle">Series roadmap — five categories, twenty-five single-face APKs</div>
+      <div class="roadmap">
+        <div class="road"><span class="n">SERIES 01 · BUILDING</span><b>ARCLIGHT</b><p>Arcs &amp; curves. Solstice + Pulsar shipped as standalone APKs.</p></div>
+        <div class="road"><span class="n">SERIES 02 · DESIGNED</span><b>LEDGER</b><p>Typographic dials — the numerals are the face.</p></div>
+        <div class="road"><span class="n">SERIES 03 · DESIGNED</span><b>ARMATURE</b><p>Mechanical instruments, skeletons and gauges.</p></div>
+        <div class="road"><span class="n">SERIES 04 · DESIGNED</span><b>WILDER</b><p>Nature, seasons and landscapes that keep real time.</p></div>
+        <div class="road now"><span class="n">SERIES 05 · THIS PROTOTYPE</span><b>AFTERGLOW</b><p>Retro-digital light: LCD, phosphor and neon. The set of five series designs is complete.</p></div>
+      </div>
+    </section>
+
+    <section class="global">
+      <div class="gtitle">About this prototype</div>
+      <div class="protonote">
+        This page is a <b>design simulator, not a build</b>. The clock is your real local time and all complication values are generated placeholders. No Wear OS project, APK or production code exists for AFTERGLOW yet — that is a deliberate Phase-1 gate. Like the LEDGER, ARMATURE and WILDER showcases, this simulator is <b>feasibility-locked</b>: no glow, blur or blend appears anywhere; nothing blinks, trails or flickers; the seven-segment digits drawn here are exactly what a static DSEG font file renders on the watch; and every rendered element corresponds to a named WFF v1 mechanism already proven on a real watch in Series 01. If it renders here, it can ship.
+      </div>
+    </section>
+
+    <footer>
+      <div>
+        <div class="f1">Fable · After<em>glow</em></div>
+        <p>SERIES 05 · PHASE 1 DESIGN PROTOTYPE · 2026</p>
+      </div>
+      <p>PIXEL WATCH &amp; GALAXY WATCH · WATCH FACE FORMAT V1 · DESIGNED IN THE BROWSER, HONEST ABOUT THE WATCH</p>
+    </footer>
+  </div>
+</main>
+
+<div id="toast"></div>
+<script>
+'use strict';
+/* =========================================================
+   AFTERGLOW — Series 05 · Fable Watch Faces
+   Phase-1 interactive design prototype. Browser-only.
+   Feasibility-locked: no glow/blur/blend, nothing blinks or
+   trails, scanlines are one static texture, seven-segment
+   digits = what a static DSEG TTF renders, discrete cells
+   instead of colour logic. If it renders here, it can ship.
+   ========================================================= */
+
+const $ = s => document.querySelector(s);
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const pad2 = n => String(n).padStart(2,'0');
+const fmtInt = n => Math.round(n).toLocaleString('en-US');
+const DAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+
+function pol(cx, cy, r, a){
+  const t = (a - 90) * Math.PI / 180;
+  return [cx + r*Math.cos(t), cy + r*Math.sin(t)];
+}
+
+/* ---------- seven-segment renderer ----------
+   Mirrors a static DSEG7-class TTF: tabular advance, butt-cap
+   segments, steady colon. Ghost = the same glyph box with all
+   segments drawn at low opacity (static text in the build). */
+const SEG7 = {'0':'abcdef','1':'bc','2':'abged','3':'abgcd','4':'fgbc','5':'afgcd','6':'afgedc','7':'abc','8':'abcdefg','9':'abgfcd','-':'g'};
+function seg7width(H, str, thin){
+  const W = H*0.52, gap = H*0.16, colonW = H*0.26, dotW = H*0.16, spaceW = H*0.30;
+  let w = 0;
+  [...str].forEach(ch=>{ w += (ch===':'?colonW: ch==='.'?dotW: ch===' '?spaceW: W) + gap; });
+  return w - gap;
+}
+function seg7(x, y, H, str, col, o){
+  o = o || {};
+  const t = H * (o.thin ? 0.06 : 0.15);
+  const W = H*0.52, gap = H*0.16, colonW = H*0.26, dotW = H*0.16, spaceW = H*0.30;
+  const op = o.op == null ? 1 : o.op;
+  let cx = o.cx != null ? o.cx - seg7width(H,str)/2 : x;
+  if(o.right != null) cx = o.right - seg7width(H,str);
+  let s = `<g stroke="${col}" stroke-width="${t.toFixed(1)}" stroke-linecap="butt" opacity="${op}">`;
+  const shr = t*0.72 + H*0.02;
+  [...str].forEach(ch=>{
+    if(ch === ':'){
+      const r = Math.max(t*0.5, 1.4);
+      s += `<rect x="${(cx+colonW/2-r).toFixed(1)}" y="${(y+H*0.30-r).toFixed(1)}" width="${(2*r).toFixed(1)}" height="${(2*r).toFixed(1)}" fill="${col}" stroke="none"/>`;
+      s += `<rect x="${(cx+colonW/2-r).toFixed(1)}" y="${(y+H*0.70-r).toFixed(1)}" width="${(2*r).toFixed(1)}" height="${(2*r).toFixed(1)}" fill="${col}" stroke="none"/>`;
+      cx += colonW + gap; return;
+    }
+    if(ch === '.'){
+      const r = Math.max(t*0.5, 1.4);
+      s += `<rect x="${(cx+dotW/2-r).toFixed(1)}" y="${(y+H-2*r).toFixed(1)}" width="${(2*r).toFixed(1)}" height="${(2*r).toFixed(1)}" fill="${col}" stroke="none"/>`;
+      cx += dotW + gap; return;
+    }
+    if(ch === ' '){ cx += spaceW + gap; return; }
+    const L = SEG7[ch] || '';
+    const x0 = cx, x1 = cx + W, ymid = y + H/2;
+    const segd = {
+      a:[x0+shr, y+t/2, x1-shr, y+t/2],
+      b:[x1-t/2, y+shr, x1-t/2, ymid-shr*0.72],
+      c:[x1-t/2, ymid+shr*0.72, x1-t/2, y+H-shr],
+      d:[x0+shr, y+H-t/2, x1-shr, y+H-t/2],
+      e:[x0+t/2, ymid+shr*0.72, x0+t/2, y+H-shr],
+      f:[x0+t/2, y+shr, x0+t/2, ymid-shr*0.72],
+      g:[x0+shr, ymid, x1-shr, ymid]
+    };
+    for(const k of L){
+      const v = segd[k];
+      s += `<line x1="${v[0].toFixed(1)}" y1="${v[1].toFixed(1)}" x2="${v[2].toFixed(1)}" y2="${v[3].toFixed(1)}"/>`;
+    }
+    cx += W + gap;
+  });
+  return s + '</g>';
+}
+const segSafe = txt => String(txt).replace(/[^0-9:.\-]/g,'');
+
+/* ---------- pixel-art sprites (original, static) ---------- */
+const SPRITES = [
+  ['..##..','.####.','##..##','######','#.##.#','#....#'],
+  ['.#..#.','..##..','.####.','##.###','.####.','.#..#.'],
+  ['#....#','.#..#.','.####.','##..##','######','#.#..#']
+];
+function sprite(x, y, cell, idx, col, op){
+  const rows = SPRITES[idx % SPRITES.length];
+  let s = `<g fill="${col}"${op!=null?` opacity="${op}"`:''}>`;
+  rows.forEach((row,ry)=>{
+    [...row].forEach((c,cx2)=>{
+      if(c === '#') s += `<rect x="${x+cx2*cell}" y="${y+ry*cell}" width="${cell}" height="${cell}"/>`;
+    });
+  });
+  return s + '</g>';
+}
+
+/* ---------- neon tube helpers (core stroke inside casing stroke) ---------- */
+function tubeCircle(cx, cy, r, casing, core, tCas, tCore, op){
+  return `<g${op!=null?` opacity="${op}"`:''}><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${casing}" stroke-width="${tCas}"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${core}" stroke-width="${tCore}"/></g>`;
+}
+function tubeLine(x1, y1, x2, y2, casing, core, tCas, tCore){
+  return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${casing}" stroke-width="${tCas}" stroke-linecap="round"/>`+
+         `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${core}" stroke-width="${tCore}" stroke-linecap="round"/>`;
+}
+
+/* ---------- icon library ---------- */
+const ICONS = {
+  steps:'<ellipse cx="8.2" cy="7.2" rx="2.9" ry="4.3"/><path d="M8.2 14.6v2.4"/><ellipse cx="15.8" cy="12.4" rx="2.9" ry="4.3"/><path d="M15.8 19.8v1.2"/>',
+  hr:'<path d="M12 20.5C7.4 16.8 3.5 13.4 3.5 9.3 3.5 6.6 5.5 4.5 8 4.5c1.5 0 3 .7 4 2 1-1.3 2.5-2 4-2 2.5 0 4.5 2.1 4.5 4.8 0 4.1-3.9 7.5-8.5 11.2Z"/>',
+  weather:'<circle cx="8" cy="8.2" r="2.7"/><path d="M8 3.4v1.3M3.2 8.2h1.3M4.8 5l1 1"/><path d="M10.6 20h6.1a3.3 3.3 0 0 0 .6-6.6A4.6 4.6 0 0 0 8.7 12 3.6 3.6 0 0 0 10.6 20Z"/>',
+  battery:'<rect x="3" y="8" width="15" height="9" rx="2.2"/><path d="M20.6 11v3M6.6 11.5v2M9.6 11.5v2"/>',
+  calendar:'<rect x="3.8" y="5.5" width="16.4" height="15" rx="2.6"/><path d="M3.8 10.4h16.4M9 3.4v4M15 3.4v4"/>',
+  date:'<rect x="3.8" y="5.5" width="16.4" height="15" rx="2.6"/><path d="M3.8 10.4h16.4M9 3.4v4M15 3.4v4"/><circle cx="12" cy="15.2" r="1.3"/>',
+  alarm:'<circle cx="12" cy="13.6" r="6.8"/><path d="M12 10v3.8l2.6 1.6M4.6 5.4 7 3.6M19.4 5.4 17 3.6"/>',
+  worldclock:'<circle cx="12" cy="12" r="8.4"/><path d="M3.6 12h16.8M12 3.6c2.5 2.3 3.8 5.1 3.8 8.4s-1.3 6.1-3.8 8.4c-2.5-2.3-3.8-5.1-3.8-8.4s1.3-6.1 3.8-8.4Z"/>',
+  sunrise:'<path d="M3.5 18.5h17M7.2 18.5a4.8 4.8 0 0 1 9.6 0M12 5.2v3M5.8 8.8l1.4 1.4M18.2 8.8l-1.4 1.4"/>',
+  calories:'<path d="M12 21.2c-3.5 0-6.1-2.4-6.1-5.8 0-2.3 1.3-4 2.5-5.5 1.2-1.4 2.2-3 2.1-5.5 2.7 1.6 4.4 3.9 4.8 6.2.6-.5 1.1-1.3 1.4-2.3 1.5 1.6 2.5 3.6 2.5 5.8 0 3.4-2.7 7.1-7.2 7.1Z"/>',
+  distance:'<circle cx="6.2" cy="18.6" r="2.4"/><circle cx="17.8" cy="5.4" r="2.4"/><path d="M8.8 18.6h6a3.4 3.4 0 0 0 0-6.8H9.2a3.4 3.4 0 0 1 0-6.8h6.2"/>',
+  notif:'<path d="M6.4 15.8V11a5.6 5.6 0 0 1 11.2 0v4.8l1.7 2.4H4.7l1.7-2.4Z"/><path d="M10.2 20.6a2 2 0 0 0 3.6 0"/>'
+};
+function ic(name, x, y, s, col, sw, op){
+  const k = s/24;
+  return `<g transform="translate(${(x-s/2).toFixed(1)} ${(y-s/2).toFixed(1)}) scale(${k.toFixed(3)})" fill="none" stroke="${col}" stroke-width="${(sw||2)/k}" stroke-linecap="round" stroke-linejoin="round" opacity="${op==null?1:op}">${ICONS[name]||''}</g>`;
+}
+
+/* ---------- simulated data ---------- */
+const sim = {
+  steps: 6432, stepGoal: 10000, hrv: 68, batt: 78, temp: 24,
+  cal: 412, dist: 4.6, notif: 3,
+  eventTitle: 'Design review', eventH: 14.5,
+  alarmH: 6.5, sunriseH: 6.0, sunsetH: 18.0,
+  wcCity: 'NYC', wcOffset: -9.5
+};
+function shuffleSim(){
+  sim.steps = 2200 + Math.floor(Math.random()*9500);
+  sim.hrv = 54 + Math.floor(Math.random()*68);
+  sim.batt = 18 + Math.floor(Math.random()*80);
+  sim.temp = 9 + Math.floor(Math.random()*26);
+  sim.cal = 150 + Math.floor(Math.random()*600);
+  sim.dist = +(1 + Math.random()*9).toFixed(1);
+  sim.notif = Math.floor(Math.random()*6);
+  const ev = [['Design review',14.5],['Standup',9.5],['1:1 with Maya',11.0],['Flight BLR → DEL',17.75],['Gym',18.5]];
+  const e = ev[Math.floor(Math.random()*ev.length)];
+  sim.eventTitle = e[0]; sim.eventH = e[1];
+}
+setInterval(()=>{
+  sim.hrv = clamp(sim.hrv + Math.round(Math.random()*4-2), 52, 148);
+  if(Math.random() < .5) sim.steps += Math.floor(Math.random()*9);
+}, 2600);
+
+function fmtClock(hf, h24){
+  let h = Math.floor(hf), m = Math.round((hf - h)*60);
+  if(m === 60){ h++; m = 0; }
+  if(h24) return pad2(h) + ':' + pad2(m);
+  const hh = ((h + 11) % 12) + 1;
+  return hh + ':' + pad2(m) + (h < 12 ? 'a' : 'p');
+}
+function dateShort(){ const d = new Date(); return DAYS[d.getDay()] + ' ' + d.getDate(); }
+
+/* ---------- complication registry ---------- */
+const COMPS = {
+  steps:     { name:'Steps',        tab:'STEPS', icon:'steps',      wff:'RANGED_VALUE',  tap:'the fitness app', get:p=>({txt:fmtInt(sim.steps), sub:'STEPS', frac:clamp(sim.steps/sim.stepGoal,0,1), raw:sim.steps}) },
+  hr:        { name:'Heart rate',   tab:'PULSE', icon:'hr',         wff:'RANGED_VALUE',  tap:'the heart-rate app', get:p=>({txt:String(sim.hrv), sub:'BPM', frac:clamp((sim.hrv-40)/140,0,1), raw:sim.hrv}) },
+  weather:   { name:'Weather',      tab:'WTHR',  icon:'weather',    wff:'SHORT_TEXT + ICON', tap:'the weather app', get:p=>({txt:sim.temp+'°', sub:'PARTLY CLOUDY', frac:null, raw:sim.temp}) },
+  battery:   { name:'Watch battery',tab:'BATT',  icon:'battery',    wff:'RANGED_VALUE',  tap:'battery settings', get:p=>({txt:sim.batt+'%', sub:'BATTERY', frac:sim.batt/100, raw:sim.batt}) },
+  calendar:  { name:'Next event',   tab:'EVENT', icon:'calendar',   wff:'SHORT/LONG_TEXT', tap:'the event in Calendar', get:p=>({txt:fmtClock(sim.eventH,p.h24), sub:sim.eventTitle.toUpperCase(), frac:null, raw:null}) },
+  alarm:     { name:'Next alarm',   tab:'ALARM', icon:'alarm',      wff:'SHORT_TEXT',    tap:'Clock — alarms', get:p=>({txt:fmtClock(sim.alarmH,p.h24), sub:'ALARM', frac:null, raw:null}) },
+  worldclock:{ name:'World clock',  tab:'WORLD', icon:'worldclock', wff:'NATIVE TZ CLOCK', tap:'Clock — world clock', get:p=>{
+      const d = new Date(Date.now() + sim.wcOffset*3600000);
+      const h = d.getHours(), m = d.getMinutes();
+      return {txt: p.h24 ? pad2(h)+':'+pad2(m) : (((h+11)%12)+1)+':'+pad2(m), sub:sim.wcCity, frac:null, raw:null}; } },
+  sunrise:   { name:'Sunrise / sunset', tab:'SUNRS', icon:'sunrise', wff:'SHORT_TEXT',   tap:'the weather provider', get:p=>({txt:fmtClock(sim.sunriseH,p.h24), sub:'SET '+fmtClock(sim.sunsetH,p.h24).toUpperCase(), frac:null, raw:null}) },
+  calories:  { name:'Calories',     tab:'KCAL',  icon:'calories',   wff:'RANGED_VALUE',  tap:'the fitness app', get:p=>({txt:fmtInt(sim.cal), sub:'KCAL', frac:clamp(sim.cal/600,0,1), raw:sim.cal}) },
+  distance:  { name:'Distance',     tab:'DIST',  icon:'distance',   wff:'RANGED_VALUE',  tap:'the fitness app', get:p=>({txt:sim.dist.toFixed(1), sub:'KM', frac:clamp(sim.dist/8,0,1), raw:sim.dist}) },
+  notif:     { name:'Notifications',tab:'NOTIF', icon:'notif',      wff:'SHORT_TEXT',    tap:'the notification stream', get:p=>({txt:String(sim.notif), sub:'UNREAD', frac:null, raw:sim.notif}) },
+  date:      { name:'Date',         tab:'DATE',  icon:'date',       wff:'NATIVE',        tap:'Calendar', get:p=>({txt:dateShort(), sub:MONTHS[new Date().getMonth()], frac:null, raw:null}) }
+};
+
+/* =========================================================
+   FACE DEFINITIONS
+   ========================================================= */
+const GEN = ['steps','hr','weather','battery','calendar','calories','distance','notif','alarm','worldclock','sunrise'];
+const NUMERIC = ['steps','battery','notif','calories','distance','hr'];
+const TIMEY = ['calendar','alarm','worldclock'];
+
+const FACES = [
+{
+  id:'arcade', name:'ARCADE', role:'Score screen · hero',
+  accent:'#ffd23f',
+  tagline:'An arcade cabinet between plays — your steps are the 1UP score, your battery is the shield bar, and the time is the biggest thing on the marquee. Nothing marches; everything counts.',
+  themes:[
+    {n:'Cabinet', d:'Black cab, score yellow, 1UP red', c:{bg:'#060706',ink:'#eef2e8',acc:'#ffd23f',alt:'#ff5f56',mut:'#39423a'}, sw:['#ffd23f','#060706']},
+    {n:'CGA', d:'Cyan–magenta CGA on black', c:{bg:'#05060a',ink:'#e8f4f8',acc:'#4de8e8',alt:'#f25fd0',mut:'#303a48'}, sw:['#4de8e8','#05060a']},
+    {n:'Phosphor Cab', d:'Green-mono arcade tube', c:{bg:'#040704',ink:'#cdeccd',acc:'#5fe07a',alt:'#9fe89f',mut:'#26362a'}, sw:['#5fe07a','#040704']},
+    {n:'Vapour', d:'Violet vapour, aqua alt', c:{bg:'#0b0714',ink:'#efe8fa',acc:'#b48cff',alt:'#5fd8e8',mut:'#3a2f52'}, sw:['#b48cff','#0b0714']},
+    {n:'Game & Watch', d:'Light dial — handheld LCD grey-green', c:{bg:'#c9cfba',ink:'#20241c',acc:'#8a2f22',alt:'#3c4a38',mut:'#99a088'}, sw:['#8a2f22','#c9cfba']}
+  ],
+  slots:[
+    {id:'p1', label:'1UP score',   pos:'top left', allowed:NUMERIC, anchor:[122,82]},
+    {id:'p2', label:'2UP score',   pos:'top right', allowed:NUMERIC, anchor:[358,82]},
+    {id:'credit', label:'Credit',  pos:'bottom left', allowed:['notif','battery','steps','hr'], anchor:[165,434]},
+    {id:'bonus', label:'Bonus',    pos:'bottom right', allowed:TIMEY.concat(['sunrise']), anchor:[315,434]}
+  ],
+  configOrder:['Attract','Score','Full'],
+  defCfg:'Score',
+  configs:{
+    'Attract': {p1:null,p2:null,credit:null,bonus:null},
+    'Score':   {p1:'steps',p2:null,credit:'notif',bonus:null},
+    'Full':    {p1:'steps',p2:'battery',credit:'notif',bonus:'calendar'}
+  },
+  options:[
+    {id:'bars', label:'Power bars', def:true, note:'steps + battery · 10 threshold-gated cells each'},
+    {id:'sprites', label:'Sprite row', def:true, note:'original pixel critters · static, they do not march'},
+    {id:'grid', label:'Dot-matrix underlay', def:false, note:'unlit pixel grid · one static texture asset'}
+  ]
+},
+{
+  id:'cathode', name:'CATHODE', role:'Terminal · data',
+  accent:'#52e07a',
+  tagline:'A green-phosphor terminal logged into your wrist — the time at a steady prompt, your data as system readouts, scanlines printed on, cursor steady. READY.',
+  themes:[
+    {n:'Phosphor', d:'P1 green terminal', c:{bg:'#040805',ink:'#7df0a0',acc:'#c8ffd8',dim:'#2a4a34',bar:'#5fe07a'}, sw:['#7df0a0','#040805']},
+    {n:'Amber', d:'P3 amber phosphor', c:{bg:'#0a0603',ink:'#ffb454',acc:'#ffd8a0',dim:'#48331a',bar:'#f09a3c'}, sw:['#ffb454','#0a0603']},
+    {n:'Plasma', d:'Gas-plasma orange', c:{bg:'#120505',ink:'#ff8a5f',acc:'#ffc4a8',dim:'#48221a',bar:'#f2703c'}, sw:['#ff8a5f','#120505']},
+    {n:'Ice', d:'Cold-cathode blue-white', c:{bg:'#050a0e',ink:'#a8d8f0',acc:'#e0f4ff',dim:'#2a4252',bar:'#6fc0e8'}, sw:['#a8d8f0','#050a0e']},
+    {n:'Printout', d:'Light dial — tractor-feed printout', c:{bg:'#ece7d8',ink:'#2a2620',acc:'#a33d2a',dim:'#b9b19c',bar:'#4a5a3c'}, sw:['#a33d2a','#ece7d8']}
+  ],
+  slots:[
+    {id:'r1', label:'Readout row 1', pos:'terminal row', allowed:GEN, anchor:[240,262]},
+    {id:'r2', label:'Readout row 2', pos:'terminal row', allowed:GEN, anchor:[240,292]},
+    {id:'r3', label:'Readout row 3', pos:'terminal row', allowed:GEN, anchor:[240,322]},
+    {id:'r4', label:'Readout row 4', pos:'terminal row', allowed:GEN, anchor:[240,352]}
+  ],
+  configOrder:['Quiet','Ops','Full'],
+  defCfg:'Ops',
+  configs:{
+    'Quiet': {r1:'steps',r2:null,r3:null,r4:null},
+    'Ops':   {r1:'steps',r2:'calendar',r3:null,r4:null},
+    'Full':  {r1:'steps',r2:'calendar',r3:'notif',r4:'worldclock'}
+  },
+  options:[
+    {id:'scan', label:'Scanlines', def:true, note:'ONE static texture asset · nothing rolls'},
+    {id:'header', label:'Header line', def:true, note:'FABLE·OS banner · static text'},
+    {id:'psec', label:'Seconds in prompt', def:true, note:'1 Hz TimeText · interactive only'}
+  ]
+},
+{
+  id:'neon', name:'NEON', role:'Sign · dress',
+  accent:'#ff5fa2',
+  tagline:'An analog neon sign — every line on the dial is a tube: a bright core stroke inside a dark casing stroke. The script sign under the hands flips DAY to NITE at six. No glow. It doesn’t need one.',
+  themes:[
+    {n:'Motel', d:'Pink tubes, aqua script, midnight wall', c:{wall:'#0d090c',casing:'#6e2344',core:'#ff6ea9',sign:'#5fe0e0',ink:'#e8dce4'}, sw:['#ff6ea9','#0d090c']},
+    {n:'Tropic', d:'Palm-teal tubes, sunset script', c:{wall:'#071010',casing:'#0e5548',core:'#4fe8c4',sign:'#ffb054',ink:'#dff0ea'}, sw:['#4fe8c4','#071010']},
+    {n:'Blue Hour', d:'Blue tubes, rose script', c:{wall:'#080a14',casing:'#2c3a8a',core:'#7fa8ff',sign:'#f28fb8',ink:'#e4e8f6'}, sw:['#7fa8ff','#080a14']},
+    {n:'Gold Lounge', d:'Warm gold tubes, ember script', c:{wall:'#0e0a06',casing:'#7a5a18',core:'#ffd884',sign:'#ff8a5f',ink:'#f2ead8'}, sw:['#ffd884','#0e0a06']},
+    {n:'Daylight Off', d:'Light dial — the sign switched off at noon', c:{wall:'#e6e0d2',casing:'#8a8474',core:'#c4beae',sign:'#a08a68',ink:'#2a251c'}, sw:['#a08a68','#e6e0d2']}
+  ],
+  slots:[
+    {id:'side', label:'Top note', pos:'under the lounge mark', allowed:['battery','steps','notif','weather','worldclock'], anchor:[240,132]},
+    {id:'mq', label:'Marquee line', pos:'bottom of the sign', allowed:['date','calendar','alarm','sunrise'], anchor:[240,396]}
+  ],
+  configOrder:['Sign','Late','Full'],
+  defCfg:'Late',
+  configs:{
+    'Sign': {side:null,mq:null},
+    'Late': {side:null,mq:'date'},
+    'Full': {side:'battery',mq:'date'}
+  },
+  options:[
+    {id:'sign', label:'DAY / NITE script', def:true, note:'flips on the fixed 6:00 / 18:00 time-range gate'},
+    {id:'spark', label:'Seconds spark', def:true, note:'native Sweep dot · interactive only'},
+    {id:'lounge', label:'Lounge mark', def:false, note:'small static furniture text at 12'}
+  ]
+},
+{
+  id:'standby', name:'STANDBY', role:'Bedside LED · calm',
+  accent:'#ff4b3e',
+  tagline:'The 1984 bedside clock, worn — dim red seven-segment digits on true black and very little else. One toggle dims it further for the night stand. LEDs have no ghost segments, so neither does this face.',
+  themes:[
+    {n:'Ruby', d:'Bedside red LED', c:{bg:'#020202',led:'#ff4b3e',sub:'#a83228',mut:'#553029',acc:'#ff4b3e'}, sw:['#ff4b3e','#020202']},
+    {n:'Emerald', d:'Green LED module', c:{bg:'#020302',led:'#3ee87a',sub:'#2a9a54',mut:'#1e4630',acc:'#3ee87a'}, sw:['#3ee87a','#020302']},
+    {n:'Ice', d:'Blue-white LED', c:{bg:'#020203',led:'#7fd4ff',sub:'#4a90b8',mut:'#2a4658',acc:'#7fd4ff'}, sw:['#7fd4ff','#020203']},
+    {n:'Amber', d:'Amber LED', c:{bg:'#030202',led:'#ffb340',sub:'#b87c2a',mut:'#523e1e',acc:'#ffb340'}, sw:['#ffb340','#030202']},
+    {n:'Daybreak', d:'Light dial — sunrise clock, warm paper', c:{bg:'#f0e8d8',led:'#4a3626',sub:'#8a7458',mut:'#b9ac94',acc:'#8a5a34'}, sw:['#4a3626','#f0e8d8']}
+  ],
+  slots:[
+    {id:'corner', label:'Top note', pos:'above the digits', allowed:['battery','notif','weather','steps'], anchor:[240,120]},
+    {id:'under', label:'Under line', pos:'below the date', allowed:TIMEY.concat(['sunrise','notif']), anchor:[240,360]}
+  ],
+  configOrder:['Bare','Bedside','Full'],
+  defCfg:'Bedside',
+  configs:{
+    'Bare':    {corner:null,under:null},
+    'Bedside': {corner:null,under:'calendar'},
+    'Full':    {corner:'battery',under:'calendar'}
+  },
+  options:[
+    {id:'dim', label:'Night dim', def:false, note:'one boolean scrim gate · the bedside trick'},
+    {id:'dateLn', label:'Date line', def:true, note:'weekday · day · month tokens'},
+    {id:'pmdot', label:'PM dot', def:true, note:'hidden automatically in 24-h mode'}
+  ]
+},
+{
+  id:'segment', name:'SEGMENT', role:'LCD · classic-digital',
+  accent:'#58d0c4',
+  tagline:'The pocket-calculator LCD, grown up — a ghost 88:88 always resting under the live digits, weekday and date panes, a steady colon, and a light positive-display dial as the default. The most honest face in the collection.',
+  themes:[
+    {n:'Classic LCD', d:'Light dial — the positive display everyone owned', c:{bg:'#8f9483',lcd:'#c5cbb2',seg:'#232720',mut:'#454a3d',acc:'#87311f'}, sw:['#232720','#c5cbb2']},
+    {n:'Inverse', d:'Negative display, pale segments', c:{bg:'#0a0b0c',lcd:'#131518',seg:'#e2e8dc',mut:'#6a7064',acc:'#9fe8d8'}, sw:['#e2e8dc','#131518']},
+    {n:'Indiglo', d:'Backlight on — teal glow as a THEME, not an event', c:{bg:'#04141a',lcd:'#12a2ac',seg:'#062a2e',mut:'#4a8a90',acc:'#dff6f2'}, sw:['#062a2e','#12a2ac']},
+    {n:'Fluoro', d:'VFD cyan-mint on black', c:{bg:'#050807',lcd:'#0a100e',seg:'#7df0dd',mut:'#3c554e',acc:'#4fe8c4'}, sw:['#7df0dd','#0a100e']},
+    {n:'Redline', d:'Red LED module in an LCD suit', c:{bg:'#0b0708',lcd:'#140b0d',seg:'#ff5348',mut:'#6e433f',acc:'#ff7a68'}, sw:['#ff5348','#140b0d']}
+  ],
+  slots:[
+    {id:'subL', label:'Sub-pane · left',  pos:'lower pane, numeric ghost 8888', allowed:NUMERIC, anchor:[160,382]},
+    {id:'subR', label:'Sub-pane · right', pos:'lower pane, time ghost 88:88', allowed:TIMEY, anchor:[320,382]}
+  ],
+  configOrder:['Time','Classic','Full'],
+  defCfg:'Classic',
+  configs:{
+    'Time':    {subL:null,subR:null},
+    'Classic': {subL:'steps',subR:null},
+    'Full':    {subL:'steps',subR:'calendar'}
+  },
+  options:[
+    {id:'ghost', label:'Ghost segments', def:true, note:'static 88:88 underlay · the LCD gift, zero cost'},
+    {id:'secs', label:'Seconds pane', def:true, note:'TimeText ss · interactive only'},
+    {id:'furn', label:'Bezel furniture', def:true, note:'static case text · WR · brand'}
+  ]
+}
+];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const state = {
+  f: 0,
+  theme: {},
+  mode: 'int',
+  cfg: {},
+  cur: {},
+  opts: {},
+  prefs: { h24:false, sec:'sweep', clean:false },
+  sel: null,
+  showMap: false
+};
+FACES.forEach(f=>{
+  state.theme[f.id] = 0;
+  state.cfg[f.id] = f.defCfg;
+  state.cur[f.id] = Object.assign({}, f.configs[f.defCfg]);
+  state.opts[f.id] = {};
+  f.options.forEach(o=> state.opts[f.id][o.id] = o.def);
+});
+
+let toastTimer = null;
+function toast(msg){
+  const t = $('#toast');
+  t.innerHTML = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 3000);
+}
+
+function makeCtx(fi, forThumb){
+  const face = FACES[fi];
+  const th = face.themes[state.theme[face.id]].c;
+  const d = new Date();
+  const aod = !forThumb && state.mode === 'aod';
+  const clean = !forThumb && state.prefs.clean;
+  const slots = {};
+  face.slots.forEach(s=>{
+    const key = state.cur[face.id][s.id];
+    if(key && !clean && COMPS[key]) slots[s.id] = { key, comp: COMPS[key], v: COMPS[key].get(state.prefs) };
+    else slots[s.id] = null;
+  });
+  return {
+    face, th, d,
+    t: { h: d.getHours(), m: d.getMinutes(), s: d.getSeconds(), ms: d.getMilliseconds() },
+    aod, clean, slots,
+    prefs: state.prefs,
+    sec: (aod || forThumb) ? 'off' : state.prefs.sec,
+    opts: state.opts[face.id],
+    sel: forThumb ? null : state.sel,
+    showMap: forThumb ? false : state.showMap,
+    thumb: !!forThumb
+  };
+}
+
+function hitOverlay(ctx){
+  if(ctx.thumb) return '';
+  let s = '';
+  ctx.face.slots.forEach((sd, i)=>{
+    const [x,y] = sd.anchor;
+    const active = !!ctx.slots[sd.id];
+    if(ctx.showMap){
+      const on = active;
+      s += `<g opacity="${on?1:.45}">
+        <circle cx="${x}" cy="${y}" r="26" fill="none" stroke="${on?'#ffd479':'#8b877d'}" stroke-width="1.4" stroke-dasharray="4 5"/>
+        <circle cx="${x}" cy="${y}" r="10.5" fill="#0a0a0b" stroke="${on?'#ffd479':'#8b877d'}" stroke-width="1.2"/>
+        <text x="${x}" y="${y+3.8}" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="${on?'#ffd479':'#b8b0a0'}">${i+1}</text></g>`;
+    }
+    if(ctx.sel === sd.id){
+      s += `<circle cx="${x}" cy="${y}" r="30" fill="none" stroke="#ffffff" stroke-opacity=".85" stroke-width="1.6" stroke-dasharray="3 6" stroke-linecap="round"/>`;
+    }
+    if(active || ctx.showMap){
+      s += `<circle cx="${x}" cy="${y}" r="30" fill="rgba(0,0,0,0)" data-slot="${sd.id}" style="cursor:pointer"/>`;
+    }
+  });
+  return s;
+}
+
+/* =========================================================
+   RENDERERS — 480×480. FEASIBILITY LOCK:
+   · no glow/blur/blend anywhere; layered flat strokes only
+   · nothing blinks, trails or flickers; colons are steady
+   · scanlines / dot grids = one static texture asset
+   · discrete threshold-gated cells instead of colour logic
+   · AOD = fixed light inks (#d8d4cc / #8f8877)
+   ========================================================= */
+function T(x,y,s,fill,str,o){
+  o = o || {};
+  return `<text x="${x}" y="${y}" font-size="${s}" fill="${fill}" text-anchor="${o.a||'middle'}" font-family="${o.f||'Inter'}" font-weight="${o.w||500}"${o.i?' font-style="italic"':''}${o.op!=null?` opacity="${o.op}"`:''}${o.st?` stroke="${o.st}" stroke-width="${o.sw2}" paint-order="stroke" stroke-linejoin="round"`:''}>${str}</text>`;
+}
+const AOD_INK = '#d8d4cc', AOD_MUT = '#8f8877';
+function cellBar(x, y, n, lit, cw, ch, gap2, colLit, colSocket){
+  let s = '';
+  for(let i=0;i<n;i++){
+    const cx2 = x + i*(cw+gap2);
+    s += `<rect x="${cx2}" y="${y}" width="${cw}" height="${ch}" fill="none" stroke="${colSocket}" stroke-width="1.2"/>`;
+    if(i < lit) s += `<rect x="${cx2+1.5}" y="${y+1.5}" width="${cw-3}" height="${ch-3}" fill="${colLit}"/>`;
+  }
+  return s;
+}
+const R = {};
+
+/* ---------------- ARCADE — the score screen ---------------- */
+R.arcade = function(ctx){
+  const th = ctx.th, t = ctx.t;
+  const tm = ctx.prefs.h24 ? pad2(t.h)+':'+pad2(t.m) : (((t.h+11)%12)+1)+':'+pad2(t.m);
+  const ap = ctx.prefs.h24 ? '' : (t.h<12?'AM':'PM');
+  if(ctx.aod){
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    s += T(240,190,20,AOD_MUT,'1UP',{f:'Silkscreen',w:400});
+    s += T(240,268,58,AOD_INK,tm,{f:'Silkscreen',w:400});
+    if(ap) s += T(240,300,14,AOD_MUT,ap,{f:'Silkscreen',w:400});
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* dot-matrix underlay — ONE static texture asset in the build */
+  if(ctx.opts.grid){
+    s += `<defs><pattern id="dotgrid" width="12" height="12" patternUnits="userSpaceOnUse"><circle cx="6" cy="6" r="1.1" fill="${th.ink}" opacity=".07"/></pattern></defs>`;
+    s += `<rect width="480" height="480" fill="url(#dotgrid)"/>`;
+  }
+  /* score header — labels static, values from slots */
+  const p1 = ctx.slots.p1, p2 = ctx.slots.p2;
+  s += T(122,68,15,th.alt,'1UP',{f:'Silkscreen',w:700});
+  s += T(240,68,15,th.acc,'HI-SCORE',{f:'Silkscreen',w:700});
+  s += T(358,68,15,th.alt,'2UP',{f:'Silkscreen',w:700});
+  if(p1) s += T(122,94,17,th.ink,String(p1.v.raw!=null?p1.v.raw:0).padStart(6,'0'),{f:'Silkscreen',w:400});
+  s += T(240,94,17,th.ink,String(sim.stepGoal).padStart(6,'0'),{f:'Silkscreen',w:400});
+  if(p2) s += T(358,94,17,th.ink,String(p2.v.raw!=null?p2.v.raw:0).padStart(6,'0'),{f:'Silkscreen',w:400});
+  /* the marquee time */
+  s += T(240,248,76,th.ink,tm,{f:'Silkscreen',w:700});
+  if(ap) s += T(240,282,15,th.mut,ap,{f:'Silkscreen',w:400});
+  /* stage line — [MONTH]/[DAY] numeric tokens */
+  s += T(240,316,17,th.acc,'STAGE '+(ctx.d.getMonth()+1)+'-'+ctx.d.getDate(),{f:'Silkscreen',w:400});
+  /* power bars — 10 threshold-gated cells each */
+  if(ctx.opts.bars){
+    const stepsLit = Math.floor(clamp(sim.steps/sim.stepGoal,0,1)*10 + 1e-9);
+    const battLit = Math.floor(sim.batt/10);
+    s += T(120,352,12,th.mut,'POW',{f:'Silkscreen',w:400,a:'end'});
+    s += cellBar(134,341,10,stepsLit,20,13,4,th.acc,th.mut);
+    s += T(120,376,12,th.mut,'BAT',{f:'Silkscreen',w:400,a:'end'});
+    s += cellBar(134,365,10,battLit,20,13,4,th.alt,th.mut);
+  }
+  /* sprite row — static, original, they do not march */
+  if(ctx.opts.sprites){
+    s += sprite(158,394,4,0,th.ink,.85);
+    s += sprite(228,394,4,1,th.acc,.85);
+    s += sprite(298,394,4,2,th.ink,.85);
+  }
+  /* credit / bonus */
+  const cr = ctx.slots.credit, bo = ctx.slots.bonus;
+  if(cr) s += T(165,438,13,th.mut,'CREDIT '+String(cr.v.raw!=null?cr.v.raw:cr.v.txt).padStart(2,'0'),{f:'Silkscreen',w:400});
+  if(bo) s += T(315,438,13,th.mut,'BONUS '+segSafe(bo.v.txt),{f:'Silkscreen',w:400});
+  return s;
+};
+
+/* ---------------- CATHODE — the terminal ---------------- */
+R.cathode = function(ctx){
+  const th = ctx.th, t = ctx.t;
+  const tm = ctx.prefs.h24 ? pad2(t.h)+':'+pad2(t.m) : (((t.h+11)%12)+1)+':'+pad2(t.m);
+  const suffix = ctx.prefs.h24 ? '' : (t.h<12?'am':'pm');
+  if(ctx.aod){
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    s += T(120,254,64,AOD_MUT,'&gt;',{f:'VT323',w:400,a:'start'});
+    s += T(160,254,72,AOD_INK,tm,{f:'VT323',w:400,a:'start'});
+    s += `<rect x="${160 + tm.length*32 + 12}" y="222" width="18" height="34" fill="none" stroke="${AOD_MUT}" stroke-width="1.6"/>`;
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* header */
+  if(ctx.opts.header){
+    s += T(240,74,19,th.dim,'FABLE·OS v5.0 — TTY1',{f:'VT323',w:400});
+    s += `<line x1="96" y1="88" x2="384" y2="88" stroke="${th.dim}" stroke-width="1.2"/>`;
+  }
+  /* prompt time */
+  const big = 96;
+  let px = 92;
+  s += T(px,196,54,th.dim,'&gt;',{f:'VT323',w:400,a:'start'});
+  px += 34;
+  s += T(px,200,big,th.ink,tm,{f:'VT323',w:400,a:'start'});
+  px += tm.length * (big*0.44);
+  if(ctx.opts.psec && ctx.sec!=='off'){
+    s += T(px+8,198,42,th.dim,':'+pad2(t.s),{f:'VT323',w:400,a:'start'});
+    px += 60;
+  }
+  if(suffix) s += T(px+10,198,26,th.dim,suffix,{f:'VT323',w:400,a:'start'});
+  /* date row */
+  s += T(92,232,21,th.dim,'$ date',{f:'VT323',w:400,a:'start'});
+  s += T(388,232,21,th.ink,DAYS[ctx.d.getDay()]+' '+ctx.d.getDate()+' '+MONTHS[ctx.d.getMonth()],{f:'VT323',w:400,a:'end'});
+  /* readout rows — complications as system rows (PICA pattern) */
+  ['r1','r2','r3','r4'].forEach(id=>{
+    const sl = ctx.slots[id]; if(!sl) return;
+    const [ , y] = ctx.face.slots.find(z=>z.id===id).anchor;
+    const label = '$ ' + sl.comp.tab.toLowerCase();
+    s += T(92,y+6,21,th.dim,label,{f:'VT323',w:400,a:'start'});
+    /* dotted leader — a static dot-strip asset in the build */
+    const lx0 = 92 + label.length*10 + 12, lx1 = 300;
+    if(lx1 > lx0){
+      let dots = '';
+      for(let dx = lx0; dx < lx1; dx += 8) dots += `<circle cx="${dx}" cy="${y+1}" r="1" fill="${th.dim}" opacity=".55"/>`;
+      s += dots;
+    }
+    const valStr = sl.v.txt + (sl.v.sub ? ' ' + sl.v.sub.slice(0,10) : '');
+    s += T(388,y+6,21,th.ink,valStr,{f:'VT323',w:400,a:'end'});
+  });
+  /* battery block bar — 10 threshold-gated cells */
+  const bl = Math.floor(sim.batt/10);
+  s += T(92,392,21,th.dim,'$ pwr',{f:'VT323',w:400,a:'start'});
+  s += T(160,392,21,th.dim,'[',{f:'VT323',w:400,a:'start'});
+  for(let i=0;i<10;i++){
+    const bx = 172 + i*14;
+    if(i < bl) s += `<rect x="${bx}" y="378" width="10" height="14" fill="${th.bar}"/>`;
+    else s += `<rect x="${bx}" y="378" width="10" height="14" fill="none" stroke="${th.dim}" stroke-width="1"/>`;
+  }
+  s += T(314,392,21,th.dim,']',{f:'VT323',w:400,a:'start'});
+  s += T(388,392,21,th.ink,sim.batt+'%',{f:'VT323',w:400,a:'end'});
+  /* footer — READY + steady cursor */
+  s += T(190,428,22,th.acc,'READY',{f:'VT323',w:400,a:'end'});
+  s += `<rect x="200" y="410" width="13" height="20" fill="${th.ink}"/>`;
+  /* scanlines — ONE static texture asset in the build */
+  if(ctx.opts.scan){
+    s += `<defs><pattern id="scanl" width="4" height="4" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="4" height="1.4" fill="#000" opacity="${th.bg==='#ece7d8'?0.05:0.28}"/></pattern></defs>`;
+    s += `<rect width="480" height="480" fill="url(#scanl)"/>`;
+  }
+  return s;
+};
+
+/* ---------------- NEON — the sign ---------------- */
+R.neon = function(ctx){
+  const th = ctx.th, t = ctx.t;
+  const ha = ((t.h % 12) + t.m/60) * 30;
+  const ma = (t.m + t.s/60) * 6;
+  const isNight = t.h < 6 || t.h >= 18;
+  if(ctx.aod){
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    s += `<circle cx="240" cy="240" r="206" fill="none" stroke="${AOD_MUT}" stroke-width="1.6"/>`;
+    const [hx,hy] = pol(240,240,104,ha);
+    const [mx,my] = pol(240,240,158,ma);
+    s += `<line x1="240" y1="240" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" stroke="${AOD_INK}" stroke-width="3" stroke-linecap="round"/>`;
+    s += `<line x1="240" y1="240" x2="${mx.toFixed(1)}" y2="${my.toFixed(1)}" stroke="${AOD_INK}" stroke-width="2" stroke-linecap="round"/>`;
+    s += `<circle cx="240" cy="240" r="4.5" fill="none" stroke="${AOD_INK}" stroke-width="1.5"/>`;
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.wall}"/>`;
+  /* the outer tube — casing then core, flat strokes */
+  s += tubeCircle(240,240,206,th.casing,th.core,10,3.5);
+  /* 12 tube ticks */
+  for(let i=0;i<12;i++){
+    const [x1,y1] = pol(240,240,176,i*30), [x2,y2] = pol(240,240,192,i*30);
+    s += tubeLine(x1,y1,x2,y2,th.casing,th.core,6.5,2.2);
+  }
+  /* lounge mark */
+  if(ctx.opts.lounge){
+    s += T(240,110,12,th.ink,'LOUNGE',{f:'JetBrains Mono',op:.6});
+    s += tubeLine(196,120,216,120,th.casing,th.sign,5,1.8);
+    s += tubeLine(264,120,284,120,th.casing,th.sign,5,1.8);
+  }
+  /* top note slot */
+  const sd = ctx.slots.side;
+  if(sd){
+    s += ic(sd.comp.icon, 216, 138, 13, th.ink, 2, .7);
+    s += T(230,143,14,th.ink,sd.v.txt,{f:'JetBrains Mono',a:'start',op:.85});
+  }
+  /* the script sign — DAY / NITE, time-range gated */
+  if(ctx.opts.sign){
+    const word = isNight ? 'nite' : 'day';
+    s += T(240,336,58,th.sign,word,{f:'Mr Dafoe',w:400,st:th.casing,sw2:7});
+  }
+  /* marquee line */
+  const mq = ctx.slots.mq;
+  if(mq) s += T(240,398,14,th.ink,(mq.v.txt+' '+(mq.key==='date'?MONTHS[ctx.d.getMonth()]:mq.v.sub)).toUpperCase(),{f:'JetBrains Mono',op:.75});
+  /* tube hands — twin AnalogClocks in the build (casing clock + core clock) */
+  const [hx,hy] = pol(240,240,104,ha);
+  const [hx0,hy0] = pol(240,240,18,ha+180);
+  s += tubeLine(hx0,hy0,hx,hy,th.casing,th.core,12,4.5);
+  const [mx,my] = pol(240,240,158,ma);
+  const [mx0,my0] = pol(240,240,22,ma+180);
+  s += tubeLine(mx0,my0,mx,my,th.casing,th.core,10,3.6);
+  /* centre cap */
+  s += `<circle cx="240" cy="240" r="9" fill="${th.wall}" stroke="${th.casing}" stroke-width="4"/><circle cx="240" cy="240" r="9" fill="none" stroke="${th.core}" stroke-width="1.6"/>`;
+  /* seconds spark — native Sweep dot */
+  if(ctx.opts.spark && ctx.sec!=='off'){
+    const sa = (t.s + (ctx.sec==='sweep'? t.ms/1000 : 0))*6;
+    const [ox,oy] = pol(240,240,206,sa);
+    s += `<circle cx="${ox.toFixed(1)}" cy="${oy.toFixed(1)}" r="4.6" fill="${th.wall}"/><circle cx="${ox.toFixed(1)}" cy="${oy.toFixed(1)}" r="3" fill="${th.sign}"/>`;
+  }
+  return s;
+};
+
+/* ---------------- STANDBY — the bedside LED ---------------- */
+R.standby = function(ctx){
+  const th = ctx.th, t = ctx.t;
+  const tm = ctx.prefs.h24 ? pad2(t.h)+':'+pad2(t.m) : (((t.h+11)%12)+1)+':'+pad2(t.m);
+  if(ctx.aod){
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    s += seg7(0,190,96,tm,AOD_INK,{cx:240,thin:true});
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* corner slot */
+  const co = ctx.slots.corner;
+  if(co){
+    s += ic(co.comp.icon, 216, 116, 13, th.mut, 2, .9);
+    s += T(230,121,14,th.sub,co.v.txt,{f:'JetBrains Mono',a:'start'});
+  }
+  /* the digits */
+  s += seg7(0,168,112,tm,th.led,{cx:240});
+  /* PM dot */
+  if(ctx.opts.pmdot && !ctx.prefs.h24){
+    const on = t.h >= 12;
+    s += `<rect x="66" y="176" width="9" height="9" fill="${on?th.led:'none'}" stroke="${th.mut}" stroke-width="1.2"/>`;
+    s += T(70,202,11,th.mut,'PM',{f:'JetBrains Mono'});
+  }
+  /* date line */
+  if(ctx.opts.dateLn) s += T(240,324,17,th.sub,DAYS[ctx.d.getDay()]+' · '+ctx.d.getDate()+' '+MONTHS[ctx.d.getMonth()],{f:'JetBrains Mono'});
+  /* under slot */
+  const un = ctx.slots.under;
+  if(un){
+    s += ic(un.comp.icon, 168, 358, 13, th.mut, 2, .8);
+    s += T(182,363,14,th.mut,un.v.txt+' '+(un.v.sub||'').slice(0,14),{f:'JetBrains Mono',a:'start'});
+  }
+  /* night dim — one boolean scrim gate over everything */
+  if(ctx.opts.dim) s += `<rect width="480" height="480" fill="#000" opacity="${th.bg==='#f0e8d8'?0.32:0.55}"/>`;
+  return s;
+};
+
+/* ---------------- SEGMENT — the LCD ---------------- */
+R.segment = function(ctx){
+  const th = ctx.th, t = ctx.t;
+  const hh = ctx.prefs.h24 ? pad2(t.h) : pad2(((t.h+11)%12)+1);
+  const tm = hh + ':' + pad2(t.m);
+  const GH_OP = 0.13;
+  if(ctx.aod){
+    let s = `<rect width="480" height="480" fill="#000"/>`;
+    s += seg7(0,196,88,tm,AOD_INK,{cx:240,thin:true});
+    s += T(240,300,13,AOD_MUT,DAYS[ctx.d.getDay()]+' '+ctx.d.getDate(),{f:'Share Tech Mono'});
+    return s;
+  }
+  let s = `<rect width="480" height="480" fill="${th.bg}"/>`;
+  /* bezel furniture — static case text */
+  if(ctx.opts.furn){
+    s += T(240,64,15,th.mut,'FABLE',{f:'Share Tech Mono'});
+    s += T(240,82,10,th.mut,'AFTERGLOW · SERIES 05',{f:'Share Tech Mono',op:.8});
+    s += T(240,452,10,th.mut,'WATER 50M RESIST · WFF V1',{f:'Share Tech Mono',op:.8});
+  }
+  /* LCD pane */
+  s += `<rect x="70" y="108" width="340" height="240" rx="24" fill="${th.lcd}"/>`;
+  s += `<rect x="70" y="108" width="340" height="240" rx="24" fill="none" stroke="${th.mut}" stroke-width="1.6" opacity=".55"/>`;
+  /* top strip: weekday · battery cells · date */
+  s += T(104,152,21,th.seg,DAYS[ctx.d.getDay()],{f:'Share Tech Mono',a:'start'});
+  const bLit = sim.batt >= 90 ? 4 : sim.batt >= 70 ? 3 : sim.batt >= 45 ? 2 : sim.batt >= 20 ? 1 : 0;
+  s += cellBar(212,136,4,bLit,11,15,3,th.seg,th.mut);
+  s += `<rect x="268" y="140" width="3" height="7" fill="${th.mut}"/>`;
+  if(ctx.opts.ghost) s += seg7(0,132,26,'88',th.seg,{right:376,op:GH_OP});
+  s += seg7(0,132,26,pad2(ctx.d.getDate()),th.seg,{right:376});
+  /* main time over the ghost */
+  if(ctx.opts.ghost) s += seg7(0,180,84,'88:88',th.seg,{cx:240,op:GH_OP});
+  s += seg7(0,180,84,tm,th.seg,{cx:240});
+  /* AM/PM + seconds strip */
+  if(!ctx.prefs.h24) s += T(112,308,15,th.seg,t.h<12?'AM':'PM',{f:'Share Tech Mono',a:'start'});
+  if(ctx.opts.secs && ctx.sec!=='off'){
+    if(ctx.opts.ghost) s += seg7(0,288,30,'88',th.seg,{right:376,op:GH_OP});
+    s += seg7(0,288,30,pad2(t.s),th.seg,{right:376});
+    s += T(330,318,10,th.mut,'SEC',{f:'Share Tech Mono'});
+  }
+  /* sub-panes */
+  const drawPane = (x, w, sl, ghostStr)=>{
+    s += `<rect x="${x}" y="360" width="${w}" height="46" rx="10" fill="${th.lcd}"/>`;
+    s += `<rect x="${x}" y="360" width="${w}" height="46" rx="10" fill="none" stroke="${th.mut}" stroke-width="1.3" opacity=".5"/>`;
+    if(!sl) return;
+    s += T(x+10,374,9.5,th.mut,sl.comp.tab,{f:'Share Tech Mono',a:'start'});
+    const val = segSafe(sl.v.txt).slice(0,5) || '0';
+    if(ctx.opts.ghost) s += seg7(0,378,22,ghostStr,th.seg,{right:x+w-12,op:GH_OP});
+    s += seg7(0,378,22,val,th.seg,{right:x+w-12});
+  };
+  drawPane(88, 144, ctx.slots.subL, '8888');
+  drawPane(248, 144, ctx.slots.subR, '88:88');
+  return s;
+};
+
+FACES.forEach(f=>{ f.render = R[f.id]; });
+
+/* =========================================================
+   SPEC SHEETS
+   ========================================================= */
+const PLATFORM = 'Watch Face Format <b>v1</b> (declarative XML — no code executes on the watch), minSdk 33 / Wear OS 4+ — the widest WFF install base. v1 is deliberate: nothing in AFTERGLOW needs v2 Weather/Flavors, v3 auto-size/blend modes or v4 photos. Each face ships as its own APK (com.afterglow.&lt;face&gt;) with its own ≤8 complication slots. <b>Line rule:</b> every face carries the pure-black dark-mode toggle; light themes stay readable under it via the proven light-ink twin pattern. <b>Fonts ship as static TTFs:</b> DSEG7 / DSEG14 Classic (SIL OFL 1.1, keshikan — licence + tight-set rendering verified once at build), Silkscreen, VT323 (both OFL). Segment and pixel fonts are naturally tabular, so the missing letterSpacing attribute costs nothing here.';
+const M = s => `<span class="mech">${s}</span>`;
+const SPECS = {
+arcade:{
+  concept:'An arcade cabinet between plays. The score header reads 1UP / HI-SCORE / 2UP in pixel type; your steps ARE the 1UP score, zero-padded to six digits the way scores always were. The time stands where the game title would be — the biggest thing on the screen. Below it, a stage line built from the month and day, two ten-cell power bars that drain like real segment meters, a row of original pixel critters standing perfectly still, and CREDIT counting your unread notifications. Score digits change because the data changed. Nothing marches — this is the cabinet BETWEEN plays, and the design owns that.',
+  target:'The hero and the store shot. For everyone whose first glowing screen had a joystick bolted to it — playful on the wrist without being a toy.',
+  type:['<b>Silkscreen</b> (OFL, static TTF) everywhere — pixel type is naturally tabular, so scores and time land on a strict grid with zero letterSpacing needed','Score values zero-padded to 6 digits '+M('provider numeric value in a PartText — padding is a formatting choice, not logic'),'<b>The bar engine:</b> 10 duplicate cells per bar, each behind ONE threshold comparison ([STEP_PERCENT] ≥ 10·n) — the BLOOM/BREVIER duplicate-and-gate pattern at meter scale','Sprites = original pixel-art drawn as static single-tint assets'],
+  identity:['<b>Signature:</b> the score header — 1UP/HI-SCORE/2UP labels '+M('static text; values are provider slots styled as scores'),'Ten-cell power bars '+M('threshold-gated duplicate cells — a rejected gate drops ONE cell, never the bar'),'The stage line '+M('[MONTH]-[DAY] numeric tokens — STAGE 7-11 is today'),'Sprite row '+M('3 static single-tint PNGs, tintColor-themed')],
+  motion:['Nothing animates. Scores and digits substitute instantly when the data changes — exactly like the real thing between plays','Bars change at data rate (steps/battery) — minute-class frequency','No attract mode, no marching sprites: the one arcade thing WFF cannot do, stated on the walls'],
+  custom:['5 themes (incl. the Game &amp; Watch light dial) · ≤5 roles (bg, ink, score, alt, muted)','Power bars on/off · sprite row on/off · dot-matrix underlay on/off','Pure-black toggle (line rule); Game &amp; Watch readable via light-ink twins','3 layout presets + free slot editing'],
+  interact:['Tap a score → its provider app '+M('Launch'),'Long-press → system editor'],
+  aod:['Pixel time at reduced size in fixed light ink over a 1UP mark — nothing else '+M('structural thin-twin; pixel type carries thinness by size, not weight'),'Bars, sprites, scores dropped','≈ 6% lit pixels'],
+  battery:['Minute-rate time + data-rate bars; zero sub-minute elements by default'],
+  feas:[
+    ['Pixel time + score type','NATIVE','TimeText / PartText in Silkscreen static TTF (OFL) — tabular by nature'],
+    ['Power bars ×2 (10 cells)','NATIVE','10 duplicate cells × ONE threshold gate each on [STEP_PERCENT] / [BATTERY_PERCENT]<span class="cost">20 gated rects + 20 static sockets — mechanical build; each cell fails independently (BLOOM pattern)</span>'],
+    ['1UP / 2UP / CREDIT / BONUS','PROVIDER','SHORT_TEXT / RANGED_VALUE; v1 defaults STEP_COUNT · WATCH_BATTERY · UNREAD_NOTIFICATION_COUNT · NEXT_EVENT'],
+    ['Stage line (month-day)','NATIVE','[MONTH] + [DAY] numeric tokens<span class="cost">[MONTH] numeric verify at build (queued since ALMANAC); fallback = STAGE [DAY] only</span>'],
+    ['Sprite row','NATIVE','static original pixel-art PNGs, single-tint, tintColor-themed<span class="cost">verify tintColor-on-PartImage once at validation — carried from RIDGELINE, same attribute class proven on the shipped SecondHand</span>'],
+    ['Dot-matrix underlay','NATIVE','ONE static texture asset<span class="cost">full-screen PNG vs the 10 MB ambient gate — excluded from AOD, quantizes to ~KBs</span>'],
+    ['Marching sprites / attract mode','CUSTOM','pre-rendered PartAnimatedImage per theme vs the memory gate; runtime-unproven — REJECTED, the cabinet rests'],
+    ['All values on this page','SIM','generated so you can judge the design']
+  ]
+},
+cathode:{
+  concept:'A green-phosphor terminal that happens to tell the time. A steady prompt holds the clock in tall VT323 figures; beneath it, your complications print as system readout rows — label, dotted leader, value — the exact ledger grammar PICA proved, restyled for a machine room. The battery renders as a ten-block meter inside square brackets. At the bottom: READY, and a cursor that never blinks, because the % operator died on a real watch and this series does not pretend. Scanlines are printed on the glass — one static texture, nothing rolls.',
+  target:'The data face — sysadmins, terminal people, anyone whose happy place is a tiling window manager. The most information-dense face of the five.',
+  type:['<b>VT323</b> (OFL, static TTF) — the terminal face, tall and tabular','Row grammar: label + dotted leader + value '+M('[COMPLICATION.TITLE] label + static dot-strip leader (WFF has no dashed stroke) + value text — the PICA pattern'),'<b>The meter:</b> 10 block cells × ONE threshold gate each on [BATTERY_PERCENT]','Scanlines = ONE static full-screen texture asset'],
+  identity:['<b>Signature:</b> the prompt time — "&gt; 19:42" '+M('static "&gt;" PartText + TimeText; seconds = TimeText ss, 1 Hz, interactive-only'),'System readout rows '+M('complication slots rendered as terminal rows — proven complication text'),'Bracketed battery meter '+M('threshold-gated duplicate cells'),'READY + steady cursor '+M('static text + static rect — honestly unblinking')],
+  motion:['The seconds pair in the prompt steps once per second (interactive only, toggleable) — the only sub-minute element','Rows update at provider rate; nothing else moves','No boot sequence, no typing animation — the terminal is always already logged in'],
+  custom:['5 themes (incl. the Printout light dial) · ≤5 roles (bg, ink, accent, dim, bar)','Scanlines on/off · header on/off · prompt seconds on/off','Pure-black toggle (line rule); Printout readable via light-ink twins','3 layout presets + free slot editing on 4 rows'],
+  interact:['Tap a readout row → its provider app '+M('Launch'),'Long-press → system editor'],
+  aod:['One line: "&gt; 19:42" in fixed light ink + the cursor as an outline box '+M('structural thin-twin — a single row of text'),'Rows, meter, header, scanlines dropped','≈ 4% lit pixels — the best AOD economics in the series'],
+  battery:['Minute-rate rows + an optional 1 Hz seconds pair; the scanline texture is static and costs nothing at runtime'],
+  feas:[
+    ['Prompt time line','NATIVE','TimeText (VT323 static TTF) + static "&gt;" PartText'],
+    ['Seconds in prompt','NATIVE','TimeText format "ss" — 1 Hz, interactive-only<span class="cost">verify the "ss" pattern at build (schema allows h/m/s patterns); fallback = drop the seconds pair</span>'],
+    ['System readout rows ×4','PROVIDER','[COMPLICATION.TITLE] + text rendered as terminal rows — complication text proven on-wrist (Solstice)'],
+    ['Dotted leaders','NATIVE','static dot-strip assets — WFF has no dashed stroke (the PICA answer)'],
+    ['Battery block meter','NATIVE','10 duplicate cells × ONE threshold gate on [BATTERY_PERCENT]<span class="cost">10 gated + 10 static rects; each cell fails independently</span>'],
+    ['Scanlines','NATIVE','ONE static full-screen texture PNG<span class="cost">asset vs the 10 MB ambient gate — excluded from the AOD variant; quantizes to ~KBs</span>'],
+    ['Blinking cursor','CUSTOM','needs [SECOND] % 2 (shelved) or a 2-frame ON_NEXT_SECOND PartAnimatedImage (runtime-unproven) — the cursor is steady; blink stays a costed diagnostic-build option, never the signature'],
+    ['Boot sequence / typing','CUSTOM','no text animation exists in the format — REJECTED'],
+    ['All values on this page','SIM','']
+  ]
+},
+neon:{
+  concept:'An analog neon sign hung on a midnight wall. The dial ring, the twelve ticks and both hands are tubes — each one a bright core stroke laid inside a dark casing stroke, which is how neon reads when it cannot glow: flat, crisp, unmistakable. Under the hands, a script sign flips from "day" to "nite" at six o’clock through the same time-range gate the Solstice sun uses. A spark rides the outer tube once a minute as the second hand. On the light theme the sign is simply switched off — pale glass tubes on a daylight wall.',
+  target:'The dress face — date nights, dark bars, anyone who wants the watch to be the most interesting light in the room without emitting any.',
+  type:['<b>The tube formula:</b> core stroke inside casing stroke — 2 static PartDraw strokes per tube, zero expressions','Tube hands '+M('TWIN AnalogClocks — a casing clock under a core clock, single-tint hand PNGs tinted per theme; multiple AnalogClocks + tintColor both proven on-wrist'),'<b>Mr Dafoe</b>-class script lettering ships as stacked single-tint PNGs (casing + core) — text has no stroke in WFF, so neon lettering is an asset, not a font trick','Wall = one flat colour; depth = draw order only'],
+  identity:['<b>Signature:</b> the DAY↔NITE script sign '+M('2 word artworks × 2 layers, each behind ONE time-range alpha gate (the shipped sun-disc pattern, fixed 6:00/18:00 preset)'),'The all-tube dial '+M('layered static strokes — ring, 12 ticks, hands'),'Seconds spark '+M('SecondHand dot + native Sweep — the shipped Solstice comet class'),'Daylight-off light theme '+M('a palette statement: unlit glass = pale core on pale wall')],
+  motion:['Hands rotate at native rates; the spark sweeps on the platform’s own 15 Hz drive','The sign flips twice a day by instant gated substitution — no fade, stated honestly','Nothing flickers, hums or buzzes — the walls say why'],
+  custom:['5 themes (incl. the Daylight Off light dial) · ≤5 roles (wall, casing, core, sign, ink)','Sign on/off · spark on/off · lounge mark on/off','Pure-black toggle (line rule); Daylight Off readable via light-ink twins','3 layout presets + free slot editing on 2 slots'],
+  interact:['Tap the marquee line → its provider '+M('Launch'),'Long-press → system editor'],
+  aod:['A single hairline ring + hairline hands in fixed light ink — the sign sleeps '+M('structural thin-twin'),'Tubes, ticks, script, spark, slots dropped','≈ 5% lit pixels'],
+  battery:['An analog watch’s cost; the spark is the only sub-minute element and is toggleable'],
+  feas:[
+    ['Tube ring + 12 tube ticks','NATIVE','layered static strokes: core arc inside casing arc — 2 PartDraw elements per tube, zero expressions'],
+    ['Tube hands','NATIVE','twin AnalogClocks (casing under core), single-tint hand PNGs, tintColor per theme<span class="cost">2 clocks × 2 hands = 4 hand assets; alignment verified once on-wrist</span>'],
+    ['DAY↔NITE script sign','NATIVE','2 word artworks × 2 layers (casing+core PNGs), each behind ONE time-range gate — the shipped sun-disc pattern<span class="cost">4 gated elements + per-theme tinting; a rejected gate kills one layer only, and the fixed 6:00/18:00 preset is the shipped Solstice compromise</span>'],
+    ['Script lettering','NATIVE','static word art as stacked single-tint PNGs — designed in advance, never templated (string parameters fail at runtime)'],
+    ['Seconds spark','NATIVE','SecondHand artwork + native Sweep frequency 15 — shipped mechanism'],
+    ['Top note + marquee line','PROVIDER','SHORT_TEXT; v1 defaults WATCH_BATTERY / DATE'],
+    ['Glow, halo, flicker, buzz','CUSTOM','no filter pipeline, no opacity animation — REJECTED at the design gate; the tube formula replaces it'],
+    ['All values on this page','SIM','']
+  ]
+},
+standby:{
+  concept:'The bedside clock from 1984, worn. Dim red seven-segment digits on true black — nothing else demands attention. A small PM square, a quiet date line, one optional readout row. The one interaction that matters is the one real bedside clocks had: a dim switch. Here it is a single boolean gate on a black scrim — the proven workhorse pattern — pulling the whole face down to night-stand brightness. LEDs have no ghost segments, so unlike SEGMENT this face shows none: dark means off.',
+  target:'The calm face — minimalists, light sleepers, anyone who wants the time at 3 a.m. without being lit up by it. The least-is-most statement of the series.',
+  type:['<b>DSEG7 Classic</b> (SIL OFL 1.1, static TTF) — the seven-segment canon, tabular by construction','One type size rules: the digits; everything else is small JetBrains Mono','<b>The dim engine:</b> a full-face black scrim behind ONE boolean alpha gate — [CONFIGURATION.dim] ? 140 : 0','No ghost underlay — an authenticity decision, stated']
+  ,
+  identity:['<b>Signature:</b> the dim red digits '+M('TimeText in DSEG7 — one element carries the face'),'Night-dim toggle '+M('single-boolean gate on a PartDraw scrim — the Series-01 workhorse'),'PM square '+M('the shipped [IS_24_HOUR_MODE] / AM-PM gate pair'),'Date line '+M('[DAY_OF_WEEK_S] · [DAY] · [MONTH_S] tokens')],
+  motion:['Digits substitute once a minute. That is the entire motion budget, and it is the authentic one','No blinking colon — % is shelved; the colon holds steady (the one liberty taken with 1984)','The dim scrim switches instantly — like the real switch did'],
+  custom:['5 themes (incl. the Daybreak light dial) · ≤5 roles (bg, led, sub, muted, accent)','Night dim on/off · date line on/off · PM dot on/off','Pure-black toggle (line rule) — on the four dark themes it is nearly a no-op by design; Daybreak readable via light-ink twins','3 layout presets + free slot editing on 2 slots'],
+  interact:['Tap the under line → its provider '+M('Launch'),'Long-press → system editor'],
+  aod:['The same digits, thin-weight, fixed light ink '+M('DSEG7 Light static instance — the thin-twin pattern; the red identity yields to the line rule in ambient, stated honestly'),'Slots, date, PM dot dropped','≈ 6% lit pixels'],
+  battery:['One minute-rate element by default. The cheapest face in the collection'],
+  feas:[
+    ['Seven-segment time','NATIVE','TimeText in DSEG7 Classic static TTF (OFL)<span class="cost">verify DSEG tight-set rendering + 12-h zero-pad behaviour on-device once at build (queued with SEGMENT)</span>'],
+    ['Night dim','NATIVE','full-face scrim rect × ONE boolean alpha gate — the proven workhorse pattern'],
+    ['Auto-dim at night','NATIVE','a second scrim × ONE time-range gate (sun-disc pattern) — offered as a build option<span class="cost">two scrims, each with its own single gate (never stacked on one node); fixed 22:00/6:00 preset</span>'],
+    ['PM dot + date line','NATIVE','shipped token set + the proven 12/24-h gate'],
+    ['Top note + under line','PROVIDER','SHORT_TEXT; v1 defaults WATCH_BATTERY / NEXT_EVENT — v1 has NO alarm provider; alarm is user-added'],
+    ['Blinking colon','CUSTOM','% shelved; 2-frame PartAnimatedImage unproven — the colon is steady, by design'],
+    ['All values on this page','SIM','']
+  ]
+},
+segment:{
+  concept:'The pocket-calculator LCD grown into a watch. A ghost 88:88 rests under the live digits — every segment faintly present, exactly as a real LCD holds its unlit segments in the light. That ghost is pure static text in a seven-segment font: the cheapest signature in the whole collection. Around it, the full classic kit: weekday letters, a date pane over a ghost 88, a seconds pane, a four-cell battery glyph, and two sub-panes whose values right-align onto their own resting ghosts — mismatched shapes and all, which is precisely how multi-function LCDs always looked. The default theme is the light positive display everyone owned; Indiglo ships as a theme, because a backlight event is impossible and a backlight palette is not.',
+  target:'The classic-digital face — the daily driver of the series. For everyone who ever owned a calculator watch, and everyone who wishes they still did.',
+  type:['<b>DSEG7 Classic</b> for digits + <b>DSEG14 Classic</b> for weekday letters (SIL OFL 1.1, static TTFs) — segment fonts are tabular, so ghost and live registration is guaranteed by the font itself','Live time zero-padded (hh:mm) so every glyph box lands on the ghost','<b>Share Tech Mono</b>-class labels for case furniture','The pane system: rounded PartDraw rects, drawn not imaged'],
+  identity:['<b>Signature:</b> the ghost 88:88 under the live time '+M('static PartText "88:88" in DSEG7 at low alpha — zero expressions, zero cost'),'Date + seconds panes over their own ghosts '+M('[DAY] + TimeText ss, each above a static ghost text'),'Four-cell battery glyph '+M('4 duplicate cells × ONE threshold gate ([BATTERY_PERCENT] ≥ 20/45/70/90)'),'Sub-pane readouts on resting ghosts '+M('provider values right-aligned onto static ghost panes — authentic multi-function LCD behaviour')],
+  motion:['Digits substitute instantly — the definitive LCD behaviour, embraced as the series thesis','The seconds pane steps at 1 Hz, interactive-only, toggleable','The colon is steady (% shelved); real 80s LCDs blinked theirs — this one holds, stated plainly'],
+  custom:['5 themes · ≤5 roles (case, pane, segment, muted, accent) — the LIGHT Classic LCD dial is the default, a deliberate first in the collection','Ghost segments on/off · seconds pane on/off · bezel furniture on/off','Pure-black toggle (line rule); Classic LCD + Indiglo readable via light-ink twins','3 layout presets + free slot editing on 2 sub-panes'],
+  interact:['Tap a sub-pane → its provider app '+M('Launch'),'Long-press → system editor'],
+  aod:['Thin-weight seven-segment time in fixed light ink + a small date line — no ghost (it would spend the pixel budget on decoration) '+M('DSEG7 Light static instance — structural thin-twin'),'Panes, glyph, furniture dropped','≈ 6% lit pixels'],
+  battery:['Minute-rate face + optional 1 Hz seconds pane; the ghost layer is static and free'],
+  feas:[
+    ['Ghost 88:88 underlay','NATIVE','static PartText in DSEG7 at low alpha — zero expressions; THE series gift'],
+    ['Live time, zero-padded','NATIVE','TimeText format "hh:mm" — tabular DSEG keeps ghost registration<span class="cost">verify "hh" zero-pad in 12-h mode on-device (queued since CANON); fallback = right-aligned h:mm over the ghost, trailing glyphs still registered</span>'],
+    ['Weekday + date + seconds panes','NATIVE','[DAY_OF_WEEK_S] in DSEG14 + [DAY] + TimeText "ss", each over its own static ghost<span class="cost">verify "ss" pattern at build; fallback = drop the seconds pane</span>'],
+    ['Battery glyph (4 cells)','NATIVE','4 duplicate cells × ONE threshold gate each — the BLOOM pattern at its smallest'],
+    ['Sub-panes ×2','PROVIDER','SHORT_TEXT / RANGED_VALUE; v1 defaults STEP_COUNT / NEXT_EVENT; values right-align onto fixed ghosts'],
+    ['Blinking colon','CUSTOM','% shelved; the 2-frame ON_NEXT_SECOND PartAnimatedImage route is runtime-unproven — steady colon ships; blink stays a costed diagnostic option'],
+    ['Press-to-backlight','CUSTOM','TAP plays image sequences only — cannot recolour a scene; Indiglo ships as a THEME instead'],
+    ['All values on this page','SIM','']
+  ]
+}
+};
+
+/* =========================================================
+   UI
+   ========================================================= */
+function hexDim(hex, a){
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function setAccent(face){
+  document.documentElement.style.setProperty('--accent', face.accent);
+  document.documentElement.style.setProperty('--accent-dim', hexDim(face.accent,.13));
+}
+function buildTabs(){
+  $('#tabs').innerHTML = FACES.map((f,i)=>
+    `<button class="tab ${i===state.f?'on':''}" data-tab="${i}"><span class="thumb"><svg id="th${i}" viewBox="0 0 480 480" aria-hidden="true"></svg></span><span class="tn"><b>${f.name}</b><span>${f.role}</span></span></button>`).join('');
+  document.querySelectorAll('[data-tab]').forEach(b=> b.addEventListener('click', ()=> selectFace(+b.dataset.tab)));
+}
+function renderThumbs(){
+  FACES.forEach((f,i)=>{
+    const el = $('#th'+i);
+    if(el) el.innerHTML = f.render(makeCtx(i, true));
+  });
+}
+function buildRack(){
+  const face = FACES[state.f];
+  const fid = face.id;
+  const thI = state.theme[fid];
+  const cfg = state.cfg[fid];
+  let h = '';
+  h += `<div class="panel"><h3>Colour theme <span class="hint">≤5 roles — the WFF v1 ColorOption cap</span></h3><div class="swatches">`;
+  face.themes.forEach((t,i)=>{
+    h += `<button class="sw ${i===thI?'on':''}" data-th="${i}" title="${t.n}"><i style="background:linear-gradient(135deg,${t.sw[0]} 50%,${t.sw[1]} 50%)"></i></button>`;
+  });
+  h += `</div><div class="swname">${face.themes[thI].n} — ${face.themes[thI].d}</div></div>`;
+  h += `<div class="panel"><h3>Display mode</h3><div class="segrow">
+    <button class="seg ${state.mode==='int'?'on':''}" data-mode="int">Interactive</button>
+    <button class="seg ${state.mode==='aod'?'on':''}" data-mode="aod">Always-On</button>
+    <button class="seg ${state.prefs.clean?'on':''}" data-clean="1">Product preview</button>
+  </div></div>`;
+  h += `<div class="panel"><h3>Layout preset <span class="hint">on-watch: saved slot/toggle states (Flavors = v2)</span></h3><div class="segrow">`;
+  face.configOrder.forEach(c=>{ h += `<button class="seg ${cfg===c?'on':''}" data-cfg="${c}">${c}</button>`; });
+  if(cfg==='Custom') h += `<button class="seg on">Custom</button>`;
+  h += `</div></div>`;
+  h += `<div class="panel"><h3>Complication slots <span class="hint">click a slot on the watch to locate it</span></h3>`;
+  face.slots.forEach((sd,i)=>{
+    const cur = state.cur[fid][sd.id] || '';
+    h += `<div class="slotrow ${state.sel===sd.id?'sel':''}" id="row-${sd.id}"><div class="sl"><b>${i+1} · ${sd.label}</b><span>${sd.pos}</span></div><select data-slot-sel="${sd.id}"><option value="">— empty —</option>`;
+    sd.allowed.forEach(k=>{ h += `<option value="${k}" ${cur===k?'selected':''}>${COMPS[k].name}</option>`; });
+    h += `</select></div>`;
+  });
+  h += `</div>`;
+  h += `<div class="panel"><h3>Customise ${face.name.toLowerCase()}</h3>`;
+  face.options.forEach(o=>{
+    const on = state.opts[fid][o.id];
+    h += `<div class="optrow"><label>${o.label}<span class="note">${o.note||''}</span></label><button class="tgl ${on?'on':''}" data-opt="${o.id}" aria-label="${o.label}"></button></div>`;
+  });
+  h += `</div>`;
+  h += `<div class="panel"><h3>Global preferences</h3>
+    <div class="optrow"><label>24-hour time<span class="note">on the watch, TimeText follows the system setting automatically</span></label><button class="tgl ${state.prefs.h24?'on':''}" data-pref="h24"></button></div>
+    <div class="optrow"><label>Seconds rendering<span class="note">maps to real WFF: Sweep 15 Hz · Tick 1 Hz · hidden</span></label><span class="minirow">
+      <button class="mini ${state.prefs.sec==='sweep'?'on':''}" data-sec="sweep">Sweep</button>
+      <button class="mini ${state.prefs.sec==='tick'?'on':''}" data-sec="tick">Tick</button>
+      <button class="mini ${state.prefs.sec==='off'?'on':''}" data-sec="off">Off</button>
+    </span></div>
+  </div>`;
+  const rack = $('#rack');
+  rack.innerHTML = h;
+  rack.querySelectorAll('[data-th]').forEach(b=> b.addEventListener('click', ()=>{ state.theme[fid] = +b.dataset.th; buildRack(); renderThumbs(); }));
+  rack.querySelectorAll('[data-mode]').forEach(b=> b.addEventListener('click', ()=>{ state.mode = b.dataset.mode; syncMode(); buildRack(); }));
+  rack.querySelectorAll('[data-clean]').forEach(b=> b.addEventListener('click', ()=>{ state.prefs.clean = !state.prefs.clean; buildRack(); }));
+  rack.querySelectorAll('[data-cfg]').forEach(b=> b.addEventListener('click', ()=>{ state.cfg[fid] = b.dataset.cfg; state.cur[fid] = Object.assign({}, face.configs[b.dataset.cfg]); state.sel = null; buildRack(); }));
+  rack.querySelectorAll('[data-slot-sel]').forEach(sel=> sel.addEventListener('change', ()=>{
+    state.cur[fid][sel.dataset.slotSel] = sel.value || null;
+    state.cfg[fid] = 'Custom';
+    state.sel = sel.dataset.slotSel;
+    buildRack();
+  }));
+  rack.querySelectorAll('[data-opt]').forEach(b=> b.addEventListener('click', ()=>{ state.opts[fid][b.dataset.opt] = !state.opts[fid][b.dataset.opt]; buildRack(); }));
+  rack.querySelectorAll('[data-pref]').forEach(b=> b.addEventListener('click', ()=>{ state.prefs.h24 = !state.prefs.h24; buildRack(); }));
+  rack.querySelectorAll('[data-sec]').forEach(b=> b.addEventListener('click', ()=>{ state.prefs.sec = b.dataset.sec; buildRack(); }));
+}
+function syncMode(){
+  $('#screen').classList.toggle('aod', state.mode==='aod');
+  $('#modecap').innerHTML = state.mode==='aod'
+    ? `<b>ALWAYS-ON</b> · fixed light inks on black (Series-01 pattern) · 1 update/min · ≤15% lit pixels`
+    : `<b>INTERACTIVE</b> · live — this is your real local time`;
+}
+function buildSpecs(){
+  const face = FACES[state.f];
+  const S = SPECS[face.id];
+  const typeSet = new Set();
+  face.slots.forEach(sd=> sd.allowed.forEach(k=> typeSet.add(k)));
+  const chips = [...typeSet].map(k=>`<span class="tchip">${COMPS[k].name}</span>`).join('');
+  let slotRows = '';
+  face.slots.forEach((sd,i)=>{
+    slotRows += `<tr><td>${i+1} · ${sd.label}</td><td>${sd.pos}</td><td><span class="m">${sd.allowed.length} data types</span></td></tr>`;
+  });
+  let feasRows = '';
+  S.feas.forEach(r=>{
+    const cls = {NATIVE:'b-native',PROVIDER:'b-provider',SIM:'b-sim',CUSTOM:'b-custom'}[r[1]];
+    feasRows += `<tr><td>${r[0]}</td><td><span class="badge ${cls}">${r[1]}</span></td><td>${r[2]||''}</td></tr>`;
+  });
+  const themes = face.themes.map(t=>
+    `<div class="themerow"><span class="dots"><i style="background:${t.sw[0]}"></i><i style="background:${t.sw[1]}"></i></span><div><b>${t.n}</b><span>${t.d}</span></div></div>`).join('');
+  const ul = arr => `<ul>${arr.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  $('#specs').innerHTML = `
+  <div class="sechead"><h2>Specification — <em>${face.name}</em></h2><span>${face.slots.length} slots · ${face.themes.length} themes · ${face.configOrder.length}+1 layouts · WFF v1</span></div>
+  <div class="speccards">
+    <div class="scard wide"><h4>Concept &amp; positioning</h4><p>${S.concept}</p><p><b style="color:var(--ink)">Who it’s for —</b> ${S.target}</p></div>
+    <div class="scard"><h4>Display system</h4>${ul(S.type)}</div>
+    <div class="scard"><h4>Visual identity — with mechanisms</h4>${ul(S.identity)}</div>
+    <div class="scard wide"><h4>Complication system — this face’s own slots (one APK per face)</h4>
+      <table class="feastab">${slotRows}</table>
+      <p style="margin-top:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--faint)">DEFAULTS DRAWN FROM THE WFF V1 SYSTEM-PROVIDER LIST · HEART-RATE &amp; WEATHER ARE USER-ADDED (NO V1 DEFAULT EXISTS)</p>
+      <div class="typechips" style="margin-top:8px">${chips}</div>
+      <p style="margin-top:12px"><b style="color:var(--ink)">Layouts —</b> ${face.configOrder.join(' · ')} · Custom. On the watch these are editor states — every slot can be set Empty. One-tap presets would be v2 Flavors; deferred by the v1 decision.</p></div>
+    <div class="scard"><h4>Motion &amp; honesty</h4>${ul(S.motion)}</div>
+    <div class="scard"><h4>Customisation</h4>${ul(S.custom)}</div>
+    <div class="scard"><h4>Interaction</h4>${ul(S.interact)}</div>
+    <div class="scard"><h4>Colour themes</h4><div class="themelist">${themes}</div></div>
+    <div class="scard"><h4>Always-On Display</h4>${ul(S.aod)}</div>
+    <div class="scard wide"><h4>Battery &amp; performance</h4>${ul(S.battery)}<p style="margin-top:12px"><b style="color:var(--ink)">Format —</b> ${PLATFORM}</p></div>
+    <div class="scard wide"><h4>Feasibility — every claim carries its mechanism</h4><table class="feastab">${feasRows}</table></div>
+  </div>`;
+}
+function selectFace(i){
+  state.f = i; state.sel = null;
+  const face = FACES[i];
+  setAccent(face);
+  $('#fname').textContent = face.name;
+  $('#ftag').textContent = face.tagline;
+  buildTabs(); renderThumbs(); buildRack(); buildSpecs(); syncMode();
+}
+
+$('#dial').addEventListener('click', e=>{
+  const g = e.target.closest('[data-slot]');
+  if(!g) return;
+  const id = g.dataset.slot;
+  const face = FACES[state.f];
+  state.sel = (state.sel===id) ? null : id;
+  buildRack();
+  const row = document.getElementById('row-'+id);
+  if(row) row.scrollIntoView({block:'nearest', behavior:'smooth'});
+  const key = state.cur[face.id][id];
+  if(key && COMPS[key]){
+    const v = COMPS[key].get(state.prefs);
+    toast(`<b>${COMPS[key].name}</b> · now “${v.txt}${v.sub? ' '+v.sub:''}” — on the watch, tapping opens ${COMPS[key].tap}`);
+  } else {
+    toast('Empty slot — assign a data source in the rack on the right');
+  }
+});
+$('#btnAod').addEventListener('click', ()=>{
+  state.mode = state.mode==='aod' ? 'int' : 'aod';
+  syncMode(); buildRack();
+  toast(state.mode==='aod' ? 'Always-on — thin twins, fixed light inks, ≤15% pixels' : 'Interactive — live local time');
+});
+$('#btnMap').addEventListener('click', ()=>{
+  state.showMap = true;
+  toast('Slot map — numbered rings match the list on the right');
+  setTimeout(()=>{ state.showMap = false; }, 4200);
+});
+$('#btnShuffle').addEventListener('click', ()=>{ shuffleSim(); renderThumbs(); toast('Simulated data shuffled — steps, HR, battery, weather, event'); });
+
+/* deep links: #f=2&mode=aod&theme=1&cfg=Full&clean=1&h24=1 */
+(function(){
+  const q = {};
+  location.hash.replace(/^#/,'').split('&').forEach(kv=>{ const p = kv.split('='); if(p[0]) q[p[0]] = decodeURIComponent(p[1]||''); });
+  if(q.f!=null && FACES[+q.f]) state.f = +q.f;
+  if(q.mode==='aod') state.mode = 'aod';
+  if(q.theme!=null) state.theme[FACES[state.f].id] = clamp(+q.theme||0, 0, 4);
+  if(q.cfg && FACES[state.f].configs[q.cfg]){ state.cfg[FACES[state.f].id] = q.cfg; state.cur[FACES[state.f].id] = Object.assign({}, FACES[state.f].configs[q.cfg]); }
+  if(q.clean==='1') state.prefs.clean = true;
+  if(q.h24==='1') state.prefs.h24 = true;
+})();
+
+/* render loop */
+let lastMs = 0, lastThumbs = 0;
+function loop(now){
+  requestAnimationFrame(loop);
+  const interval = state.mode==='aod' ? 500 : (state.prefs.sec==='sweep' ? 40 : 200);
+  if(now - lastMs < interval) return;
+  lastMs = now;
+  const ctx = makeCtx(state.f, false);
+  $('#dial').innerHTML = ctx.face.render(ctx) + hitOverlay(ctx);
+  if(now - lastThumbs > 30000){ lastThumbs = now; renderThumbs(); }
+}
+selectFace(state.f);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
