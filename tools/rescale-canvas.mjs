@@ -14,36 +14,38 @@ const file = process.argv[2];
 const K = Number(process.argv[3] ?? 1.5);
 if (!file) { console.error('usage: rescale-canvas.mjs <file> [factor]'); process.exit(1); }
 
-// Absolute-pixel attributes (scale). x/y are matched case-sensitively so pivotX/centerX/startX
-// etc. (capital second letter) are NOT caught by the bare x=/y= rule — they have their own rules.
-const SCALE_ATTRS = [
-  'width', 'height', 'size', 'thickness', 'radius',
-  'centerX', 'centerY', 'startX', 'startY', 'endX', 'endY',
+// WFF requires INTEGER position/size geometry (x/y/width/height and the drawing coords) — the
+// valid faces are all-integer here. Round these after scaling. font `size` and stroke `thickness`
+// are float-OK (proven: original size="9.5", Arclight thickness="1.4" both validate) → keep decimal.
+const ROUND_ATTRS = [
+  'width', 'height', 'radius', 'centerX', 'centerY', 'startX', 'startY', 'endX', 'endY',
 ];
+const FLOAT_ATTRS = ['size', 'thickness'];
 
-function fmt(n) {
-  // trim to 4dp, drop trailing zeros / dot
-  const r = Math.round(n * 1e4) / 1e4;
-  return String(r);
-}
+// trim a float to 4dp, drop trailing zeros / dot
+const fmtFloat = (n) => String(Math.round(n * 1e4) / 1e4);
+const fmtInt = (n) => String(Math.round(n));
 
 let xml = fs.readFileSync(file, 'utf8');
 
-// Named pixel attributes: attr="<number>"
-for (const attr of SCALE_ATTRS) {
+for (const attr of ROUND_ATTRS) {
   const re = new RegExp(`(\\b${attr}=")(-?[0-9]*\\.?[0-9]+)(")`, 'g');
-  xml = xml.replace(re, (_m, a, num, b) => a + fmt(Number(num) * K) + b);
+  xml = xml.replace(re, (_m, a, num, b) => a + fmtInt(Number(num) * K) + b);
+}
+for (const attr of FLOAT_ATTRS) {
+  const re = new RegExp(`(\\b${attr}=")(-?[0-9]*\\.?[0-9]+)(")`, 'g');
+  xml = xml.replace(re, (_m, a, num, b) => a + fmtFloat(Number(num) * K) + b);
 }
 
-// Bare position x=/y= — lowercase only, word-boundary before, so pivotX/startY/etc. are excluded.
+// Bare position x=/y= (integers) — lowercase only, word-boundary, so pivotX/startY/etc. excluded.
 for (const axis of ['x', 'y']) {
   const re = new RegExp(`(\\b${axis}=")(-?[0-9]*\\.?[0-9]+)(")`, 'g');
-  xml = xml.replace(re, (_m, a, num, b) => a + fmt(Number(num) * K) + b);
+  xml = xml.replace(re, (_m, a, num, b) => a + fmtInt(Number(num) * K) + b);
 }
 
-// dashIntervals="1 6" — a space-separated pixel list; scale each token.
+// dashIntervals="1 6" — space-separated pixel list; scale each token, round to int.
 xml = xml.replace(/(\bdashIntervals=")([^"]+)(")/g, (_m, a, list, b) =>
-  a + list.trim().split(/\s+/).map((t) => fmt(Number(t) * K)).join(' ') + b,
+  a + list.trim().split(/\s+/).map((t) => fmtInt(Number(t) * K)).join(' ') + b,
 );
 
 fs.writeFileSync(file, xml);
