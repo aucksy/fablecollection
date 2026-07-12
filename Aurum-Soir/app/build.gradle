@@ -1,0 +1,37 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'watchfaces.aurum.atelier.aurumsoir'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'watchfaces.aurum.atelier.aurumsoir'
+        // Watch Face Format v1 requires Wear OS 4 (API 33) or later.
+        minSdk 33
+        targetSdk 34
+        versionCode 1
+        versionName '0.1.0'
+    }
+
+    // Stable debug key committed to the repo so every CI build shares ONE signature
+    // and adb install -r updates in place. Throwaway debug key, NOT a Play key.
+    signingConfigs {
+        debug {
+            storeFile file("$rootDir/collection3-debug.keystore")
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+        }
+    }
+}
+
+// Resource-only Watch Face Format app: no code, no dependencies.

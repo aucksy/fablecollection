@@ -10,3 +10,5 @@ captures/
 
 # Asset tooling
 tools/assets/node_modules/
+
+collection3-tools/gen/node_modules/
