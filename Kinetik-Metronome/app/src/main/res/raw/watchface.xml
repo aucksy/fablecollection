@@ -99,7 +99,7 @@
                        tintColor="[CONFIGURATION.accent.0]">
       <Variant mode="AMBIENT" target="alpha" value="0" />
       <AnimationController play="ON_VISIBLE" repeat="TRUE" beforePlaying="FIRST_FRAME" />
-      <SequenceImages frameRate="12">
+      <SequenceImages frameRate="24">
         <Image resource="@drawable/wand_00" />
         <Image resource="@drawable/wand_01" />
         <Image resource="@drawable/wand_02" />
@@ -124,6 +124,30 @@
         <Image resource="@drawable/wand_21" />
         <Image resource="@drawable/wand_22" />
         <Image resource="@drawable/wand_23" />
+        <Image resource="@drawable/wand_24" />
+        <Image resource="@drawable/wand_25" />
+        <Image resource="@drawable/wand_26" />
+        <Image resource="@drawable/wand_27" />
+        <Image resource="@drawable/wand_28" />
+        <Image resource="@drawable/wand_29" />
+        <Image resource="@drawable/wand_30" />
+        <Image resource="@drawable/wand_31" />
+        <Image resource="@drawable/wand_32" />
+        <Image resource="@drawable/wand_33" />
+        <Image resource="@drawable/wand_34" />
+        <Image resource="@drawable/wand_35" />
+        <Image resource="@drawable/wand_36" />
+        <Image resource="@drawable/wand_37" />
+        <Image resource="@drawable/wand_38" />
+        <Image resource="@drawable/wand_39" />
+        <Image resource="@drawable/wand_40" />
+        <Image resource="@drawable/wand_41" />
+        <Image resource="@drawable/wand_42" />
+        <Image resource="@drawable/wand_43" />
+        <Image resource="@drawable/wand_44" />
+        <Image resource="@drawable/wand_45" />
+        <Image resource="@drawable/wand_46" />
+        <Image resource="@drawable/wand_47" />
       </SequenceImages>
     </PartAnimatedImage>
 
