@@ -271,8 +271,14 @@ export function analyzeFace(face) {
     const hiddenWhenEmpty = /hidden/i.test(s.empty || '');
     const dateGated = !!toggles.date && /date|jewel|whisper date/i.test(s.label || '');
     const gaugeGated = !!toggles.gauges && /steps|battery|figure|gauge|ring/i.test(`${s.label} ${d}`);
-    const patchMode = (hiddenWhenEmpty && !dash && !nativeUnder) ? 'full' : 'text';
-    return { ...s, idx: i, bounds, isRing, provider, nativeUnder, dash, hiddenWhenEmpty, dateGated, gaugeGated, patchMode };
+    // A slot whose empty-state artwork the spec tags explicitly (withSlot / slot:'SLOT-…')
+    // opts into the frame+content architecture of handoff/04-complication-system.md: the
+    // decorations move into the slot's EMPTY block, so no patch is ever painted over the
+    // machined dial. patchMode 'slot' disables every legacy patch path below. Only CAT-A
+    // (VAKT) carries these tags — every other face keeps its existing behaviour.
+    const tagged = face.layers.some(L => L.slot === s.id);
+    const patchMode = tagged ? 'slot' : (hiddenWhenEmpty && !dash && !nativeUnder) ? 'full' : 'text';
+    return { ...s, idx: i, bounds, design: { ...bounds }, isRing, provider, nativeUnder, dash, hiddenWhenEmpty, dateGated, gaugeGated, patchMode, tagged };
   });
 
   const inSlotPad = (x, y, pad) => slots.find(s => {
@@ -318,6 +324,9 @@ export function analyzeFace(face) {
     const item = { L, i, kind: 'static', zone: i < firstHandIdx ? 'under' : 'over' };
     const lx = L.x != null ? L.x : (L.cx != null ? L.cx : C);
     const ly = L.y != null ? L.y : (L.cy != null ? L.cy : C);
+    // An explicit spec tag names the slot a layer belongs to; it wins over the geometric
+    // inSlot() guessing below, which cannot tell decoration from coincidence.
+    const tag = typeof L.slot === 'string' ? slots.find(s => s.id === L.slot) : null;
     if (L.t === 'hand') {
       const cx = L.cx != null ? L.cx : C, cy = L.cy != null ? L.cy : C;
       const centered = Math.abs(cx - 225) < 2 && Math.abs(cy - 225) < 2;
@@ -325,6 +334,24 @@ export function analyzeFace(face) {
       else if (L.kind === 'second') item.kind = centered ? 'centerSecond' : 'subSecond';
       else if (L.kind === 'data') item.kind = 'dataNeedle';
       item.cx = cx; item.cy = cy;
+      // A tagged register hand is empty-state default artwork: it keeps its sprite (so it
+      // renders identically) but is drawn inside the EMPTY block instead of the scene.
+      if (tag) { item.slot = tag; item.inEmpty = true; }
+      return item;
+    }
+    // The FRAME is permanent hardware: it is dial art drawn BEHIND the slot and shared by
+    // every type block, so frame geometry is pixel-identical across all content (§1, §4).
+    // It deliberately falls through to the normal classification below rather than joining
+    // the slot — a date window's frame is `dateGatedStatic` and must keep answering to the
+    // Date toggle, which a baked layer could never do.
+    const isFrame = tag && ((tag.frame === 'plate' && L.t === 'plate') || (tag.frame === 'panel' && L.t === 'rect'));
+    if (tag && !isFrame) {
+      // Everything else the tag names is the swappable CONTENT of the slot's empty state.
+      item.slot = tag;
+      item.inEmpty = true;
+      if (L.t === 'arc' && L.data) item.kind = 'dataArc';
+      else if (L.t === 'text' && L.token && !TIME_TOKENS[L.token]) item.kind = 'slotText';
+      else item.kind = 'slotDecoration';
       return item;
     }
     if (L.t === 'arc' && L.data) { item.kind = 'dataArc'; item.slot = inSlot(lx, ly); return item; }
@@ -365,7 +392,10 @@ export function analyzeFace(face) {
   for (const s of slots) {
     s.textLayers = items.filter(it => (it.kind === 'slotText' || it.kind === 'providerOnlyText') && it.slot === s).map(it => it.L);
     s.decorations = items.filter(it => (it.kind === 'slotDecoration' || it.kind === 'dateGatedStatic') && it.slot === s).map(it => it.L);
-    s.nativeTokens = s.nativeUnder ? s.textLayers.filter(L => TOKEN_TPL[L.token]) : [];
+    // Native fallback tokens normally render at scene level, underneath the slot. A tagged
+    // slot draws them inside its EMPTY block instead, so they vanish the moment the user
+    // assigns a provider — which is the whole point of the tag.
+    s.nativeTokens = (s.nativeUnder && !s.tagged) ? s.textLayers.filter(L => TOKEN_TPL[L.token]) : [];
     const plate = face.layers.find(L => L.t === 'plate' && s.shape === 'circle' && Math.abs((L.cx ?? C) - (s.cx ?? -1)) < 3 && Math.abs((L.cy ?? C) - (s.cy ?? -1)) < 3);
     s.plateColor = plate ? (plate.color || 'shade:bg:-0.4') : null;
     if (s.isRing) {
@@ -439,7 +469,77 @@ export function analyzeFace(face) {
     s.underColor = underColorAt(s.bounds.x + s.bounds.w / 2, s.bounds.y + s.bounds.h / 2);
   }
 
+  // ---- tagged slots: grow the container over their empty-state artwork ----
+  // A slot's rect is authored around its frame, but tagged decorations can sit outside it
+  // (GT's external steps arc at r71 on an r64 register; the day name under a date window).
+  // Slot content is positioned relative to the container, so the container must cover them.
+  // The tap target stays on the authored rect — see `design` in slotXml.
+  for (const s of slots) {
+    if (!s.tagged) continue;
+    const ext = items.filter(it => it.slot === s && drawnInEmpty(s, it)).map(it => layerExtent(it.L)).filter(Boolean);
+    if (!ext.length) continue;
+    let x0 = Math.min(s.bounds.x, ...ext.map(e => e.x0));
+    let y0 = Math.min(s.bounds.y, ...ext.map(e => e.y0));
+    let x1 = Math.max(s.bounds.x + s.bounds.w, ...ext.map(e => e.x1));
+    let y1 = Math.max(s.bounds.y + s.bounds.h, ...ext.map(e => e.y1));
+    if (s.shape === 'circle') { // keep the centre on the register axis
+      const R = Math.max(s.cx - x0, x1 - s.cx, s.cy - y0, y1 - s.cy);
+      x0 = s.cx - R; x1 = s.cx + R; y0 = s.cy - R; y1 = s.cy + R;
+    }
+    x0 = Math.floor(x0); y0 = Math.floor(y0);
+    s.bounds = { x: x0, y: y0, w: Math.ceil(x1) - x0, h: Math.ceil(y1) - y0 };
+  }
+  // ---- tagged slots: the static half of the empty state, baked as one sprite ----
+  for (const s of slots) {
+    if (!s.tagged) continue;
+    s.artLayers = items.filter(it => it.slot === s && it.kind === 'slotDecoration').map(it => it.L);
+    if (s.dash) { const d = dashLayerFor(s); if (d) s.artLayers.push(d); }
+    s.emptyItems = items.filter(it => it.slot === s && it.inEmpty && it.kind !== 'slotDecoration');
+  }
+
   return { toggles, slots, items, firstLiveIdx, firstHandIdx };
+}
+
+/* Will this tagged item actually be drawn in the slot's EMPTY block? A provider-only token
+   (event / sunrise / hr) has no data source of its own, so the empty state shows the '—'
+   from the slot's art sprite instead and the token layer only lends its type styling. It
+   must therefore not be drawn — nor counted when sizing the container. */
+function drawnInEmpty(s, it) {
+  if (!it.inEmpty) return false;
+  if (it.kind === 'slotText') return !!(s.nativeUnder && TOKEN_TPL[it.L.token]);
+  return true;
+}
+
+/* The '—' an empty slot shows where its value would be (04-complication-system §3a/§3b). */
+export function dashLayerFor(slot) {
+  const prim = slot.prim;
+  if (!prim) return null;
+  return { t: 'label', text: '—', x: prim.x, y: prim.y, size: Math.max(14, prim.size), weight: 500, color: 'muted', anchor: prim.anchor, font: prim.font };
+}
+
+/* Approximate the drawn extent of a layer, in dial coordinates. */
+function layerExtent(L) {
+  const cx = L.cx != null ? L.cx : C, cy = L.cy != null ? L.cy : C;
+  const box = (x0, y0, x1, y1) => ({ x0, y0, x1, y1 });
+  const round = (r) => box(cx - r, cy - r, cx + r, cy + r);
+  switch (L.t) {
+    case 'plate': return round((L.r || 0) + (L.rim || 3));
+    case 'arc': case 'ring': return round((L.r || 0) + (L.w || 2) / 2 + 1);
+    case 'ticks': case 'dots': case 'numerals': return round((L.r || 0) + Math.max(L.w || 0, L.dot || 0, (L.size || 0) * 0.7) + 1);
+    case 'circle': return round((L.r || 0) + (L.sw || 0));
+    case 'hand': return round(Math.max(Math.abs(L.len || 0), L.tail || 0, L.hub || 0) + (L.w || 4));
+    case 'rect': return box(L.x, L.y, L.x + L.w, L.y + L.h);
+    case 'icon': { const r = (L.s || 12) * 0.7 + 2; return box(L.x - r, L.y - r, L.x + r, L.y + r); }
+    case 'line': return box(Math.min(L.x1, L.x2), Math.min(L.y1, L.y2), Math.max(L.x1, L.x2), Math.max(L.y1, L.y2));
+    case 'label': case 'text': {
+      const size = L.size || 12;
+      const w = L.token ? tokenWidth(L.token, size, '') : Math.max(String(L.text || '').length, 1) * size * 0.62;
+      const anchor = L.anchor || 'middle';
+      const x0 = anchor === 'start' ? L.x : anchor === 'end' ? L.x - w : L.x - w / 2;
+      return box(x0, L.y - size * 0.9, x0 + w, L.y + size * 0.9);
+    }
+    default: return null;
+  }
 }
 
 /* =====================================================================
@@ -470,9 +570,17 @@ export function planSprites(face, analysis) {
   for (const L of (face.aodLayers || []).filter(L => L.t === 'hand')) {
     sprites.push({ name: `aod_${L.kind}`, hands: [L], geom: handSpriteGeom(L), tag: 'aod' });
   }
+  // A tagged slot's empty-state artwork bakes as ONE sprite per theme, from the same layer
+  // recipes the dial uses — so it looks exactly as it did when it was baked into the dial,
+  // it has just moved into the EMPTY block where the platform can swap it out.
+  for (const s of analysis.slots.filter(x => x.tagged)) {
+    if (!s.artLayers || !s.artLayers.length) continue;
+    perTheme(tag => sprites.push({ name: `slotart_${s.idx}_${tag}`, slotart: { layers: s.artLayers, box: s.bounds }, tag }));
+  }
   // label sprites for 'full' slots (static captions that must vanish when slot is emptied)
   const labelSprites = [];
   for (const s of analysis.slots) {
+    if (s.tagged) continue; // tagged slots carry their captions in slotart above
     s.decorations.filter(d => d.t === 'label' && d.text !== '·').forEach((d, k) => {
       perTheme(tag => sprites.push({ name: `lbl_${s.idx}_${k}_${tag}`, label: d, geom: null, tag }));
       labelSprites.push({ slot: s, layer: d, k });
@@ -504,6 +612,7 @@ function emitLiveLayer(item, face, roles, tag, toggles) {
   const nm = (b) => `${b}_${tag}_${item.i}`;
   switch (item.kind) {
     case 'dataArc': {
+      if (item.inEmpty) return null; // owned by a tagged slot — drawn in its EMPTY block
       const from = L.from != null ? L.from : 0;
       const to = L.to != null ? L.to : 360;
       const gate = gateForArc(L, toggles);
@@ -557,16 +666,25 @@ const handEl = (kindEl, sp, cx = 225, cy = 225, boxR = null) => {
   }, kindEl === 'SecondHand' ? [sp.tickMotion ? el('Tick', { strength: 0.5, duration: 0.3 }) : el('Sweep', { frequency: 15 })] : []);
 };
 
-function clocksXml(face, sprites, tag, analysis, toggles) {
+// part: undefined = everything (default) | 'sub' = the sub-second registers that sit under
+// the main hands | 'main' = the main hands + centre seconds. Split so a tagged face can put
+// its complication slots between the two.
+function clocksXml(face, sprites, tag, analysis, toggles, part) {
   const parts = [];
-  // sub-second registers first (they sit under the main hands)
-  sprites.filter(s => s.tag === tag && s.name.startsWith('subsec_')).forEach(sp => {
-    const g = sp.geom;
-    const r = Math.max(g.pivotY, g.H - g.pivotY, g.W / 2) + 2;
-    parts.push(el('AnalogClock', {
-      x: Math.round(sp.sub.cx - r), y: Math.round(sp.sub.cy - r), width: Math.ceil(r * 2), height: Math.ceil(r * 2),
-    }, [handEl('SecondHand', { ...sp, tickMotion: true }, 0, 0, r)]));
-  });
+  // A sub-hand owned by a tagged slot is that slot's empty-state artwork and is drawn
+  // inside its EMPTY block instead — here it would be unable to react to a provider.
+  const inEmpty = new Set(analysis.items.filter(it => it.inEmpty && it.L.t === 'hand').map(it => it.L));
+  if (part !== 'main') {
+    // sub-second registers first (they sit under the main hands)
+    sprites.filter(s => s.tag === tag && s.name.startsWith('subsec_') && !s.hands.some(L => inEmpty.has(L))).forEach(sp => {
+      const g = sp.geom;
+      const r = Math.max(g.pivotY, g.H - g.pivotY, g.W / 2) + 2;
+      parts.push(el('AnalogClock', {
+        x: Math.round(sp.sub.cx - r), y: Math.round(sp.sub.cy - r), width: Math.ceil(r * 2), height: Math.ceil(r * 2),
+      }, [handEl('SecondHand', { ...sp, tickMotion: true }, 0, 0, r)]));
+    });
+  }
+  if (part === 'sub') return parts;
   const main = sprites.filter(s => s.tag === tag && (s.name.startsWith('hand_hour') || s.name.startsWith('hand_minute')));
   if (main.length) {
     parts.push(el('AnalogClock', { x: 0, y: 0, width: 450, height: 450 },
@@ -585,6 +703,7 @@ function clocksXml(face, sprites, tag, analysis, toggles) {
 function needlesXml(face, sprites, tag, analysis) {
   const parts = [];
   analysis.items.filter(it => it.kind === 'dataNeedle').forEach((it, n) => {
+    if (it.inEmpty) return; // owned by a tagged slot — drawn in its EMPTY block instead
     const sp = sprites.find(s => s.tag === tag && s.name === `needle_${n}_${tag}`);
     if (!sp) return;
     const g = sp.geom;
@@ -778,6 +897,334 @@ function slotContent(face, s, roles, tag, type, sprites) {
   return el('Group', { x: 0, y: 0, width: cw, height: ch, name: `sc_${tag}` }, kids);
 }
 
+/* =====================================================================
+   Tagged slots — a FRAME plus swappable CONTENT
+   (handoff/04-complication-system.md). The frame (machined plate, bevelled
+   panel, open dial) is permanent dial art drawn behind the slot and shared by
+   every type block, so it is pixel-identical across all content and NOTHING is
+   ever patched over it. The empty-state decorations (register scale, needle,
+   date token, '—') live in the EMPTY block only, so the platform swaps them out
+   the instant any provider is assigned. Every treatment uses theme roles only.
+   ===================================================================== */
+const CX = (s, v) => Math.round(v - s.bounds.x);
+const CY = (s, v) => Math.round(v - s.bounds.y);
+
+function tFont(face, roles, size, weight, color) {
+  return wffFont(face.fontStack, { size, weight }, roles, color, size);
+}
+function tText(f, x, y, w, h, expr, align, name) {
+  return el('PartText', { x: Math.round(x), y: Math.round(y), width: Math.round(w), height: Math.round(h), name }, [
+    el('Text', { align: align || 'CENTER', ellipsis: 'TRUE' }, [
+      `<Font family="${f.family}" size="${f.size}" color="${f.color}"><Template>%s<Parameter expression="${expr}" /></Template></Font>`,
+    ]),
+  ]);
+}
+function tNum(f, x, y, w, h, tpl, expr, align, name) {
+  return el('PartText', { x: Math.round(x), y: Math.round(y), width: Math.round(w), height: Math.round(h), name }, [
+    el('Text', { align: align || 'CENTER', ellipsis: 'TRUE' }, [
+      `<Font family="${f.family}" size="${f.size}" color="${f.color}"><Template>${tpl}<Parameter expression="${expr}" /></Template></Font>`,
+    ]),
+  ]);
+}
+function tImage(x, y, w, h, expr, name, tint) {
+  return el('PartImage', { x: Math.round(x), y: Math.round(y), width: Math.round(w), height: Math.round(h), tintColor: tint, name }, [
+    el('Image', { resource: expr }),
+  ]);
+}
+function tArc(cx, cy, r, from, to, color, thick, name, endExpr, cap) {
+  return el('PartDraw', { x: 0, y: 0, width: Math.ceil(cx * 2), height: Math.ceil(cy * 2), name }, [
+    el('Arc', { centerX: cx, centerY: cy, width: r * 2, height: r * 2, startAngle: from, endAngle: endExpr ? from : to, direction: 'CLOCKWISE' },
+      [
+        ...(endExpr ? [el('Transform', { target: 'endAngle', value: endExpr })] : []),
+        `<Stroke color="${color}" thickness="${thick}" cap="${cap || 'ROUND'}" />`,
+      ]),
+  ]);
+}
+
+// The WFF spec defines NO behaviour for an endAngle outside [startAngle, startAngle+360]
+// — not clamped, not wrapped — so every gauge expression clamps its own fraction to 0..1.
+// clamp(v,min,max) is verified from the XSD function enum (v1+); note that min()/max() do
+// NOT exist in WFF, hence clamp() and ternaries throughout.
+const RV_FRAC = 'clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)';
+const GP_VAL = '[COMPLICATION.GOAL_PROGRESS_VALUE]';
+const GP_TGT = '[COMPLICATION.GOAL_PROGRESS_TARGET_VALUE]';
+// Never divide by a provider-supplied zero: x/0 is Inf (or NaN for 0/0), and clamp(NaN) is
+// NaN — which would feed a garbage angle to the arc and print "Infinity" as the percentage.
+const GP_DIV = `(${GP_TGT} > 0 ? ${GP_TGT} : 1)`;
+const GP_FRAC = `clamp(${GP_VAL} / ${GP_DIV}, 0, 1)`;
+// The excess beyond the target, as its own 0..1 lap (GOAL_PROGRESS may exceed its target).
+const GP_OVER = `clamp((${GP_VAL} - ${GP_TGT}) / ${GP_DIV}, 0, 1)`;
+
+function taggedContent(face, s, roles, tag, type, sprites) {
+  const kids = [];
+  const cw = s.bounds.w, ch = s.bounds.h;
+  const isPlate = s.frame === 'plate';
+  const ver = (face.wff && face.wff.version) || 1;
+  // Content rect (slot-relative). A panel lays out inside the FRAME the designer drew —
+  // not the authored slot rect, and certainly not the grown container. Vakt-One's unread
+  // chip is the case that proves it: slot rect 48 wide, container grown to 51 to swallow
+  // the message glyph, but the bevelled chip itself is only 32 — content centred on
+  // anything but the frame prints the count over the chip's own bevel.
+  const frameRect = s.frame === 'panel' ? s.frameRect : null;
+  const D = frameRect
+    ? { x: CX(s, frameRect.x), y: CY(s, frameRect.y), w: frameRect.w, h: frameRect.h }
+    : { x: CX(s, s.design.x), y: CY(s, s.design.y), w: s.design.w, h: s.design.h };
+  const ccx = isPlate ? CX(s, s.cx) : D.x + D.w / 2;
+  const ccy = isPlate ? CY(s, s.cy) : D.y + D.h / 2;
+  const ri = isPlate ? s.r - 4 : 0;              // content radius inside the register
+  const gaugeR = isPlate ? s.r - 6 : 0;
+  const dia = isPlate ? s.r * 2 : Math.min(D.w, D.h);
+  const vSize = Math.max(MIN_SLOT_TEXT + 2, Math.round(dia * 0.28));
+  // Register titles/units read at a glance or not at all: floor at 20 on a plate (the
+  // polish skill's legibility gate). A panel is only ~40 wide — 20 would not fit, and its
+  // own dial type is smaller still, so panels keep the dial's scale.
+  const sSize = isPlate ? Math.max(20, Math.round(dia * 0.15)) : Math.max(12, Math.round(dia * 0.15));
+  const ink = tFont(face, roles, vSize, 700, roles.ink);
+  const accent = tFont(face, roles, sSize, 600, roles.accent);
+  const muted = tFont(face, roles, sSize, 600, roles.muted);
+  const nm = (b) => `${b}_${type}_${tag}`;
+
+  /* ---------- 3a. circular register (machined plate) ---------- */
+  if (isPlate) {
+    const vBox = (y) => [ccx - ri, y, ri * 2, Math.round(vSize * 1.5)];
+    const centred = (f, tpl, expr, name, dy = 0) => tNum(f, ccx - ri, ccy - vSize * 0.75 + dy, ri * 2, Math.round(vSize * 1.5), tpl, expr, 'CENTER', name);
+    const iconAbove = (name) => tImage(ccx - 9, ccy - ri * 0.44 - 9, 18, 18, '[COMPLICATION.MONOCHROMATIC_IMAGE]', name, roles.muted);
+    const titleBelow = (f, name) => tText(f, ccx - ri, ccy + ri * 0.45 - sSize * 0.75, ri * 2, Math.round(sSize * 1.5), '[COMPLICATION.TITLE]', 'CENTER', name);
+
+    switch (type) {
+      case 'SHORT_TEXT':
+        kids.push(iconAbove(nm('ic')));
+        kids.push(tText(ink, ccx - ri, ccy - vSize * 0.75, ri * 2, Math.round(vSize * 1.5), '[COMPLICATION.TEXT]', 'CENTER', nm('v')));
+        kids.push(titleBelow(muted, nm('t')));
+        break;
+      case 'LONG_TEXT':
+        kids.push(tText(accent, ccx - ri, ccy - ri * 0.52 - sSize * 0.75, ri * 2, Math.round(sSize * 1.5), '[COMPLICATION.TITLE]', 'CENTER', nm('t')));
+        kids.push(tText(tFont(face, roles, Math.max(MIN_SLOT_TEXT, Math.round(dia * 0.19)), 600, roles.ink),
+          ccx - ri, ccy - Math.round(dia * 0.19) * 0.75, ri * 2, Math.round(dia * 0.19 * 1.5), '[COMPLICATION.TEXT]', 'CENTER', nm('v')));
+        kids.push(tImage(ccx - 8, ccy + ri * 0.5 - 8, 16, 16, '[COMPLICATION.MONOCHROMATIC_IMAGE]', nm('ic'), roles.muted));
+        break;
+      case 'RANGED_VALUE':
+        // 300° gauge, gap at 6 o'clock: track, then accent fill to the value.
+        kids.push(tArc(cw / 2, ch / 2, gaugeR, -150, 150, withOpacity(roles.muted, 0.35), 3, nm('trk'), null, 'BUTT'));
+        kids.push(tArc(cw / 2, ch / 2, gaugeR, -150, 150, roles.accent, 3, nm('fill'), `-150 + (${RV_FRAC} * 300)`));
+        kids.push(iconAbove(nm('ic')));
+        kids.push(centred(ink, '%.0f', '[COMPLICATION.RANGED_VALUE_VALUE]', nm('v')));
+        kids.push(titleBelow(muted, nm('t')));
+        break;
+      case 'GOAL_PROGRESS': {
+        // Full ring. The value may exceed the target, so the fill is capped at one lap and
+        // the excess draws a second 'overflow' lap on top of it. The lap saturates at 2x
+        // target — beyond that it stays a full second lap (the % readout keeps counting).
+        // In dark mode lume, accent and ink are all the same fixed light ink, so a lume lap
+        // would be invisible against the full accent ring underneath: fall back to muted,
+        // the only other colour that palette licenses.
+        const lap = roles.lume === roles.accent ? roles.muted : roles.lume;
+        kids.push(tArc(cw / 2, ch / 2, gaugeR, 0, 360, withOpacity(roles.muted, 0.35), 3, nm('trk'), null, 'BUTT'));
+        kids.push(tArc(cw / 2, ch / 2, gaugeR, 0, 360, roles.accent, 3, nm('fill'), `${GP_FRAC} * 360`));
+        kids.push(el('Group', { x: 0, y: 0, width: cw, height: ch, name: nm('ovg') }, [
+          el('Transform', { target: 'alpha', value: `${GP_VAL} > ${GP_TGT} ? 255 : 0` }),
+          tArc(cw / 2, ch / 2, gaugeR, 0, 360, lap, 3, nm('ov'), `${GP_OVER} * 360`),
+        ]));
+        kids.push(centred(ink, '%.0f', GP_VAL, nm('v')));
+        kids.push(tNum(tFont(face, roles, sSize, 600, roles.muted), ccx - ri, ccy + ri * 0.45 - sSize * 0.75, ri * 2, Math.round(sSize * 1.5),
+          '%.0f%%', `(${GP_VAL} / ${GP_DIV}) * 100`, 'CENTER', nm('pct')));
+        break;
+      }
+      case 'WEIGHTED_ELEMENTS':
+        // The provider's own colours carry the meaning; each element is an arc segment
+        // sized by its weight. WeightedStroke is the only element that renders this.
+        kids.push(el('PartDraw', { x: 0, y: 0, width: cw, height: ch, name: nm('we') }, [
+          el('Arc', { centerX: cw / 2, centerY: ch / 2, width: gaugeR * 2, height: gaugeR * 2, startAngle: 0, endAngle: 360, direction: 'CLOCKWISE' }, [
+            el('WeightedStroke', {
+              colors: '[COMPLICATION.WEIGHTED_ELEMENTS_COLORS]',
+              weights: '[COMPLICATION.WEIGHTED_ELEMENTS_WEIGHTS]',
+              thickness: 4, discreteGap: 7, cap: 'BUTT',
+            }),
+          ]),
+        ]));
+        kids.push(tImage(ccx - 10, ccy - 10, 20, 20, '[COMPLICATION.MONOCHROMATIC_IMAGE]', nm('ic'), roles.muted));
+        break;
+      case 'MONOCHROMATIC_IMAGE': {
+        const b = Math.round(ri * 0.9);
+        kids.push(tImage(ccx - b / 2, ccy - b / 2, b, b, '[COMPLICATION.MONOCHROMATIC_IMAGE]', nm('ic'), roles.ink));
+        break;
+      }
+      case 'SMALL_IMAGE': {
+        const b = Math.round(ri * 1.3); // square inscribed in the register floor
+        kids.push(tImage(ccx - b / 2, ccy - b / 2, b, b, '[COMPLICATION.SMALL_IMAGE]', nm('img')));
+        break;
+      }
+      case 'PHOTO_IMAGE': {
+        const b = Math.round(ri * 1.41); // fills the floor without spilling past the rim
+        kids.push(tImage(ccx - b / 2, ccy - b / 2, b, b, '[COMPLICATION.PHOTO_IMAGE]', nm('img')));
+        break;
+      }
+      default: break;
+    }
+    return el('Group', { x: 0, y: 0, width: cw, height: ch, name: `sc_${type}_${tag}` }, kids);
+  }
+
+  /* ---------- 3b/3c. bevelled panel + open dial region ---------- */
+  // Same content; the open region simply has no panel behind it. Both lay out inside the
+  // authored window, and only the primary text inherits the dial's own type styling.
+  const prim = s.prim;
+  const pSize = Math.max(MIN_SLOT_TEXT, prim ? prim.size : 16);
+  const pf = wffFont(face.fontStack, prim || { size: pSize, weight: 700 }, roles, prim ? colFor(roles, prim.color) : roles.ink, pSize);
+  // §3b lays a title BELOW the value on a wide panel — but that needs a second row's worth
+  // of height, not just width. VAKT's widest panels (the 66x22 sunrise rows, the 70x32
+  // event line) are single-row: stacking there would push the title outside the slot and
+  // onto its neighbour. So the title needs BOTH dimensions; the icon only needs width.
+  const canIcon = D.w >= 58;
+  const canTitle = D.w >= 58 && D.h >= 34;
+  const TITLE_H = 18;
+  const pAlign = prim && prim.anchor === 'end' ? 'END' : prim && prim.anchor === 'start' ? 'START' : 'CENTER';
+  // Keep a row inside the frame: a box taller than the panel would clip its own glyphs.
+  const rowIn = (y, h) => {
+    const hh = Math.min(Math.round(h), D.h);
+    return { y: Math.max(D.y, Math.min(Math.round(y), D.y + D.h - hh)), h: hh };
+  };
+  switch (type) {
+    case 'SHORT_TEXT': {
+      let tx = D.x + 2, tw = D.w - 4;
+      if (canIcon) { // room for the provider's own glyph beside the value
+        kids.push(tImage(tx, ccy - 8, 16, 16, '[COMPLICATION.MONOCHROMATIC_IMAGE]', nm('ic'), roles.muted));
+        tx += 18; tw -= 18;
+      }
+      const v = canTitle
+        ? rowIn(D.y + 1, Math.min(pSize * 1.5, D.h - TITLE_H - 2))
+        : rowIn(ccy - pSize * 0.75, pSize * 1.5);
+      kids.push(tText(pf, tx, v.y, tw, v.h, '[COMPLICATION.TEXT]', pAlign, nm('v')));
+      if (canTitle) {
+        const t = rowIn(D.y + D.h - TITLE_H - 1, TITLE_H);
+        kids.push(tText(tFont(face, roles, MIN_SLOT_TEXT, 600, roles.muted), tx, t.y, tw, t.h, '[COMPLICATION.TITLE]', pAlign, nm('t')));
+      }
+      break;
+    }
+    case 'LONG_TEXT': {
+      // Same rule: only stack a title when there is a second row to put it in.
+      if (canTitle) {
+        const t = rowIn(D.y + 1, TITLE_H);
+        kids.push(tText(tFont(face, roles, MIN_SLOT_TEXT, 600, roles.accent), D.x + 2, t.y, D.w - 4, t.h, '[COMPLICATION.TITLE]', pAlign, nm('t')));
+        const v = rowIn(D.y + TITLE_H + 1, D.h - TITLE_H - 2);
+        kids.push(tText(tFont(face, roles, Math.max(MIN_SLOT_TEXT, pSize - 2), 600, roles.ink), D.x + 2, v.y, D.w - 4, v.h, '[COMPLICATION.TEXT]', pAlign, nm('v')));
+      } else {
+        const v = rowIn(ccy - pSize * 0.75, pSize * 1.5);
+        kids.push(tText(tFont(face, roles, Math.max(MIN_SLOT_TEXT, pSize - 2), 600, roles.ink), D.x + 2, v.y, D.w - 4, v.h, '[COMPLICATION.TEXT]', pAlign, nm('v')));
+      }
+      break;
+    }
+    case 'RANGED_VALUE': case 'GOAL_PROGRESS': case 'WEIGHTED_ELEMENTS': {
+      // A panel cannot hold a ring: compact horizontal bar under the value.
+      const barY = D.y + D.h - 6, barX = D.x + 3, barW = D.w - 6;
+      const v = rowIn(D.y + 1, Math.min(pSize * 1.5, D.h - 7)); // leave the bar its row
+      kids.push(tText(pf, D.x + 2, v.y, D.w - 4, v.h, '[COMPLICATION.TEXT]', pAlign, nm('v')));
+      kids.push(el('PartDraw', { x: 0, y: 0, width: cw, height: ch, name: nm('bar') }, [
+        el('Rectangle', { x: barX, y: barY, width: barW, height: 3 }, [`<Fill color="${withOpacity(roles.muted, 0.35)}" />`]),
+      ]));
+      if (type === 'WEIGHTED_ELEMENTS') {
+        // WeightedStroke on a <Line> is WFF v3+ (on an <Arc> it is v2+). Below v3 a panel
+        // has no way to draw proportional segments, so it shows the provider's text only.
+        if (ver >= 3) {
+          kids.push(el('PartDraw', { x: 0, y: 0, width: cw, height: ch, name: nm('wbar') }, [
+            el('Line', { startX: barX, startY: barY + 1.5, endX: barX + barW, endY: barY + 1.5 }, [
+              el('WeightedStroke', {
+                colors: '[COMPLICATION.WEIGHTED_ELEMENTS_COLORS]',
+                weights: '[COMPLICATION.WEIGHTED_ELEMENTS_WEIGHTS]',
+                thickness: 3, discreteGap: 2, cap: 'BUTT',
+              }),
+            ]),
+          ]));
+        }
+      } else {
+        const frac = type === 'RANGED_VALUE' ? RV_FRAC : GP_FRAC;
+        kids.push(el('PartDraw', { x: 0, y: 0, width: cw, height: ch, name: nm('fill') }, [
+          el('Rectangle', { x: barX, y: barY, width: barW, height: 3 }, [
+            el('Transform', { target: 'width', value: `${frac} * ${barW}` }),
+            `<Fill color="${roles.accent}" />`,
+          ]),
+        ]));
+      }
+      break;
+    }
+    case 'MONOCHROMATIC_IMAGE': {
+      const b = Math.min(D.w, D.h) - 6;
+      kids.push(tImage(ccx - b / 2, ccy - b / 2, b, b, '[COMPLICATION.MONOCHROMATIC_IMAGE]', nm('ic'), roles.ink));
+      break;
+    }
+    case 'SMALL_IMAGE': {
+      const b = Math.min(D.w, D.h) - 4;
+      kids.push(tImage(ccx - b / 2, ccy - b / 2, b, b, '[COMPLICATION.SMALL_IMAGE]', nm('img')));
+      break;
+    }
+    case 'PHOTO_IMAGE':
+      kids.push(tImage(D.x + 1, D.y + 1, D.w - 2, D.h - 2, '[COMPLICATION.PHOTO_IMAGE]', nm('img')));
+      break;
+    default: break;
+  }
+  return el('Group', { x: 0, y: 0, width: cw, height: ch, name: `sc_${type}_${tag}` }, kids);
+}
+
+/* The EMPTY state: the slot's own default artwork, exactly as the dial used to bake it —
+   scale sprite, native tokens, register needle. The platform hides this whole block the
+   moment any provider is assigned, which is the entire architectural fix. */
+function taggedEmpty(face, s, roles, tag, sprites, analysis) {
+  const kids = [];
+  const cw = s.bounds.w, ch = s.bounds.h;
+  const art = sprites.find(x => x.tag === tag && x.name === `slotart_${s.idx}_${tag}`);
+  if (art) {
+    kids.push(el('PartImage', { x: 0, y: 0, width: cw, height: ch, name: `slotart_${tag}` }, [
+      el('Image', { resource: `@drawable/${art.name}` }),
+    ]));
+  }
+  for (const it of s.emptyItems || []) {
+    const L = it.L;
+    if (!drawnInEmpty(s, it)) continue;
+    if (it.kind === 'slotText') {
+      const pt = partTextFor({ ...L, x: L.x - s.bounds.x, y: L.y - s.bounds.y }, face, roles,
+        { name: `nt_${tag}_${L.token}`, minSize: MIN_LIVE_TEXT });
+      if (pt) kids.push(pt);
+      continue;
+    }
+    if (it.kind === 'dataArc') {
+      const from = L.from != null ? L.from : 0;
+      const to = L.to != null ? L.to : 360;
+      const cx = (L.cx != null ? L.cx : C) - s.bounds.x, cy = (L.cy != null ? L.cy : C) - s.bounds.y;
+      if (L.track) {
+        kids.push(tArc(cx, cy, L.r, from, Math.min(to, from + 360), withOpacity(colFor(roles, L.track), L.trackOpacity != null ? L.trackOpacity : 0.35),
+          L.w, `etrk_${tag}_${it.i}`, null, (L.cap || 'butt').toUpperCase()));
+      }
+      kids.push(tArc(cx, cy, L.r, from, to, withOpacity(colFor(roles, L.color), L.opacity), L.w,
+        `earc_${tag}_${it.i}`, arcEndExpr(L.data, from, to), (L.cap || 'butt').toUpperCase()));
+      continue;
+    }
+    if (L.t === 'hand') {
+      // <AnalogClock>/<SecondHand> are illegal inside <Complication> (allowed children are
+      // Group/Condition/PartText/PartImage/PartAnimatedImage/PartDraw), so a register hand
+      // is drawn as its own sprite rotated by a Transform. Seconds step per second, which
+      // is what the scene-level sub-hands did too (they used <Tick>, never <Sweep>).
+      const spName = it.kind === 'subSecond'
+        ? `subsec_${analysis.items.filter(x => x.kind === 'subSecond').indexOf(it)}_${tag}`
+        : `needle_${analysis.items.filter(x => x.kind === 'dataNeedle').indexOf(it)}_${tag}`;
+      const sp = sprites.find(x => x.tag === tag && x.name === spName);
+      if (!sp) continue;
+      const g = sp.geom;
+      const from = L.from != null ? L.from : 0;
+      const to = L.to != null ? L.to : 360;
+      const expr = it.kind === 'subSecond' ? '[SECOND] * 6' : arcEndExpr(L.data, from, to);
+      kids.push(el('PartImage', {
+        x: Math.round(it.cx - s.bounds.x - g.pivotX), y: Math.round(it.cy - s.bounds.y - g.pivotY),
+        width: g.W, height: g.H,
+        pivotX: (g.pivotX / g.W).toFixed(4), pivotY: (g.pivotY / g.H).toFixed(4),
+        angle: it.kind === 'subSecond' ? 0 : from, name: `${spName}_e`,
+      }, [
+        el('Transform', { target: 'angle', value: expr }),
+        el('Image', { resource: `@drawable/${sp.name}` }),
+      ]));
+    }
+  }
+  return el('Group', { x: 0, y: 0, width: cw, height: ch, name: `se_${tag}` }, kids);
+}
+
 function slotXml(face, s, analysis, strings, sprites) {
   const nameKey = `slot_${s.idx + 1}`;
   strings[nameKey] = s.label.replace(/·/g, '-');
@@ -788,22 +1235,31 @@ function slotXml(face, s, analysis, strings, sprites) {
     el('DefaultProviderPolicy', { defaultSystemProvider: s.provider, defaultSystemProviderType: provType }),
     s.isRing
       ? el('BoundingArc', { centerX: s.bounds.w / 2, centerY: s.bounds.h / 2, width: s.r * 2, height: s.r * 2, thickness: 18, startAngle: 0, endAngle: 360 })
+      // The tap target stays on the frame the designer drew, even when the container was
+      // grown to cover artwork outside it.
       : (s.shape === 'circle'
-        ? el('BoundingOval', { x: 0, y: 0, width: s.bounds.w, height: s.bounds.h, outlinePadding: 2 })
-        : el('BoundingBox', { x: 0, y: 0, width: s.bounds.w, height: s.bounds.h, outlinePadding: 2 })),
+        ? el('BoundingOval', { x: CX(s, s.cx - s.r), y: CY(s, s.cy - s.r), width: s.r * 2, height: s.r * 2, outlinePadding: 2 })
+        : el('BoundingBox', { x: CX(s, s.design.x), y: CY(s, s.design.y), width: s.design.w, height: s.design.h, outlinePadding: 2 })),
   ];
   const gate = s.dateGated ? '[CONFIGURATION.date] ? 255 : 0'
     : s.gaugeGated ? '[CONFIGURATION.gauges] ? 255 : 0' : null;
-  for (const type of s.types) {
-    if (type === 'EMPTY') continue;
+  // A tagged slot renders one block per supported type INCLUDING EMPTY: the empty block
+  // carries the slot's default artwork, so the platform swaps the decoration out for the
+  // provider's content automatically. Untagged slots keep the legacy patch behaviour.
+  const types = s.tagged ? Array.from(new Set([...s.types, 'EMPTY'])) : s.types;
+  const body = (roles, tg, type) => (s.tagged
+    ? (type === 'EMPTY' ? taggedEmpty(face, s, roles, tg, sprites, analysis) : taggedContent(face, s, roles, tg, type, sprites))
+    : slotContent(face, s, roles, tg, type, sprites));
+  for (const type of types) {
+    if (type === 'EMPTY' && !s.tagged) continue;
     const themed = el('Group', { x: 0, y: 0, width: s.bounds.w, height: s.bounds.h, name: `scT_${type}` }, [
       el('Transform', { target: 'alpha', value: '[CONFIGURATION.dark] ? 0 : 255' }),
       el('ListConfiguration', { id: 'theme' },
-        face.themes.map((th, ti) => el('ListOption', { id: `t${ti}` }, [slotContent(face, s, th.roles, `t${ti}`, type, sprites)]))),
+        face.themes.map((th, ti) => el('ListOption', { id: `t${ti}` }, [body(th.roles, `t${ti}`, type)]))),
     ]);
     const dark = el('Group', { x: 0, y: 0, width: s.bounds.w, height: s.bounds.h, name: `scD_${type}` }, [
       el('Transform', { target: 'alpha', value: '[CONFIGURATION.dark] ? 255 : 0' }),
-      slotContent(face, s, DARK_ROLES, 'dark', type, sprites),
+      body(DARK_ROLES, 'dark', type),
     ]);
     const inner = gate
       ? [el('Group', { x: 0, y: 0, width: s.bounds.w, height: s.bounds.h, name: `scG_${type}` }, [
@@ -918,33 +1374,43 @@ export function emitFace(entry) {
     return { under, over };
   };
 
-  const themeOptions = face.themes.map((th, ti) => {
-    const tag = `t${ti}`;
-    const { under, over } = liveKids(th.roles, tag);
-    const kids = [
-      el('PartImage', { x: 0, y: 0, width: 450, height: 450, name: `dial_${tag}` }, [
-        el('Image', { resource: `@drawable/dial_${tag}` }),
-      ]),
-      ...under,
-      ...needlesXml(face, sprites, tag, analysis),
-      ...clocksXml(face, sprites, tag, analysis, T),
-      ...over,
-    ];
-    return el('ListOption', { id: tag }, [
-      el('Group', { x: 0, y: 0, width: 450, height: 450, name: `theme_${tag}` }, kids),
-    ]);
-  });
+  // A face with tagged slots splits its scene in two so the slots sit BETWEEN the dial and
+  // the hands. ComplicationSlot must be a direct child of Scene — inside the per-theme
+  // ListConfiguration it would be declared five times over — so a slot can only be ordered
+  // relative to whole top-level groups. Left after the entire interactive group (the layout
+  // every other face uses), a slot draws its content, and its empty-state register scale,
+  // ON TOP of the hour and minute hands. Splitting puts the hands back over the register,
+  // where a real chronograph has them. Referencing one ListConfiguration id from several
+  // Scene elements is already proven: every slot's own type blocks do exactly that.
+  const hasTagged = analysis.slots.some(s => s.tagged);
+  const liveCache = new Map();
+  const kidsFor = (roles, tag) => {
+    if (!liveCache.has(tag)) liveCache.set(tag, liveKids(roles, tag));
+    return liveCache.get(tag);
+  };
+  const dialImg = (tag) => el('PartImage', { x: 0, y: 0, width: 450, height: 450, name: `dial_${tag}` }, [
+    el('Image', { resource: `@drawable/dial_${tag}` }),
+  ]);
+  const sceneAll = (roles, tag) => {
+    const { under, over } = kidsFor(roles, tag);
+    return [dialImg(tag), ...under, ...needlesXml(face, sprites, tag, analysis), ...clocksXml(face, sprites, tag, analysis, T), ...over];
+  };
+  const sceneUnder = (roles, tag) => {
+    const { under } = kidsFor(roles, tag);
+    return [dialImg(tag), ...under, ...needlesXml(face, sprites, tag, analysis), ...clocksXml(face, sprites, tag, analysis, T, 'sub')];
+  };
+  const sceneOver = (roles, tag) => {
+    const { over } = kidsFor(roles, tag);
+    return [...clocksXml(face, sprites, tag, analysis, T, 'main'), ...over];
+  };
 
-  const darkLive = liveKids(DARK_ROLES, 'dark');
-  const darkKids = [
-    el('PartImage', { x: 0, y: 0, width: 450, height: 450, name: 'dial_dark' }, [
-      el('Image', { resource: '@drawable/dial_dark' }),
-    ]),
-    ...darkLive.under,
-    ...needlesXml(face, sprites, 'dark', analysis),
-    ...clocksXml(face, sprites, 'dark', analysis, T),
-    ...darkLive.over,
-  ];
+  const themeOptionsFor = (build) => face.themes.map((th, ti) => el('ListOption', { id: `t${ti}` }, [
+    el('Group', { x: 0, y: 0, width: 450, height: 450, name: `theme_t${ti}` }, build(th.roles, `t${ti}`)),
+  ]));
+  const themeOptions = themeOptionsFor(hasTagged ? sceneUnder : sceneAll);
+  const darkKids = (hasTagged ? sceneUnder : sceneAll)(DARK_ROLES, 'dark');
+  const themeOptionsOver = hasTagged ? themeOptionsFor(sceneOver) : [];
+  const darkKidsOver = hasTagged ? sceneOver(DARK_ROLES, 'dark') : [];
 
   const slotsXml = analysis.slots.map(s => slotXml(face, s, analysis, strings, sprites));
   const clockType = cat.id === 'CAT-D' ? 'DIGITAL' : 'ANALOG';
@@ -953,7 +1419,8 @@ export function emitFace(entry) {
   // family-wide but some faces lack the corresponding layer, e.g. B2-B5 battery arc,
   // C1/C3/C4 day arc, D3 seconds arc). 'dark' is structural and always kept.
   const aodStr = aodXml(face, sprites, T);
-  const bodyStr = themeOptions.join('') + darkKids.join('') + slotsXml.join('') + aodStr;
+  const bodyStr = themeOptions.join('') + darkKids.join('') + themeOptionsOver.join('')
+    + darkKidsOver.join('') + slotsXml.join('') + aodStr;
   for (const key of Object.keys(T)) {
     if (key === 'dark') continue;
     if (!bodyStr.includes(`[CONFIGURATION.${key}]`)) {
@@ -993,8 +1460,23 @@ ${el('WatchFace', { width: 450, height: 450, clipShape: 'CIRCLE' }, [
           ...darkKids,
         ])] : []),
       ]),
-      aodXml(face, sprites, T),
+      ...(hasTagged ? [] : [aodXml(face, sprites, T)]),
       ...slotsXml,
+      // The hands, re-laid OVER the slots (see the split above).
+      ...(hasTagged ? [
+        el('Group', { x: 0, y: 0, width: 450, height: 450, name: 'interactiveOver' }, [
+          el('Variant', { mode: 'AMBIENT', target: 'alpha', value: 0 }),
+          el('Group', { x: 0, y: 0, width: 450, height: 450, name: 'themedOver' }, [
+            ...(T.dark ? [el('Transform', { target: 'alpha', value: '[CONFIGURATION.dark] ? 0 : 255' })] : []),
+            el('ListConfiguration', { id: 'theme' }, themeOptionsOver),
+          ]),
+          ...(T.dark ? [el('Group', { x: 0, y: 0, width: 450, height: 450, name: 'darkTwinOver' }, [
+            el('Transform', { target: 'alpha', value: '[CONFIGURATION.dark] ? 255 : 0' }),
+            ...darkKidsOver,
+          ])] : []),
+        ]),
+        aodXml(face, sprites, T),
+      ] : []),
     ]),
   ])}
 `;

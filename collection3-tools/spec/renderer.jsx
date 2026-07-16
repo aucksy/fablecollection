@@ -552,7 +552,10 @@
             // polished ridge down the center
             parts.push(React.createElement('path', { key: 'rg', d: handPath('needle', L.len * 0.96, (L.w || 4) * 0.32, (L.tail || 0) * 0.9), fill: '#fff', opacity: L.metal ? 0.28 : 0.12 }));
           }
-          if (L.slot && !aod) {
+          // `slot: true` = a lume slot milled down the hand. Must be an exact boolean test:
+          // a complication-slot tag (slot: 'SLOT-A2-1') is also truthy and would mill a
+          // black channel into every tagged register hand — which the built face does not.
+          if (L.slot === true && !aod) {
             parts.push(React.createElement('rect', { key: 'sl', x: -(L.w || 4) * 0.42, y: -L.len * 0.76, width: (L.w || 4) * 0.84, height: L.len * 0.58, rx: (L.w || 4) * 0.42, fill: '#0a0a0b', opacity: 0.92 }));
             parts.push(React.createElement('circle', { key: 'sl2', cx: 0, cy: (L.tail || 0) * 0.55, r: (L.w || 4) * 0.3, fill: '#0a0a0b', opacity: 0.92 }));
           }

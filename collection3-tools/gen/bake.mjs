@@ -14,9 +14,9 @@ import { Resvg } from '@resvg/resvg-js';
 import { readdirSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { makeCtx, faceSvg, layerSvg, handSpriteSvg, iconSpriteSvg, defs, isLive, tokenText } from './svglib.mjs';
+import { makeCtx, faceSvg, layerSvg, handSpriteSvg, iconSpriteSvg, regionSvg, defs, isLive, tokenText } from './svglib.mjs';
 import { fontFromStack, snapWeight, DARK_ROLES, AOD_MUT } from './data.mjs';
-import { colFor, TOKEN_TPL, TIME_TOKENS, PROVIDER_ONLY } from './wff.mjs';
+import { colFor, TOKEN_TPL, TIME_TOKENS, PROVIDER_ONLY, dashLayerFor } from './wff.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const ROOT = resolve(__dirname, '../..');
@@ -66,12 +66,6 @@ function arcIsGated(item, toggles) {
   return false;
 }
 
-function dashLayerFor(slot) {
-  const prim = slot.prim;
-  if (!prim) return null;
-  return { t: 'label', text: '—', x: prim.x, y: prim.y, size: Math.max(14, prim.size), weight: 500, color: 'muted', anchor: prim.anchor, font: prim.font };
-}
-
 export function bakeFace(entry, emitted, log) {
   const { face, dir } = entry;
   const { analysis, sprites } = emitted;
@@ -81,10 +75,14 @@ export function bakeFace(entry, emitted, log) {
 
   // ---------- static dial bakes ----------
   const staticItems = analysis.items.filter(it => !LIVE_KINDS.has(it.kind));
-  const dashes = analysis.slots.filter(s => s.dash).map(dashLayerFor).filter(Boolean);
-  // ungated data-arc tracks are baked (gated arcs carry their own track live)
+  // A tagged slot's '—' belongs to its empty state, so it bakes into that slot's art
+  // sprite instead of the dial (where it could never react to a provider arriving).
+  const dashes = analysis.slots.filter(s => s.dash && !s.tagged).map(dashLayerFor).filter(Boolean);
+  // ungated data-arc tracks are baked (gated arcs carry their own track live). A tagged
+  // arc is a slot's empty-state artwork: it takes its track into the EMPTY block with it,
+  // or the track would survive on the dial after a provider replaced the arc.
   const bakedTracks = analysis.items
-    .filter(it => it.kind === 'dataArc' && it.L.track && !arcIsGated(it, analysis.toggles))
+    .filter(it => it.kind === 'dataArc' && it.L.track && !it.inEmpty && !arcIsGated(it, analysis.toggles))
     .map(it => ({ ...it.L, __trackOnly: true }));
 
   face.themes.forEach((th, ti) => {
@@ -130,6 +128,9 @@ export function bakeFace(entry, emitted, log) {
     if (sp.hands) {
       const svg = handSpriteSvg(ctx, sp.hands, sp.geom);
       sizes.push(render(svg, outDrawableHi(sp.name), sp.geom.W * 2));
+    } else if (sp.slotart) {
+      const { layers, box } = sp.slotart;
+      sizes.push(render(regionSvg(ctx, layers, box), outDrawableHi(sp.name), box.w * 2));
     } else if (sp.icon) {
       const box = Math.round((sp.icon.s || 12) * 2);
       const svg = iconSpriteSvg(ctx, sp.icon, box);

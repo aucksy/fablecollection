@@ -8,10 +8,10 @@
         android:icon="@drawable/ic_launcher"
         android:hasCode="false">
 
-        <!-- Watch Face Format version 1 (Wear OS 4+) — widest device coverage. -->
+        <!-- Watch Face Format version 2 (Wear OS 5+). -->
         <property
             android:name="com.google.wear.watchface.format.version"
-            android:value="1" />
+            android:value="2" />
 
         <!-- Installable without a companion phone app -->
         <meta-data

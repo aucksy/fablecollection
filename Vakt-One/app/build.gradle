@@ -8,8 +8,8 @@ android {
 
     defaultConfig {
         applicationId 'watchfaces.vakt.instrument.vaktone'
-        // Watch Face Format v1 requires Wear OS 4 (API 33) or later.
-        minSdk 33
+        // Watch Face Format v2 requires Wear OS 5 (API 34) or later.
+        minSdk 34
         targetSdk 34
         versionCode 1
         versionName '0.1.0'

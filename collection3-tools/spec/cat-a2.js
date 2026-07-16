@@ -155,7 +155,7 @@ export const category = {
       concept: 'The flagship: three machined registers (0–250 scale top-right, battery left, steps bottom), skeleton bridges between them, applied faceted indices on a dark steel flange, broad-arrow hour hand with full lume slot — and a single recessed date window at 3 where the digital screen used to be.',
       audience: 'The buyer who wants tool-watch density with jewellery-grade finishing — analog only.',
       evolution: 'vs. approved v2: identical construction with the LCD column removed per direction; replaced by a framed date window at 3; unread chip retained above it.',
-      wff: { version: 1, reason: 'No v2+ features required.' },
+      wff: { version: 2, reason: 'GOAL_PROGRESS + WEIGHTED_ELEMENTS complication blocks are v2-only (v1 ends at RANGED_VALUE). Dialed ships via Watch Face Push = Wear OS 6, so v2 costs no coverage on that channel.' },
       fontStack: F_LBL,
       themes: [
         T('TH-A1-01', 'Phosphor Core', 'Charcoal skeleton, phosphor-green lume, steel-white ink — the genre-defining look.', { bg: '#131514', ink: '#eae8e2', accent: '#d3543e', muted: '#5f6259', lume: '#c9d8a4' }, 'brushRadial'),
@@ -205,7 +205,7 @@ export const category = {
       concept: 'A racing-instrument evolution: the flange becomes a numbered 60-scale rally track, the steps register grows into a hero counter at 6 with an external progress arc, and red-line accents mark the top of every scale. Date sits framed at 3.',
       audience: 'Motorsport and racing-chronograph fans; the loudest seller of the family.',
       evolution: 'vs. approved v2: LCD removed per direction, date window at 3; rally flange, red-line arcs and hero counter unchanged.',
-      wff: { version: 1, reason: 'No v2+ features required.' },
+      wff: { version: 2, reason: 'GOAL_PROGRESS + WEIGHTED_ELEMENTS complication blocks are v2-only (v1 ends at RANGED_VALUE). Dialed ships via Watch Face Push = Wear OS 6, so v2 costs no coverage on that channel.' },
       fontStack: F_LBL,
       themes: [
         T('TH-A2-01', 'Pit Lane', 'Charcoal, signal-red line, white-lume markers.', { bg: '#141413', ink: '#ece9e2', accent: '#cf3e32', muted: '#5e5d57', lume: '#d8d6c8' }, 'brushRadial'),
@@ -257,7 +257,7 @@ export const category = {
       concept: 'The dressed member: skeleton work calms into one polished bridge, slim applied batons ride the flange, and the right side carries a framed date with a NEXT-event line beneath. Same instrument soul, cleaner shirt.',
       audience: 'Office-first wearers who still want the instrument density.',
       evolution: 'vs. approved v2: LCD removed per direction; its calendar/event duty moves to a date window + one event line at 3.',
-      wff: { version: 1, reason: 'No v2+ features required.' },
+      wff: { version: 2, reason: 'GOAL_PROGRESS + WEIGHTED_ELEMENTS complication blocks are v2-only (v1 ends at RANGED_VALUE). Dialed ships via Watch Face Push = Wear OS 6, so v2 costs no coverage on that channel.' },
       fontStack: F_LBL,
       themes: [
         T('TH-A3-01', 'Obsidian', 'Black lacquer, champagne accents, silver indices.', { bg: '#0f0f11', ink: '#eae7df', accent: '#b3a274', muted: '#5c5c58', lume: '#ddd2a8' }, 'lacquer'),
@@ -310,7 +310,7 @@ export const category = {
       concept: 'The calm one: the battery register dissolves into a flange arc, leaving two registers and open brushed metal. A lone date window balances the right flank. Lowest visual pressure in the family, same construction depth.',
       audience: 'Buyers who want the identity without the density — the everyday pick.',
       evolution: 'vs. approved v2: LCD removed per direction; date window at 3 is now the only framed element.',
-      wff: { version: 1, reason: 'No v2+ features required.' },
+      wff: { version: 2, reason: 'GOAL_PROGRESS + WEIGHTED_ELEMENTS complication blocks are v2-only (v1 ends at RANGED_VALUE). Dialed ships via Watch Face Push = Wear OS 6, so v2 costs no coverage on that channel.' },
       fontStack: F_LBL,
       themes: [
         T('TH-A4-01', 'Ti Natural', 'Warm-grey brushed dial, ecru ink, pale lume.', { bg: '#191918', ink: '#e8e5dd', accent: '#a8a798', muted: '#63625c', lume: '#cfcdae' }, 'brushRadial'),
@@ -358,7 +358,7 @@ export const category = {
       concept: 'The maximal-lume expression: full-lume applied indices, lume register needles, sunrise/sunset figures on the right flank, and central seconds shipped OFF for battery. Reads instantly in total darkness — by lume alone now, with no glowing screen.',
       audience: 'Night-shift workers, aviation/tactical fans, lume collectors.',
       evolution: 'vs. approved v2: LCD removed per direction — its sunrise/sunset rows become dial-side figures; the AOD keeps the stacked digital time (ambient mode only).',
-      wff: { version: 1, reason: 'No v2+ features required.' },
+      wff: { version: 2, reason: 'GOAL_PROGRESS + WEIGHTED_ELEMENTS complication blocks are v2-only (v1 ends at RANGED_VALUE). Dialed ships via Watch Face Push = Wear OS 6, so v2 costs no coverage on that channel.' },
       fontStack: F_LBL,
       themes: [
         T('TH-A5-01', 'Phosphor Night', 'Blackout, full green-phosphor lume.', { bg: '#0d0e0d', ink: '#e0e4d6', accent: '#9fc44f', muted: '#525549', lume: '#c6e37e' }, 'matte'),

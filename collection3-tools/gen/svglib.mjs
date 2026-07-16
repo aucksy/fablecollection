@@ -421,7 +421,10 @@ export function handParts(ctx, L, opts = {}) {
   if (!flat && (L.metal || w >= 4)) {
     s += `<path d="${handPath('needle', L.len * 0.96, w * 0.32, (L.tail || 0) * 0.9)}" fill="#fff" opacity="${L.metal ? 0.28 : 0.12}"/>`;
   }
-  if (L.slot && !flat) {
+  // `slot: true` = a lume slot milled down the hand. Must be an exact boolean test:
+  // a complication-slot tag (slot: 'SLOT-A2-1') is also truthy and would mill a
+  // black channel into every tagged register hand.
+  if (L.slot === true && !flat) {
     s += `<rect x="${-w * 0.42}" y="${-L.len * 0.76}" width="${w * 0.84}" height="${L.len * 0.58}" rx="${w * 0.42}" fill="#0a0a0b" opacity="0.92"/>`;
     s += `<circle cx="0" cy="${(L.tail || 0) * 0.55}" r="${w * 0.3}" fill="#0a0a0b" opacity="0.92"/>`;
   }
@@ -496,6 +499,19 @@ export function handSpriteSvg(ctx, hands, geom) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${geom.W}" height="${geom.H}" viewBox="0 0 ${geom.W} ${geom.H}">
 ${defs(ctx)}
 <g transform="translate(${geom.pivotX} ${geom.pivotY})">${inner}</g>
+</svg>`;
+}
+
+/* ================= region sprite (a slot's empty-state artwork) ================= */
+// Renders `layers` in dial coordinates but cropped to `box`, on transparency. Used for
+// the empty-state default art of a complication slot: the same layer recipes the dial
+// bake uses, so the art is pixel-identical to when it was baked into dial_t*.png — it
+// has merely moved into the slot's EMPTY block so the platform can swap it out.
+export function regionSvg(ctx, layers, box) {
+  const body = layers.map(L => layerSvg(ctx, L, true)).join('\n');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${box.w}" height="${box.h}" viewBox="${box.x} ${box.y} ${box.w} ${box.h}">
+${defs(ctx)}
+${body}
 </svg>`;
 }
 

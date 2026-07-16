@@ -11,6 +11,10 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 export function scaffoldFace(entry, strings, version) {
   const { dir, appId, face, cat } = entry;
   const base = resolve(ROOT, dir);
+  // WFF version comes from the spec's own `wff` block. v2 (Wear OS 5+) is only declared by
+  // faces that need a v2 feature — GOAL_PROGRESS / WEIGHTED_ELEMENTS complication blocks.
+  const wffVer = (face.wff && face.wff.version) || 1;
+  const minSdk = wffVer >= 2 ? 34 : 33;
   const app = resolve(base, 'app/src/main');
   mkdirSync(resolve(app, 'res/raw'), { recursive: true });
   mkdirSync(resolve(app, 'res/xml'), { recursive: true });
@@ -54,8 +58,8 @@ android {
 
     defaultConfig {
         applicationId '${appId}'
-        // Watch Face Format v1 requires Wear OS 4 (API 33) or later.
-        minSdk 33
+        // Watch Face Format v${wffVer} requires Wear OS ${wffVer >= 2 ? '5 (API 34)' : '4 (API 33)'} or later.
+        minSdk ${minSdk}
         targetSdk 34
         versionCode ${version.code}
         versionName '${version.name}'
@@ -92,10 +96,10 @@ android {
         android:icon="@drawable/ic_launcher"
         android:hasCode="false">
 
-        <!-- Watch Face Format version 1 (Wear OS 4+) — widest device coverage. -->
+        <!-- Watch Face Format version ${wffVer} (Wear OS ${wffVer >= 2 ? '5+' : '4+'}). -->
         <property
             android:name="com.google.wear.watchface.format.version"
-            android:value="1" />
+            android:value="${wffVer}" />
 
         <!-- Installable without a companion phone app -->
         <meta-data
