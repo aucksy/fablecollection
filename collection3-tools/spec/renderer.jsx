@@ -103,6 +103,24 @@
     cal: 'M-4-3H4V4H-4ZM-4-1H4M-2-5V-3M2-5V-3',
     msg: 'M-4.5-3.5H4.5V2.5H-1L-3.5 5V2.5H-4.5Z',
     hr: 'M0 4.5-4.5-0.5C-6-2.5-4.5-5-2.2-5-1-5 0-4 0-3 0-4 1-5 2.2-5 4.5-5 6-2.5 4.5-0.5Z',
+    person: 'M0-5.4A2.5 2.5 0 1 0 0.01-5.4ZM-4.6 6.4C-4.6 0.5 4.6 0.5 4.6 6.4Z',
+  };
+
+  /* ---- complication sample data: the "any information" a slot may receive ----
+     Every Wear OS ComplicationType a slot can be handed by the user. The slot
+     FRAME (machined plate / bevelled panel) is permanent face hardware; only
+     this CONTENT swaps, so no provider can ever break the composition. */
+  const COMPL_SAMPLES = {
+    SHORT_TEXT: { text: '72', title: 'BPM', icon: 'hr' },
+    LONG_TEXT: { title: '10:30', text: 'Standup', icon: 'cal' },
+    RANGED_VALUE: { value: 68, max: 100, text: '68', title: '%', icon: 'bolt' },
+    GOAL_PROGRESS: { value: 11200, target: 10000, text: '11.2K', icon: 'steps' },
+    WEIGHTED_ELEMENTS: { elements: [{ w: 5, c: 'accent' }, { w: 3, c: 'lume' }, { w: 2, c: 'muted' }], icon: 'steps' },
+    MONOCHROMATIC_IMAGE: { icon: 'bell' },
+    SMALL_IMAGE: { style: 'PHOTO' },
+    PHOTO_IMAGE: {},
+    EMPTY: {},
+    NO_PERMISSION: {},
   };
 
   /* ---- hand shapes: path generators (0,0 = pivot, -len = tip) ---- */
@@ -197,6 +215,8 @@
     const C = 225;
     const layers = aod ? (spec.aodLayers || []) : spec.layers;
     const finish = aod ? 'aod' : (theme.finish || 'matte');
+    const loadout = props.loadout || {};
+    const injectedSlots = new Set();
 
     const isSecLayer = (L) => (L.t === 'hand' && L.kind === 'second') || (L.t === 'arc' && L.data === 'seconds');
 
@@ -204,7 +224,136 @@
     const METAL = `url(#${uid}-metal)`;
     const METALD = `url(#${uid}-metalDark)`;
 
-    function buildEls(list, keyPrefix) {
+    /* ---- complication renderer: one clean, theme-aware treatment per
+       ComplicationType, drawn INSIDE the slot's own frame. This is what makes
+       every slot accept any provider without losing the dial's character. ---- */
+    function complRender(slot, key) {
+      const out = [];
+      const isCircle = slot.shape === 'circle';
+      const frameStyle = slot.frame || (isCircle ? 'plate' : 'panel');
+      const S = COMPL_SAMPLES[key] || {};
+      const ink = col('ink'), accent = col('accent'), muted = col('muted'), lume = col('lume');
+      const numFont = "'Saira SemiCondensed', " + spec.fontStack;
+      const lblFont = spec.fontStack;
+      const filledIcon = { bell: 1, moon: 1, hr: 1, bolt: 1, steps: 1, person: 1 };
+      let kk = 0;
+      const K = function () { return 'cr' + slot.id + (kk++); };
+      const cx = isCircle ? slot.cx : (slot.x + slot.w / 2);
+      const cy = isCircle ? slot.cy : (slot.y + slot.h / 2);
+
+      const addIcon = function (name, ix, iy, s, color, filled) {
+        const d = ICONS[name]; if (!d) return;
+        out.push(React.createElement('path', { key: K(), d: d, transform: 'translate(' + ix + ' ' + iy + ') scale(' + (s / 12) + ')', fill: filled ? color : 'none', stroke: filled ? 'none' : color, strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' }));
+      };
+      const addText = function (str, tx, ty, size, weight, color, font) {
+        out.push(React.createElement('text', { key: K(), x: tx, y: ty, fill: color, fontSize: size, fontFamily: font || lblFont, fontWeight: weight, textAnchor: 'middle', dominantBaseline: 'central' }, str));
+      };
+      const lockGlyph = function (lx, ly, u, color) {
+        out.push(React.createElement('circle', { key: K(), cx: lx, cy: ly - u * 0.16, r: u * 0.24, fill: 'none', stroke: color, strokeWidth: Math.max(2, u * 0.11) }));
+        out.push(React.createElement('rect', { key: K(), x: lx - u * 0.3, y: ly - u * 0.06, width: u * 0.6, height: u * 0.46, rx: u * 0.07, fill: color }));
+      };
+
+      /* frame (permanent hardware around the content) */
+      if (isCircle) {
+        const r = slot.r, rim = 3.5;
+        out.push(React.createElement('circle', { key: K(), cx: cx + 1.5, cy: cy + 2.5, r: r + rim, fill: '#000', opacity: 0.4 }));
+        out.push(React.createElement('circle', { key: K(), cx: cx, cy: cy, r: r + rim, fill: METAL }));
+        out.push(React.createElement('circle', { key: K(), cx: cx, cy: cy, r: r, fill: shade(roles.bg, -0.42) }));
+        out.push(React.createElement('circle', { key: K(), cx: cx, cy: cy, r: r, fill: 'url(#' + uid + '-inset)' }));
+        out.push(React.createElement('circle', { key: K(), cx: cx, cy: cy, r: r + rim - 0.6, fill: 'none', stroke: '#fff', strokeWidth: 0.8, opacity: 0.18 }));
+      } else if (frameStyle === 'panel') {
+        const x = slot.x, y = slot.y, w = slot.w, h = slot.h, rx = 6, fr = 4;
+        out.push(React.createElement('rect', { key: K(), x: x - fr + 1.5, y: y - fr + 2.5, width: w + fr * 2, height: h + fr * 2, rx: rx + fr, fill: '#000', opacity: 0.45 }));
+        out.push(React.createElement('rect', { key: K(), x: x - fr, y: y - fr, width: w + fr * 2, height: h + fr * 2, rx: rx + fr, fill: METALD }));
+        out.push(React.createElement('rect', { key: K(), x: x, y: y, width: w, height: h, rx: rx, fill: shade(roles.bg, -0.5) }));
+        out.push(React.createElement('rect', { key: K(), x: x, y: y, width: w, height: h, rx: rx, fill: 'url(#' + uid + '-lcdIn)' }));
+      }
+
+      if (isCircle) {
+        const r = slot.r, ri = r - 4;
+        const arcW = Math.max(3, r * 0.09);
+        if (key === 'SHORT_TEXT') {
+          if (S.icon) addIcon(S.icon, cx, cy - ri * 0.44, ri * 0.24, muted, !!filledIcon[S.icon]);
+          addText(S.text, cx, cy + (S.title ? ri * 0.03 : 0), ri * (S.icon || S.title ? 0.58 : 0.72), 700, ink, numFont);
+          if (S.title) addText(S.title, cx, cy + ri * 0.45, ri * 0.2, 700, muted, lblFont);
+        } else if (key === 'LONG_TEXT') {
+          if (S.title) addText(S.title, cx, cy - ri * 0.42, ri * 0.22, 700, accent, lblFont);
+          addText(S.text, cx, cy + ri * 0.02, ri * 0.34, 600, ink, lblFont);
+          if (S.icon) addIcon(S.icon, cx, cy + ri * 0.48, ri * 0.2, muted, !!filledIcon[S.icon]);
+        } else if (key === 'RANGED_VALUE') {
+          const frac = Math.max(0.02, Math.min((S.value || 0) / (S.max || 100), 1));
+          out.push(React.createElement('path', { key: K(), d: arcPath(cx, cy, ri - 2, -150, 150), fill: 'none', stroke: muted, strokeWidth: arcW, strokeLinecap: 'round', opacity: 0.25 }));
+          out.push(React.createElement('path', { key: K(), d: arcPath(cx, cy, ri - 2, -150, -150 + 300 * frac), fill: 'none', stroke: accent, strokeWidth: arcW, strokeLinecap: 'round' }));
+          if (S.icon) addIcon(S.icon, cx, cy - ri * 0.4, ri * 0.2, muted, !!filledIcon[S.icon]);
+          addText(S.text, cx, cy + ri * 0.05, ri * 0.46, 700, ink, numFont);
+          if (S.title) addText(S.title, cx, cy + ri * 0.4, ri * 0.18, 700, muted, lblFont);
+        } else if (key === 'GOAL_PROGRESS') {
+          const frac = (S.value || 0) / (S.target || 1);
+          out.push(React.createElement('path', { key: K(), d: arcPath(cx, cy, ri - 2, -180, 179.9), fill: 'none', stroke: muted, strokeWidth: arcW, strokeLinecap: 'butt', opacity: 0.22 }));
+          out.push(React.createElement('path', { key: K(), d: arcPath(cx, cy, ri - 2, -180, -180 + 360 * Math.min(frac, 1)), fill: 'none', stroke: accent, strokeWidth: arcW, strokeLinecap: 'round' }));
+          if (frac > 1) out.push(React.createElement('path', { key: K(), d: arcPath(cx, cy, ri - 2, -180, -180 + 360 * Math.min(frac - 1, 1)), fill: 'none', stroke: lume, strokeWidth: arcW, strokeLinecap: 'round' }));
+          if (S.icon) addIcon(S.icon, cx, cy - ri * 0.4, ri * 0.2, muted, !!filledIcon[S.icon]);
+          addText(S.text, cx, cy + ri * 0.05, ri * 0.42, 700, ink, numFont);
+          addText(Math.round(frac * 100) + '%', cx, cy + ri * 0.42, ri * 0.19, 700, frac > 1 ? lume : muted, lblFont);
+        } else if (key === 'WEIGHTED_ELEMENTS') {
+          const es = S.elements || []; let W = 0; es.forEach(function (e) { W += e.w; });
+          let cursor = -180; const gap = 7;
+          es.forEach(function (e) {
+            const seg = 360 * (e.w / (W || 1));
+            out.push(React.createElement('path', { key: K(), d: arcPath(cx, cy, ri - 2, cursor + gap / 2, cursor + seg - gap / 2), fill: 'none', stroke: col(e.c), strokeWidth: arcW * 1.15, strokeLinecap: 'butt' }));
+            cursor += seg;
+          });
+          if (S.icon) addIcon(S.icon, cx, cy, ri * 0.4, muted, !!filledIcon[S.icon]);
+        } else if (key === 'MONOCHROMATIC_IMAGE') {
+          addIcon(S.icon || 'bell', cx, cy, ri * 0.95, ink, !!filledIcon[S.icon || 'bell']);
+        } else if (key === 'SMALL_IMAGE') {
+          out.push(React.createElement('circle', { key: K(), cx: cx, cy: cy, r: ri * 0.9, fill: '#4c5157' }));
+          out.push(React.createElement('ellipse', { key: K(), cx: cx, cy: cy - ri * 0.22, rx: ri * 0.72, ry: ri * 0.52, fill: '#5c626a' }));
+          addIcon('person', cx, cy + ri * 0.06, ri * 0.95, '#b6bcc4', true);
+          out.push(React.createElement('circle', { key: K(), cx: cx, cy: cy, r: ri * 0.9, fill: 'none', stroke: METALD, strokeWidth: 2 }));
+        } else if (key === 'PHOTO_IMAGE') {
+          out.push(React.createElement('circle', { key: K(), cx: cx, cy: cy, r: ri, fill: '#4c5157' }));
+          out.push(React.createElement('rect', { key: K(), x: cx - ri * 0.5, y: cy - ri * 0.36, width: ri, height: ri * 0.72, rx: ri * 0.1, fill: 'none', stroke: '#888e96', strokeWidth: 2 }));
+          out.push(React.createElement('circle', { key: K(), cx: cx - ri * 0.18, cy: cy - ri * 0.1, r: ri * 0.1, fill: '#888e96' }));
+          out.push(React.createElement('path', { key: K(), d: 'M' + (cx - ri * 0.44) + ' ' + (cy + ri * 0.3) + ' L' + (cx - ri * 0.05) + ' ' + (cy - ri * 0.02) + ' L' + (cx + ri * 0.16) + ' ' + (cy + ri * 0.16) + ' L' + (cx + ri * 0.32) + ' ' + (cy + ri * 0.02) + ' L' + (cx + ri * 0.44) + ' ' + (cy + ri * 0.3) + ' Z', fill: '#888e96' }));
+        } else if (key === 'NO_PERMISSION') {
+          lockGlyph(cx, cy - ri * 0.05, ri * 1.1, muted);
+          addText('TAP', cx, cy + ri * 0.5, ri * 0.18, 700, muted, lblFont);
+        } else {
+          out.push(React.createElement('circle', { key: K(), cx: cx, cy: cy, r: ri * 0.42, fill: 'none', stroke: muted, strokeWidth: 1.4, opacity: 0.4 }));
+          addText('\u2014', cx, cy, ri * 0.4, 700, muted, lblFont);
+        }
+      } else {
+        const x = slot.x, y = slot.y, w = slot.w, h = slot.h;
+        const wide = w >= 58;
+        if (key === 'SHORT_TEXT') {
+          if (wide && S.icon) addIcon(S.icon, x + 13, cy, h * 0.5, muted, !!filledIcon[S.icon]);
+          addText(S.text, cx + (wide && S.icon ? 8 : 0), (wide && S.title) ? cy - h * 0.1 : cy, (wide && S.title) ? h * 0.5 : h * 0.62, 700, ink, numFont);
+          if (wide && S.title) addText(S.title, cx + (S.icon ? 8 : 0), cy + h * 0.3, h * 0.24, 700, muted, lblFont);
+        } else if (key === 'LONG_TEXT') {
+          if (S.title) addText(S.title, cx, y + h * 0.28, h * 0.28, 700, accent, lblFont);
+          addText(S.text, cx, y + h * 0.68, h * 0.34, 600, ink, lblFont);
+        } else if (key === 'RANGED_VALUE' || key === 'GOAL_PROGRESS' || key === 'WEIGHTED_ELEMENTS') {
+          const frac = key === 'GOAL_PROGRESS' ? Math.min((S.value || 0) / (S.target || 1), 1) : (key === 'RANGED_VALUE' ? Math.min((S.value || 0) / (S.max || 100), 1) : 0.7);
+          const bx = x + 7, bw = w - 14, by = cy + h * 0.2;
+          out.push(React.createElement('rect', { key: K(), x: bx, y: by, width: bw, height: 4, rx: 2, fill: muted, opacity: 0.3 }));
+          out.push(React.createElement('rect', { key: K(), x: bx, y: by, width: bw * frac, height: 4, rx: 2, fill: accent }));
+          addText(key === 'WEIGHTED_ELEMENTS' ? 'ACT' : (S.text + (S.title || '')), cx, cy - h * 0.12, h * 0.42, 700, ink, numFont);
+        } else if (key === 'MONOCHROMATIC_IMAGE') {
+          addIcon(S.icon || 'bell', cx, cy, h * 0.85, ink, !!filledIcon[S.icon || 'bell']);
+        } else if (key === 'SMALL_IMAGE' || key === 'PHOTO_IMAGE') {
+          out.push(React.createElement('rect', { key: K(), x: x, y: y, width: w, height: h, rx: 5, fill: '#4c5157' }));
+          addIcon('person', cx, cy + h * 0.06, h * 0.95, '#b6bcc4', true);
+        } else if (key === 'NO_PERMISSION') {
+          lockGlyph(cx, cy, h * 0.95, muted);
+        } else {
+          addText('\u2014', cx, cy, h * 0.5, 700, muted, lblFont);
+        }
+      }
+      return out;
+    }
+
+    function buildEls(list, keyPrefix, allowInject) {
       const els = [];
       let k = 0;
       list.forEach((L) => {
@@ -212,6 +361,14 @@
       const cx = L.cx != null ? L.cx : C;
       const cy = L.cy != null ? L.cy : C;
       if (L.hidden) return;
+      if (L.slot && loadout[L.slot] && loadout[L.slot] !== 'DEFAULT') {
+        if (allowInject && !injectedSlots.has(L.slot)) {
+          injectedSlots.add(L.slot);
+          const cSlot = spec.complications && spec.complications.find(function (s) { return s.id === L.slot; });
+          if (cSlot) complRender(cSlot, loadout[L.slot]).forEach(function (e) { els.push(e); });
+        }
+        return;
+      }
       switch (L.t) {
         case 'dial': {
           els.push(React.createElement('circle', { key, cx: C, cy: C, r: 225, fill: aod ? '#000' : col(L.color, roles.bg) }));
@@ -540,12 +697,13 @@
       return els;
     }
 
-    const minuteKey = [now.getHours(), now.getMinutes(), props.theme || 0, mode, hour12 ? 1 : 0, props.showSlots ? 1 : 0, props.timeOverride ? 'o' + props.timeOverride.h + '-' + props.timeOverride.m : 'live'].join('-');
+    const loadKey = spec.complications ? spec.complications.map(function (s) { return loadout[s.id] || 'D'; }).join(',') : '';
+    const minuteKey = [now.getHours(), now.getMinutes(), props.theme || 0, mode, hour12 ? 1 : 0, props.showSlots ? 1 : 0, loadKey, props.timeOverride ? 'o' + props.timeOverride.h + '-' + props.timeOverride.m : 'live'].join('-');
     const staticEls = React.useMemo(
-      () => buildEls(layers.filter((L) => !isSecLayer(L)), 'S'),
+      () => buildEls(layers.filter((L) => !isSecLayer(L)), 'S', true),
       [minuteKey, spec] // eslint-disable-line
     );
-    const els = staticEls.concat(buildEls(layers.filter(isSecLayer), 'D'));
+    const els = staticEls.concat(buildEls(layers.filter(isSecLayer), 'D', false));
 
     /* complication slot overlay */
     if (props.showSlots && !aod && spec.complications) {

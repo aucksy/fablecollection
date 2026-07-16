@@ -9,11 +9,25 @@
 const F_LBL = "'Archivo', sans-serif";
 const F_DIG = "'Saira SemiCondensed', sans-serif";
 
+/* Supported complication types per slot-frame style. Every VAKT slot accepts
+   the full set its frame can render, so any provider the user picks lands
+   cleanly (see faces/renderer.jsx complRender + handoff/04-complication-system.md). */
+const CIRC_TYPES = ['SHORT_TEXT', 'LONG_TEXT', 'RANGED_VALUE', 'GOAL_PROGRESS', 'WEIGHTED_ELEMENTS', 'MONOCHROMATIC_IMAGE', 'SMALL_IMAGE', 'PHOTO_IMAGE'];
+const PANEL_TYPES = ['SHORT_TEXT', 'LONG_TEXT', 'RANGED_VALUE', 'MONOCHROMATIC_IMAGE', 'SMALL_IMAGE'];
+const OPEN_TYPES = ['SHORT_TEXT', 'LONG_TEXT', 'MONOCHROMATIC_IMAGE'];
+
 function T(id, name, desc, roles, finish) {
   return { id, name, desc, roles, finish };
 }
 
 /* ---------- construction helpers ---------- */
+
+/* Tag a slot's default artwork so the renderer hides it the instant the user
+   assigns a real complication — the frame is then redrawn by the complication
+   engine and the type-appropriate content takes the content's place. */
+function withSlot(arr, slotId) {
+  return slotId ? arr.map(function (l) { return Object.assign({ slot: slotId }, l); }) : arr;
+}
 
 function flangeAndMarkers(opts) {
   const o = opts || {};
@@ -35,45 +49,45 @@ function skeletonWork() {
   ];
 }
 
-function registerScale(cx, cy, r) {
-  return [
+function registerScale(cx, cy, r, slotId) {
+  return withSlot([
     { t: 'plate', cx, cy, r, rim: 3.5 },
     { t: 'ticks', cx, cy, r: r - 6, count: 25, len: 5, w: 1.1, color: 'muted', from: 30, to: 330 },
     { t: 'ticks', cx, cy, r: r - 6, count: 5, len: 10, w: 2, color: 'ink', from: 30, to: 330 },
     { t: 'numerals', cx, cy, vals: [0, 50, 100, 150, 200, 250], r: r - 21, size: 12.5, weight: 700, color: 'ink', from: 30, to: 330 },
     { t: 'icon', name: 'hr', x: cx, y: cy + r * 0.5, s: 8, color: 'muted' },
     { t: 'hand', kind: 'second', cx, cy, len: r - 10, tail: 13, w: 1.8, shape: 'needle', color: 'accent', hub: 4, shadow: true },
-  ];
+  ], slotId);
 }
 
-function registerBattery(cx, cy, r) {
-  return [
+function registerBattery(cx, cy, r, slotId) {
+  return withSlot([
     { t: 'plate', cx, cy, r, rim: 3 },
     { t: 'ticks', cx, cy, r: r - 5, count: 20, len: 4, w: 1, color: 'muted', from: 40, to: 320 },
     { t: 'numerals', cx, cy, vals: [0, 25, 50, 75, 100], r: r - 16, size: 10.5, weight: 700, color: 'ink', from: 40, to: 320 },
     { t: 'arc', cx, cy, r: r - 5, w: 2.5, from: 40, to: 320, color: 'lume', data: 'battery', track: 'muted', trackOpacity: 0.22 },
     { t: 'icon', name: 'bolt', x: cx, y: cy + r * 0.48, s: 8.5, color: 'muted', filled: true },
     { t: 'hand', kind: 'data', data: 'battery', from: 40, to: 320, cx, cy, len: r - 10, tail: 10, w: 1.6, shape: 'needle', color: 'lume', hub: 3.4, shadow: true },
-  ];
+  ], slotId);
 }
 
-function registerSteps(cx, cy, r) {
-  return [
+function registerSteps(cx, cy, r, slotId) {
+  return withSlot([
     { t: 'plate', cx, cy, r, rim: 3.5 },
     { t: 'ticks', cx, cy, r: r - 5, count: 50, len: 4, w: 0.9, color: 'muted' },
     { t: 'ticks', cx, cy, r: r - 5, count: 10, len: 9, w: 1.9, color: 'ink' },
     { t: 'numerals', cx, cy, vals: [0, null, 2, null, 4, null, 6, null, 8, null], r: r - 17, size: 12.5, weight: 700, color: 'ink' },
     { t: 'icon', name: 'steps', x: cx, y: cy - r * 0.45, s: 8.5, color: 'muted', filled: true },
     { t: 'hand', kind: 'data', data: 'stepsDial', cx, cy, len: r - 9, tail: 11, w: 1.6, shape: 'needle', color: 'lume', hub: 3.4, shadow: true },
-  ];
+  ], slotId);
 }
 
 /* framed date window — replaces the deleted LCD column */
-function dateWindow(x, y) {
-  return [
+function dateWindow(x, y, slotId) {
+  return withSlot([
     { t: 'rect', x: x - 20, y: y - 15, w: 40, h: 30, rx: 4, color: 'shade:bg:-0.5', stroke: 'shade:bg:0.18', sw: 1.2 },
     { t: 'text', token: 'dnum', x, y: y + 1, size: 19, weight: 700, color: 'lume', font: F_DIG },
-  ];
+  ], slotId);
 }
 
 function mainHands(o) {
@@ -111,6 +125,7 @@ const VAKT_FEAS = () => ([
   { feature: 'Battery register (needle + arc)', badge: 'NATIVE', mech: 'Data-driven arc fill + ranged hand bound to watch battery %' },
   { feature: 'Step register (1 = 1,000 steps)', badge: 'NATIVE', mech: 'Ranged hand bound to step progress (mod-10k scale baked into artwork)' },
   { feature: 'Framed date window', badge: 'NATIVE', mech: 'Native day-number token in a recessed frame' },
+  { feature: 'Any-provider complication slots', badge: 'NATIVE', mech: 'Every slot renders all Wear OS complication types (short/long text, ranged value, goal progress, weighted elements, monochromatic/small/photo image) in the dial\'s own style — the machined frame is fixed hardware, only the content adapts, so no provider the user picks can break the composition' },
   { feature: '0–250 register needle (heart rate)', badge: 'PROVIDER', mech: 'RANGED_VALUE complication, user-added only (HR can never be a v1 default); ships as native seconds sub-hand' },
   { feature: 'Unread-messages chip', badge: 'PROVIDER', mech: 'SHORT_TEXT, unread-notifications provider (v1-legal default)' },
   { feature: 'Values shown in prototype', badge: 'SIMULATED', mech: 'Battery 68% · steps 6203 · 3 unread · HR 72 are mock values' },
@@ -156,21 +171,21 @@ export const category = {
         ...skeletonWork(),
         { t: 'label', text: 'VAKT', x: 140, y: 118, size: 16, weight: 700, color: 'ink' },
         { t: 'label', text: 'INSTRUMENT', x: 140, y: 134, size: 8.5, weight: 600, color: 'muted' },
-        ...registerScale(262, 148, 64),
+        ...registerScale(262, 148, 64, 'SLOT-A1-1'),
         ...registerBattery(130, 234, 47),
         ...registerSteps(206, 324, 55),
-        ...dateWindow(334, 246),
-        { t: 'text', token: 'day3', x: 334, y: 274, size: 12, weight: 700, color: 'muted', font: F_DIG },
-        { t: 'rect', x: 318, y: 288, w: 32, h: 19, rx: 3, color: 'shade:bg:-0.45', stroke: 'shade:bg:0.15', sw: 1 },
-        { t: 'text', token: 'notif', x: 334, y: 298, size: 12.5, weight: 700, color: 'lume', font: F_DIG },
-        { t: 'icon', name: 'msg', x: 360, y: 298, s: 9, color: 'muted' },
+        ...dateWindow(334, 246, 'SLOT-A1-2'),
+        { t: 'text', token: 'day3', x: 334, y: 274, size: 12, weight: 700, color: 'muted', font: F_DIG, slot: 'SLOT-A1-2' },
+        { t: 'rect', x: 318, y: 288, w: 32, h: 19, rx: 3, color: 'shade:bg:-0.45', stroke: 'shade:bg:0.15', sw: 1, slot: 'SLOT-A1-3' },
+        { t: 'text', token: 'notif', x: 334, y: 298, size: 12.5, weight: 700, color: 'lume', font: F_DIG, slot: 'SLOT-A1-3' },
+        { t: 'icon', name: 'msg', x: 360, y: 298, s: 9, color: 'muted', slot: 'SLOT-A1-3' },
         ...mainHands(),
       ],
       aodLayers: vaktAOD(),
       complications: [
-        { id: 'SLOT-A1-1', label: 'Top register (0–250 scale)', shape: 'circle', cx: 262, cy: 148, r: 64, types: ['RANGED_VALUE'], default: 'Empty — native running-seconds sub-hand', options: 'Heart rate (user-added), steps, battery', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
-        { id: 'SLOT-A1-2', label: 'Date window', shape: 'rect', x: 314, y: 231, w: 40, h: 30, types: ['SHORT_TEXT'], default: 'Date (native token)', options: 'Day+date, next event', fallback: 'Native date token', empty: 'Hidden via SET-A1-DATE', tap: 'Calendar' },
-        { id: 'SLOT-A1-3', label: 'Unread chip', shape: 'rect', x: 318, y: 288, w: 48, h: 19, types: ['SHORT_TEXT'], default: 'Unread notifications (v1-legal)', options: 'Any short-text provider', fallback: 'Icon only', empty: 'Chip hidden', tap: 'Notification stream' },
+        { id: 'SLOT-A1-1', label: 'Top register', shape: 'circle', cx: 262, cy: 148, r: 64, frame: 'plate', types: CIRC_TYPES, default: 'Empty — native running-seconds sub-hand', options: 'Any Wear OS type — rendered inside the machined register frame', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
+        { id: 'SLOT-A1-2', label: 'Date window', shape: 'rect', x: 314, y: 231, w: 40, h: 30, frame: 'panel', types: PANEL_TYPES, default: 'Date (native token)', options: 'Text / gauge / icon / image — bevelled panel adapts', fallback: 'Native date token', empty: 'Hidden via SET-A1-DATE', tap: 'Calendar' },
+        { id: 'SLOT-A1-3', label: 'Unread chip', shape: 'rect', x: 318, y: 288, w: 48, h: 19, frame: 'panel', types: ['SHORT_TEXT', 'MONOCHROMATIC_IMAGE', 'SMALL_IMAGE'], default: 'Unread notifications (v1-legal)', options: 'Short-text / icon providers', fallback: 'Icon only', empty: 'Chip hidden', tap: 'Notification stream' },
       ],
       settings: VAKT_SETTINGS('A1'),
       feasibility: VAKT_FEAS(),
@@ -209,21 +224,21 @@ export const category = {
         ...skeletonWork(),
         { t: 'label', text: 'VAKT', x: 140, y: 120, size: 16, weight: 700, color: 'ink' },
         { t: 'label', text: 'GT', x: 140, y: 136, size: 9, weight: 700, color: 'accent' },
-        ...registerScale(260, 150, 58),
+        ...registerScale(260, 150, 58, 'SLOT-A2-1'),
         ...registerBattery(128, 230, 44),
-        ...registerSteps(210, 318, 64),
-        { t: 'arc', cx: 210, cy: 318, r: 71, w: 3.5, from: -150, to: 150, color: 'accent', data: 'steps', track: 'muted', trackOpacity: 0.22, cap: 'round' },
-        ...dateWindow(336, 240),
-        { t: 'text', token: 'day3', x: 336, y: 268, size: 12, weight: 700, color: 'muted', font: F_DIG },
+        ...registerSteps(210, 318, 64, 'SLOT-A2-2'),
+        { t: 'arc', cx: 210, cy: 318, r: 71, w: 3.5, from: -150, to: 150, color: 'accent', data: 'steps', track: 'muted', trackOpacity: 0.22, cap: 'round', slot: 'SLOT-A2-2' },
+        ...dateWindow(336, 240, 'SLOT-A2-3'),
+        { t: 'text', token: 'day3', x: 336, y: 268, size: 12, weight: 700, color: 'muted', font: F_DIG, slot: 'SLOT-A2-3' },
         ...mainHands(),
       ],
       aodLayers: vaktAOD([
         { t: 'arc', r: 210, w: 3, from: -150, to: 150, color: 'muted', data: 'steps', cap: 'round' },
       ]),
       complications: [
-        { id: 'SLOT-A2-1', label: 'Top register (0–250)', shape: 'circle', cx: 260, cy: 150, r: 58, types: ['RANGED_VALUE'], default: 'Empty — seconds sub-hand', options: 'HR (user-added), battery', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
-        { id: 'SLOT-A2-2', label: 'Hero counter override', shape: 'circle', cx: 210, cy: 318, r: 64, types: ['RANGED_VALUE'], default: 'Steps (native drawing)', options: 'Any ranged provider', fallback: 'Native step progress', empty: 'Native step progress', tap: 'Fitness app' },
-        { id: 'SLOT-A2-3', label: 'Date window', shape: 'rect', x: 316, y: 225, w: 40, h: 30, types: ['SHORT_TEXT'], default: 'Date', options: 'Day+date, next event', fallback: 'Native tokens', empty: 'Hidden', tap: 'Calendar' },
+        { id: 'SLOT-A2-1', label: 'Top register', shape: 'circle', cx: 260, cy: 150, r: 58, frame: 'plate', types: CIRC_TYPES, default: 'Empty — seconds sub-hand', options: 'Any Wear OS type — rendered inside the register frame', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
+        { id: 'SLOT-A2-2', label: 'Hero counter', shape: 'circle', cx: 210, cy: 318, r: 64, frame: 'plate', types: CIRC_TYPES, default: 'Steps (native drawing)', options: 'Any Wear OS type — hero register frame + external arc', fallback: 'Native step progress', empty: 'Native step progress', tap: 'Fitness app' },
+        { id: 'SLOT-A2-3', label: 'Date window', shape: 'rect', x: 316, y: 225, w: 40, h: 30, frame: 'panel', types: PANEL_TYPES, default: 'Date', options: 'Text / gauge / icon / image', fallback: 'Native tokens', empty: 'Hidden', tap: 'Calendar' },
       ],
       settings: VAKT_SETTINGS('A2'),
       feasibility: VAKT_FEAS(),
@@ -261,19 +276,19 @@ export const category = {
         { t: 'screw', cx: 112, cy: 300, r: 5, a: -30 },
         { t: 'label', text: 'VAKT', x: 142, y: 120, size: 15, weight: 700, color: 'ink' },
         { t: 'label', text: 'MERIDIAN', x: 142, y: 136, size: 8.5, weight: 600, color: 'accent' },
-        ...registerScale(258, 150, 56),
+        ...registerScale(258, 150, 56, 'SLOT-A3-1'),
         ...registerBattery(130, 232, 44),
         ...registerSteps(204, 320, 50),
-        ...dateWindow(334, 238),
-        { t: 'label', text: 'NEXT', x: 334, y: 266, size: 8, weight: 700, color: 'accent' },
-        { t: 'text', token: 'event', x: 334, y: 282, size: 14, weight: 600, color: 'ink', font: F_DIG },
+        ...dateWindow(334, 238, 'SLOT-A3-3'),
+        { t: 'label', text: 'NEXT', x: 334, y: 266, size: 8, weight: 700, color: 'accent', slot: 'SLOT-A3-2' },
+        { t: 'text', token: 'event', x: 334, y: 282, size: 14, weight: 600, color: 'ink', font: F_DIG, slot: 'SLOT-A3-2' },
         ...mainHands({ second: 'accent' }),
       ],
       aodLayers: vaktAOD(),
       complications: [
-        { id: 'SLOT-A3-1', label: 'Top register (0–250)', shape: 'circle', cx: 258, cy: 150, r: 56, types: ['RANGED_VALUE'], default: 'Empty — seconds sub-hand', options: 'HR (user-added), steps, battery', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
-        { id: 'SLOT-A3-2', label: 'Event line', shape: 'rect', x: 300, y: 258, w: 70, h: 32, types: ['SHORT_TEXT'], default: 'Next event (v1-legal)', options: 'World clock, alarm', fallback: 'Line shows —', empty: 'Line hidden', tap: 'Agenda' },
-        { id: 'SLOT-A3-3', label: 'Date window', shape: 'rect', x: 314, y: 223, w: 40, h: 30, types: ['SHORT_TEXT'], default: 'Date', options: 'Day+date', fallback: 'Native tokens', empty: 'Hidden', tap: 'Calendar' },
+        { id: 'SLOT-A3-1', label: 'Top register', shape: 'circle', cx: 258, cy: 150, r: 56, frame: 'plate', types: CIRC_TYPES, default: 'Empty — seconds sub-hand', options: 'Any Wear OS type — rendered inside the register frame', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
+        { id: 'SLOT-A3-2', label: 'Event line', shape: 'rect', x: 300, y: 258, w: 70, h: 32, frame: 'open', types: OPEN_TYPES, default: 'Next event (v1-legal)', options: 'Text / icon providers, laid out on the open dial', fallback: 'Line shows —', empty: 'Line hidden', tap: 'Agenda' },
+        { id: 'SLOT-A3-3', label: 'Date window', shape: 'rect', x: 314, y: 223, w: 40, h: 30, frame: 'panel', types: PANEL_TYPES, default: 'Date', options: 'Text / gauge / icon / image', fallback: 'Native tokens', empty: 'Hidden', tap: 'Calendar' },
       ],
       settings: VAKT_SETTINGS('A3'),
       feasibility: [
@@ -314,17 +329,17 @@ export const category = {
         { t: 'screw', cx: 100, cy: 225, r: 5.5, a: 45 },
         { t: 'label', text: 'VAKT', x: 136, y: 152, size: 16, weight: 700, color: 'ink' },
         { t: 'label', text: 'TITANIUM', x: 136, y: 168, size: 8.5, weight: 600, color: 'muted' },
-        ...registerScale(254, 148, 62),
-        ...registerSteps(192, 318, 58),
-        ...dateWindow(338, 254),
-        { t: 'text', token: 'day3', x: 338, y: 282, size: 12, weight: 700, color: 'muted', font: F_DIG },
+        ...registerScale(254, 148, 62, 'SLOT-A4-1'),
+        ...registerSteps(192, 318, 58, 'SLOT-A4-2'),
+        ...dateWindow(338, 254, 'SLOT-A4-3'),
+        { t: 'text', token: 'day3', x: 338, y: 282, size: 12, weight: 700, color: 'muted', font: F_DIG, slot: 'SLOT-A4-3' },
         ...mainHands(),
       ],
       aodLayers: vaktAOD(),
       complications: [
-        { id: 'SLOT-A4-1', label: 'Top register (0–250)', shape: 'circle', cx: 254, cy: 148, r: 62, types: ['RANGED_VALUE'], default: 'Empty — seconds sub-hand', options: 'HR (user-added), steps, battery', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
-        { id: 'SLOT-A4-2', label: 'Steps register', shape: 'circle', cx: 192, cy: 318, r: 58, types: ['RANGED_VALUE'], default: 'Steps (native)', options: 'Any ranged provider', fallback: 'Native step progress', empty: 'Native step progress', tap: 'Fitness app' },
-        { id: 'SLOT-A4-3', label: 'Date window', shape: 'rect', x: 318, y: 239, w: 40, h: 30, types: ['SHORT_TEXT'], default: 'Day + date', options: 'Next event, world clock', fallback: 'Native date tokens', empty: 'Hidden', tap: 'Calendar' },
+        { id: 'SLOT-A4-1', label: 'Top register', shape: 'circle', cx: 254, cy: 148, r: 62, frame: 'plate', types: CIRC_TYPES, default: 'Empty — seconds sub-hand', options: 'Any Wear OS type — rendered inside the register frame', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
+        { id: 'SLOT-A4-2', label: 'Steps register', shape: 'circle', cx: 192, cy: 318, r: 58, frame: 'plate', types: CIRC_TYPES, default: 'Steps (native)', options: 'Any Wear OS type — rendered inside the register frame', fallback: 'Native step progress', empty: 'Native step progress', tap: 'Fitness app' },
+        { id: 'SLOT-A4-3', label: 'Date window', shape: 'rect', x: 318, y: 239, w: 40, h: 30, frame: 'panel', types: PANEL_TYPES, default: 'Day + date', options: 'Text / gauge / icon / image', fallback: 'Native date tokens', empty: 'Hidden', tap: 'Calendar' },
       ],
       settings: VAKT_SETTINGS('A4'),
       feasibility: VAKT_FEAS(),
@@ -361,14 +376,14 @@ export const category = {
         ...skeletonWork(),
         { t: 'label', text: 'VAKT', x: 138, y: 118, size: 16, weight: 700, color: 'ink' },
         { t: 'label', text: 'NIGHT WATCH', x: 138, y: 134, size: 8.5, weight: 700, color: 'lume' },
-        ...registerScale(256, 148, 56),
+        ...registerScale(256, 148, 56, 'SLOT-A5-1'),
         ...registerBattery(128, 234, 44),
         ...registerSteps(200, 324, 48),
-        { t: 'icon', name: 'sun', x: 312, y: 226, s: 8, color: 'muted' },
-        { t: 'text', token: 'sunrise', x: 348, y: 226, size: 13, weight: 700, color: 'ink', font: F_DIG },
-        { t: 'icon', name: 'moon', x: 312, y: 248, s: 8, color: 'lume', filled: true },
-        { t: 'text', token: 'sunset', x: 348, y: 248, size: 13, weight: 700, color: 'ink', font: F_DIG },
-        ...dateWindow(332, 284),
+        { t: 'icon', name: 'sun', x: 312, y: 226, s: 8, color: 'muted', slot: 'SLOT-A5-2' },
+        { t: 'text', token: 'sunrise', x: 348, y: 226, size: 13, weight: 700, color: 'ink', font: F_DIG, slot: 'SLOT-A5-2' },
+        { t: 'icon', name: 'moon', x: 312, y: 248, s: 8, color: 'lume', filled: true, slot: 'SLOT-A5-3' },
+        { t: 'text', token: 'sunset', x: 348, y: 248, size: 13, weight: 700, color: 'ink', font: F_DIG, slot: 'SLOT-A5-3' },
+        ...dateWindow(332, 284, 'SLOT-A5-4'),
         ...mainHands({ second: 'lume' }),
       ],
       aodLayers: [
@@ -380,10 +395,10 @@ export const category = {
         { t: 'text', token: 'mm', x: 225, y: 338, size: 40, weight: 600, color: 'muted', font: F_DIG },
       ],
       complications: [
-        { id: 'SLOT-A5-1', label: 'Top register (0–250)', shape: 'circle', cx: 256, cy: 148, r: 56, types: ['RANGED_VALUE'], default: 'Empty — seconds sub-hand', options: 'HR (user-added), battery', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
-        { id: 'SLOT-A5-2', label: 'Sunrise figure', shape: 'rect', x: 304, y: 214, w: 66, h: 22, types: ['SHORT_TEXT'], default: 'Sunrise (v1-legal)', options: 'World clock, alarm', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
-        { id: 'SLOT-A5-3', label: 'Sunset figure', shape: 'rect', x: 304, y: 236, w: 66, h: 22, types: ['SHORT_TEXT'], default: 'Sunset (v1-legal)', options: 'World clock, alarm', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
-        { id: 'SLOT-A5-4', label: 'Date window', shape: 'rect', x: 312, y: 269, w: 40, h: 30, types: ['SHORT_TEXT'], default: 'Day + date', options: 'Calendar', fallback: 'Native tokens', empty: 'Hidden', tap: 'Calendar' },
+        { id: 'SLOT-A5-1', label: 'Top register', shape: 'circle', cx: 256, cy: 148, r: 56, frame: 'plate', types: CIRC_TYPES, default: 'Empty — seconds sub-hand', options: 'Any Wear OS type — rendered inside the register frame', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
+        { id: 'SLOT-A5-2', label: 'Sunrise figure', shape: 'rect', x: 304, y: 214, w: 66, h: 22, frame: 'open', types: OPEN_TYPES, default: 'Sunrise (v1-legal)', options: 'Text / icon providers', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
+        { id: 'SLOT-A5-3', label: 'Sunset figure', shape: 'rect', x: 304, y: 236, w: 66, h: 22, frame: 'open', types: OPEN_TYPES, default: 'Sunset (v1-legal)', options: 'Text / icon providers', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
+        { id: 'SLOT-A5-4', label: 'Date window', shape: 'rect', x: 312, y: 269, w: 40, h: 30, frame: 'panel', types: PANEL_TYPES, default: 'Day + date', options: 'Text / gauge / icon / image', fallback: 'Native tokens', empty: 'Hidden', tap: 'Calendar' },
       ],
       settings: VAKT_SETTINGS('A5').map((s) => s.id.includes('SECONDS') ? Object.assign({}, s, { default: 'off' }) : s),
       feasibility: [
