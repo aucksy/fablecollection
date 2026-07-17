@@ -184,7 +184,7 @@ export const category = {
         { t: 'poly', points: '105,225 225,217 240,225 225,233', color: 'shade:bg:-0.18', opacity: 0.9 },
         { t: 'poly', points: '345,225 225,217 210,225 225,233', color: 'shade:bg:-0.3', opacity: 0.9 },
         { t: 'label', text: 'TERRA', x: 225, y: 148, size: 13, weight: 700, color: 'ink' },
-        { t: 'label', text: 'COMPASS · ROSE IS STATIC', x: 225, y: 163, size: 7.5, weight: 600, color: 'muted' },
+        { t: 'label', text: 'COMPASS', x: 225, y: 163, size: 8, weight: 600, color: 'muted' },
         { t: 'rect', x: 190, y: 280, w: 70, h: 26, rx: 3, color: 'shade:bg:-0.25', stroke: 'muted', sw: 1 },
         { t: 'text', token: 'day3', x: 210, y: 294, size: 13, weight: 600, color: 'muted' },
         { t: 'text', token: 'dnum', x: 244, y: 294, size: 15, weight: 700, color: 'ink' },
