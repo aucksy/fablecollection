@@ -135,7 +135,7 @@
 <ListOption id="t0">
 <Group x="0" y="0" width="116" height="116" name="sc_RANGED_VALUE_t0">
 <PartImage x="48" y="4" width="20" height="73" pivotX="0.5000" pivotY="0.7397" angle="30" name="ndl_RANGED_VALUE_t0">
-<Transform target="angle" value="30 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 250) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 250, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 300)" />
+<Transform target="angle" value="30 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 250) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 250, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 300)" />
 <Image resource="@drawable/subsec_0_t0" />
 </PartImage>
 <PartImage x="54" y="83" width="8" height="8" tintColor="#5e5d57" name="ic_RANGED_VALUE_t0">
@@ -146,7 +146,7 @@
 <ListOption id="t1">
 <Group x="0" y="0" width="116" height="116" name="sc_RANGED_VALUE_t1">
 <PartImage x="48" y="4" width="20" height="73" pivotX="0.5000" pivotY="0.7397" angle="30" name="ndl_RANGED_VALUE_t1">
-<Transform target="angle" value="30 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 250) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 250, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 300)" />
+<Transform target="angle" value="30 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 250) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 250, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 300)" />
 <Image resource="@drawable/subsec_0_t1" />
 </PartImage>
 <PartImage x="54" y="83" width="8" height="8" tintColor="#8e8d85" name="ic_RANGED_VALUE_t1">
@@ -157,7 +157,7 @@
 <ListOption id="t2">
 <Group x="0" y="0" width="116" height="116" name="sc_RANGED_VALUE_t2">
 <PartImage x="48" y="4" width="20" height="73" pivotX="0.5000" pivotY="0.7397" angle="30" name="ndl_RANGED_VALUE_t2">
-<Transform target="angle" value="30 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 250) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 250, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 300)" />
+<Transform target="angle" value="30 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 250) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 250, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 300)" />
 <Image resource="@drawable/subsec_0_t2" />
 </PartImage>
 <PartImage x="54" y="83" width="8" height="8" tintColor="#566068" name="ic_RANGED_VALUE_t2">
@@ -168,7 +168,7 @@
 <ListOption id="t3">
 <Group x="0" y="0" width="116" height="116" name="sc_RANGED_VALUE_t3">
 <PartImage x="48" y="4" width="20" height="73" pivotX="0.5000" pivotY="0.7397" angle="30" name="ndl_RANGED_VALUE_t3">
-<Transform target="angle" value="30 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 250) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 250, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 300)" />
+<Transform target="angle" value="30 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 250) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 250, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 300)" />
 <Image resource="@drawable/subsec_0_t3" />
 </PartImage>
 <PartImage x="54" y="83" width="8" height="8" tintColor="#556056" name="ic_RANGED_VALUE_t3">
@@ -179,7 +179,7 @@
 <ListOption id="t4">
 <Group x="0" y="0" width="116" height="116" name="sc_RANGED_VALUE_t4">
 <PartImage x="48" y="4" width="20" height="73" pivotX="0.5000" pivotY="0.7397" angle="30" name="ndl_RANGED_VALUE_t4">
-<Transform target="angle" value="30 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 250) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 250, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 300)" />
+<Transform target="angle" value="30 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 250) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 250, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 300)" />
 <Image resource="@drawable/subsec_0_t4" />
 </PartImage>
 <PartImage x="54" y="83" width="8" height="8" tintColor="#585850" name="ic_RANGED_VALUE_t4">
@@ -193,7 +193,7 @@
 <Transform target="alpha" value="[CONFIGURATION.dark] ? 255 : 0" />
 <Group x="0" y="0" width="116" height="116" name="sc_RANGED_VALUE_dark">
 <PartImage x="48" y="4" width="20" height="73" pivotX="0.5000" pivotY="0.7397" angle="30" name="ndl_RANGED_VALUE_dark">
-<Transform target="angle" value="30 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 250) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 250, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 300)" />
+<Transform target="angle" value="30 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 250) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 250, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 300)" />
 <Image resource="@drawable/subsec_0_dark" />
 </PartImage>
 <PartImage x="54" y="83" width="8" height="8" tintColor="#8f8877" name="ic_RANGED_VALUE_dark">
@@ -368,12 +368,12 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="148" height="148" name="fill_RANGED_VALUE_t0">
 <Arc centerX="74" centerY="74" width="142" height="142" startAngle="-150" endAngle="-150" direction="CLOCKWISE">
-<Transform target="endAngle" value="-150 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 300)" />
+<Transform target="endAngle" value="-150 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 300)" />
 <Stroke color="#cf3e32" thickness="3.5" cap="ROUND" />
 </Arc>
 </PartDraw>
 <PartImage x="65" y="13" width="19" height="78" pivotX="0.4947" pivotY="0.7821" angle="0" name="ndl_RANGED_VALUE_t0">
-<Transform target="angle" value="0 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 360)" />
+<Transform target="angle" value="0 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 360)" />
 <Image resource="@drawable/needle_1_t0" />
 </PartImage>
 <PartImage x="71" y="42" width="7" height="7" tintColor="#5e5d57" name="ic_RANGED_VALUE_t0">
@@ -390,12 +390,12 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="148" height="148" name="fill_RANGED_VALUE_t1">
 <Arc centerX="74" centerY="74" width="142" height="142" startAngle="-150" endAngle="-150" direction="CLOCKWISE">
-<Transform target="endAngle" value="-150 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 300)" />
+<Transform target="endAngle" value="-150 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 300)" />
 <Stroke color="#bd3a2c" thickness="3.5" cap="ROUND" />
 </Arc>
 </PartDraw>
 <PartImage x="65" y="13" width="19" height="78" pivotX="0.4947" pivotY="0.7821" angle="0" name="ndl_RANGED_VALUE_t1">
-<Transform target="angle" value="0 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 360)" />
+<Transform target="angle" value="0 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 360)" />
 <Image resource="@drawable/needle_1_t1" />
 </PartImage>
 <PartImage x="71" y="42" width="7" height="7" tintColor="#8e8d85" name="ic_RANGED_VALUE_t1">
@@ -412,12 +412,12 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="148" height="148" name="fill_RANGED_VALUE_t2">
 <Arc centerX="74" centerY="74" width="142" height="142" startAngle="-150" endAngle="-150" direction="CLOCKWISE">
-<Transform target="endAngle" value="-150 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 300)" />
+<Transform target="endAngle" value="-150 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 300)" />
 <Stroke color="#d97b2e" thickness="3.5" cap="ROUND" />
 </Arc>
 </PartDraw>
 <PartImage x="65" y="13" width="19" height="78" pivotX="0.4947" pivotY="0.7821" angle="0" name="ndl_RANGED_VALUE_t2">
-<Transform target="angle" value="0 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 360)" />
+<Transform target="angle" value="0 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 360)" />
 <Image resource="@drawable/needle_1_t2" />
 </PartImage>
 <PartImage x="71" y="42" width="7" height="7" tintColor="#566068" name="ic_RANGED_VALUE_t2">
@@ -434,12 +434,12 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="148" height="148" name="fill_RANGED_VALUE_t3">
 <Arc centerX="74" centerY="74" width="142" height="142" startAngle="-150" endAngle="-150" direction="CLOCKWISE">
-<Transform target="endAngle" value="-150 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 300)" />
+<Transform target="endAngle" value="-150 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 300)" />
 <Stroke color="#c8a44e" thickness="3.5" cap="ROUND" />
 </Arc>
 </PartDraw>
 <PartImage x="65" y="13" width="19" height="78" pivotX="0.4947" pivotY="0.7821" angle="0" name="ndl_RANGED_VALUE_t3">
-<Transform target="angle" value="0 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 360)" />
+<Transform target="angle" value="0 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 360)" />
 <Image resource="@drawable/needle_1_t3" />
 </PartImage>
 <PartImage x="71" y="42" width="7" height="7" tintColor="#556056" name="ic_RANGED_VALUE_t3">
@@ -456,12 +456,12 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="148" height="148" name="fill_RANGED_VALUE_t4">
 <Arc centerX="74" centerY="74" width="142" height="142" startAngle="-150" endAngle="-150" direction="CLOCKWISE">
-<Transform target="endAngle" value="-150 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 300)" />
+<Transform target="endAngle" value="-150 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 300)" />
 <Stroke color="#cfd23c" thickness="3.5" cap="ROUND" />
 </Arc>
 </PartDraw>
 <PartImage x="65" y="13" width="19" height="78" pivotX="0.4947" pivotY="0.7821" angle="0" name="ndl_RANGED_VALUE_t4">
-<Transform target="angle" value="0 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 360)" />
+<Transform target="angle" value="0 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 360)" />
 <Image resource="@drawable/needle_1_t4" />
 </PartImage>
 <PartImage x="71" y="42" width="7" height="7" tintColor="#585850" name="ic_RANGED_VALUE_t4">
@@ -481,12 +481,12 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="148" height="148" name="fill_RANGED_VALUE_dark">
 <Arc centerX="74" centerY="74" width="142" height="142" startAngle="-150" endAngle="-150" direction="CLOCKWISE">
-<Transform target="endAngle" value="-150 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 300)" />
+<Transform target="endAngle" value="-150 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 300)" />
 <Stroke color="#d8d4cc" thickness="3.5" cap="ROUND" />
 </Arc>
 </PartDraw>
 <PartImage x="65" y="13" width="19" height="78" pivotX="0.4947" pivotY="0.7821" angle="0" name="ndl_RANGED_VALUE_dark">
-<Transform target="angle" value="0 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 360)" />
+<Transform target="angle" value="0 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 8) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 8, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 360)" />
 <Image resource="@drawable/needle_1_dark" />
 </PartImage>
 <PartImage x="71" y="42" width="7" height="7" tintColor="#8f8877" name="ic_RANGED_VALUE_dark">
@@ -930,7 +930,7 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="42" height="56" name="fill_RANGED_VALUE_t0">
 <Rectangle x="4" y="26" width="34" height="3">
-<Transform target="width" value="clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1) * 34" />
+<Transform target="width" value="clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1) * 34" />
 <Fill color="#cf3e32" />
 </Rectangle>
 </PartDraw>
@@ -950,7 +950,7 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="42" height="56" name="fill_RANGED_VALUE_t1">
 <Rectangle x="4" y="26" width="34" height="3">
-<Transform target="width" value="clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1) * 34" />
+<Transform target="width" value="clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1) * 34" />
 <Fill color="#bd3a2c" />
 </Rectangle>
 </PartDraw>
@@ -970,7 +970,7 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="42" height="56" name="fill_RANGED_VALUE_t2">
 <Rectangle x="4" y="26" width="34" height="3">
-<Transform target="width" value="clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1) * 34" />
+<Transform target="width" value="clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1) * 34" />
 <Fill color="#d97b2e" />
 </Rectangle>
 </PartDraw>
@@ -990,7 +990,7 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="42" height="56" name="fill_RANGED_VALUE_t3">
 <Rectangle x="4" y="26" width="34" height="3">
-<Transform target="width" value="clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1) * 34" />
+<Transform target="width" value="clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1) * 34" />
 <Fill color="#c8a44e" />
 </Rectangle>
 </PartDraw>
@@ -1010,7 +1010,7 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="42" height="56" name="fill_RANGED_VALUE_t4">
 <Rectangle x="4" y="26" width="34" height="3">
-<Transform target="width" value="clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1) * 34" />
+<Transform target="width" value="clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1) * 34" />
 <Fill color="#cfd23c" />
 </Rectangle>
 </PartDraw>
@@ -1033,7 +1033,7 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="42" height="56" name="fill_RANGED_VALUE_dark">
 <Rectangle x="4" y="26" width="34" height="3">
-<Transform target="width" value="clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1) * 34" />
+<Transform target="width" value="clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1) * 34" />
 <Fill color="#d8d4cc" />
 </Rectangle>
 </PartDraw>
@@ -1260,12 +1260,12 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="88" height="88" name="fill_RANGED_VALUE_t0">
 <Arc centerX="44" centerY="44" width="78" height="78" startAngle="40" endAngle="40" direction="CLOCKWISE">
-<Transform target="endAngle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 280)" />
+<Transform target="endAngle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 280)" />
 <Stroke color="#d8d6c8" thickness="2.5" cap="BUTT" />
 </Arc>
 </PartDraw>
 <PartImage x="35" y="4" width="19" height="56" pivotX="0.4947" pivotY="0.7143" angle="40" name="ndl_RANGED_VALUE_t0">
-<Transform target="angle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 280)" />
+<Transform target="angle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 280)" />
 <Image resource="@drawable/needle_0_t0" />
 </PartImage>
 <PartImage x="40" y="59" width="9" height="9" tintColor="#5e5d57" name="ic_RANGED_VALUE_t0">
@@ -1282,12 +1282,12 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="88" height="88" name="fill_RANGED_VALUE_t1">
 <Arc centerX="44" centerY="44" width="78" height="78" startAngle="40" endAngle="40" direction="CLOCKWISE">
-<Transform target="endAngle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 280)" />
+<Transform target="endAngle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 280)" />
 <Stroke color="#c8c8ba" thickness="2.5" cap="BUTT" />
 </Arc>
 </PartDraw>
 <PartImage x="35" y="4" width="19" height="56" pivotX="0.4947" pivotY="0.7143" angle="40" name="ndl_RANGED_VALUE_t1">
-<Transform target="angle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 280)" />
+<Transform target="angle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 280)" />
 <Image resource="@drawable/needle_0_t1" />
 </PartImage>
 <PartImage x="40" y="59" width="9" height="9" tintColor="#8e8d85" name="ic_RANGED_VALUE_t1">
@@ -1304,12 +1304,12 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="88" height="88" name="fill_RANGED_VALUE_t2">
 <Arc centerX="44" centerY="44" width="78" height="78" startAngle="40" endAngle="40" direction="CLOCKWISE">
-<Transform target="endAngle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 280)" />
+<Transform target="endAngle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 280)" />
 <Stroke color="#a9cbe0" thickness="2.5" cap="BUTT" />
 </Arc>
 </PartDraw>
 <PartImage x="35" y="4" width="19" height="56" pivotX="0.4947" pivotY="0.7143" angle="40" name="ndl_RANGED_VALUE_t2">
-<Transform target="angle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 280)" />
+<Transform target="angle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 280)" />
 <Image resource="@drawable/needle_0_t2" />
 </PartImage>
 <PartImage x="40" y="59" width="9" height="9" tintColor="#566068" name="ic_RANGED_VALUE_t2">
@@ -1326,12 +1326,12 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="88" height="88" name="fill_RANGED_VALUE_t3">
 <Arc centerX="44" centerY="44" width="78" height="78" startAngle="40" endAngle="40" direction="CLOCKWISE">
-<Transform target="endAngle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 280)" />
+<Transform target="endAngle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 280)" />
 <Stroke color="#d4c896" thickness="2.5" cap="BUTT" />
 </Arc>
 </PartDraw>
 <PartImage x="35" y="4" width="19" height="56" pivotX="0.4947" pivotY="0.7143" angle="40" name="ndl_RANGED_VALUE_t3">
-<Transform target="angle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 280)" />
+<Transform target="angle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 280)" />
 <Image resource="@drawable/needle_0_t3" />
 </PartImage>
 <PartImage x="40" y="59" width="9" height="9" tintColor="#556056" name="ic_RANGED_VALUE_t3">
@@ -1348,12 +1348,12 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="88" height="88" name="fill_RANGED_VALUE_t4">
 <Arc centerX="44" centerY="44" width="78" height="78" startAngle="40" endAngle="40" direction="CLOCKWISE">
-<Transform target="endAngle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 280)" />
+<Transform target="endAngle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 280)" />
 <Stroke color="#e0e388" thickness="2.5" cap="BUTT" />
 </Arc>
 </PartDraw>
 <PartImage x="35" y="4" width="19" height="56" pivotX="0.4947" pivotY="0.7143" angle="40" name="ndl_RANGED_VALUE_t4">
-<Transform target="angle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 280)" />
+<Transform target="angle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 280)" />
 <Image resource="@drawable/needle_0_t4" />
 </PartImage>
 <PartImage x="40" y="59" width="9" height="9" tintColor="#585850" name="ic_RANGED_VALUE_t4">
@@ -1373,12 +1373,12 @@
 </PartDraw>
 <PartDraw x="0" y="0" width="88" height="88" name="fill_RANGED_VALUE_dark">
 <Arc centerX="44" centerY="44" width="78" height="78" startAngle="40" endAngle="40" direction="CLOCKWISE">
-<Transform target="endAngle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 280)" />
+<Transform target="endAngle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 280)" />
 <Stroke color="#d8d4cc" thickness="2.5" cap="BUTT" />
 </Arc>
 </PartDraw>
 <PartImage x="35" y="4" width="19" height="56" pivotX="0.4947" pivotY="0.7143" angle="40" name="ndl_RANGED_VALUE_dark">
-<Transform target="angle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)) * 280)" />
+<Transform target="angle" value="40 + ((([COMPLICATION.RANGED_VALUE_MIN] >= 0 &amp;&amp; [COMPLICATION.RANGED_VALUE_MAX] &lt;= 100) ? clamp(([COMPLICATION.RANGED_VALUE_VALUE] - 0) / 100, 0, 1) : clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1)) * 280)" />
 <Image resource="@drawable/needle_0_dark" />
 </PartImage>
 <PartImage x="40" y="59" width="9" height="9" tintColor="#8f8877" name="ic_RANGED_VALUE_dark">

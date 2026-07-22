@@ -103,7 +103,9 @@ export const category = {
       ],
       aodLayers: aurumAOD(),
       complications: [
-        { id: 'SLOT-E1-1', label: 'Whisper date', shape: 'rect', x: 200, y: 284, w: 50, h: 24, types: ['SHORT_TEXT'], default: 'Date (native token)', options: 'Day+date, next event', fallback: 'Native token', empty: 'Hidden via SET-E1-DATE', tap: 'Calendar' },
+        // W1.1 default fix (audit F2): the prose 'native token' used to map this slot to
+        // EMPTY/EMPTY — nothing at all out of the box. DATE is a safe first-install source.
+        { id: 'SLOT-E1-1', label: 'Whisper date', shape: 'rect', x: 200, y: 284, w: 50, h: 24, types: ['SHORT_TEXT'], defaultProvider: 'DATE', default: 'Date (native token)', options: 'Day+date, next event', fallback: 'Native token', empty: 'Hidden via SET-E1-DATE', tap: 'Calendar' },
       ],
       settings: AURUM_SETTINGS('E1'),
       feasibility: AURUM_FEAS(),

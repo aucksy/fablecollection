@@ -95,7 +95,7 @@ export const category = {
       complications: [
         { id: 'SLOT-C1-1', label: 'Date window', shape: 'rect', x: 205, y: 268, w: 40, h: 26, types: ['SHORT_TEXT'], default: 'Date', options: 'Day+date', fallback: 'Native token', empty: 'Native token', tap: 'Calendar' },
         { id: 'SLOT-C1-2', label: 'Sunrise cell', shape: 'rect', x: 164, y: 304, w: 60, h: 24, types: ['SHORT_TEXT'], default: 'Sunrise (v1-legal)', options: 'World clock, alarm', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
-        { id: 'SLOT-C1-3', label: 'Sunset cell', shape: 'rect', x: 230, y: 304, w: 60, h: 24, types: ['SHORT_TEXT'], default: 'Sunset (v1-legal)', options: 'World clock, alarm', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
+        { id: 'SLOT-C1-3', label: 'Sunset cell', shape: 'rect', x: 230, y: 304, w: 60, h: 24, types: ['SHORT_TEXT'], defaultProvider: 'WORLD_CLOCK', default: 'Sunset (v1-legal)', options: 'World clock, alarm', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
       ],
       settings: TERRA_SETTINGS('C1'),
       feasibility: TERRA_FEAS(),
@@ -144,7 +144,7 @@ export const category = {
       ]),
       complications: [
         { id: 'SLOT-C2-1', label: 'Sunrise anchor', shape: 'rect', x: 90, y: 142, w: 64, h: 26, types: ['SHORT_TEXT'], default: 'Sunrise (v1-legal)', options: 'World clock', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
-        { id: 'SLOT-C2-2', label: 'Sunset anchor', shape: 'rect', x: 296, y: 142, w: 64, h: 26, types: ['SHORT_TEXT'], default: 'Sunset (v1-legal)', options: 'World clock', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
+        { id: 'SLOT-C2-2', label: 'Sunset anchor', shape: 'rect', x: 296, y: 142, w: 64, h: 26, types: ['SHORT_TEXT'], defaultProvider: 'WORLD_CLOCK', default: 'Sunset (v1-legal)', options: 'World clock', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
         { id: 'SLOT-C2-3', label: 'Date pair at 6', shape: 'rect', x: 168, y: 286, w: 114, h: 28, types: ['SHORT_TEXT'], default: 'Day + date', options: 'Next event', fallback: 'Native tokens', empty: 'Native tokens', tap: 'Calendar' },
       ],
       settings: TERRA_SETTINGS('C2'),
@@ -199,7 +199,6 @@ export const category = {
       aodLayers: terraAOD(),
       complications: [
         { id: 'SLOT-C3-1', label: 'Date plaque', shape: 'rect', x: 190, y: 280, w: 70, h: 26, types: ['SHORT_TEXT'], default: 'Day + date', options: 'Next event, alarm', fallback: 'Native tokens', empty: 'Native tokens', tap: 'Calendar' },
-        { id: 'SLOT-C3-2', label: 'North gauge (steps)', shape: 'rect', x: 175, y: 78, w: 100, h: 30, types: ['RANGED_VALUE'], default: 'Steps (native)', options: 'Battery, any ranged', fallback: 'Native steps', empty: 'Native steps', tap: 'Fitness app' },
       ],
       settings: TERRA_SETTINGS('C3'),
       feasibility: [
@@ -254,8 +253,6 @@ export const category = {
       ],
       aodLayers: terraAOD(),
       complications: [
-        { id: 'SLOT-C4-1', label: 'Altimeter register', shape: 'circle', cx: 160, cy: 258, r: 62, types: ['RANGED_VALUE'], default: 'Steps (native drawing)', options: 'Any ranged provider', fallback: 'Native steps', empty: 'Native steps', tap: 'Fitness app' },
-        { id: 'SLOT-C4-2', label: 'Fuel gauge', shape: 'circle', cx: 300, cy: 272, r: 44, types: ['RANGED_VALUE'], default: 'Watch battery (native)', options: 'Phone battery provider', fallback: 'Watch battery', empty: 'Watch battery', tap: 'Battery panel' },
         { id: 'SLOT-C4-3', label: 'Placard (date)', shape: 'rect', x: 196, y: 148, w: 58, h: 24, types: ['SHORT_TEXT'], default: 'Day + date', options: 'Next event', fallback: 'Native tokens', empty: 'Native tokens', tap: 'Calendar' },
       ],
       settings: TERRA_SETTINGS('C4'),
@@ -306,7 +303,7 @@ export const category = {
       ]),
       complications: [
         { id: 'SLOT-C5-1', label: 'Sunrise (horizon left)', shape: 'rect', x: 62, y: 234, w: 60, h: 24, types: ['SHORT_TEXT'], default: 'Sunrise (v1-legal)', options: 'World clock', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
-        { id: 'SLOT-C5-2', label: 'Sunset (horizon right)', shape: 'rect', x: 328, y: 234, w: 60, h: 24, types: ['SHORT_TEXT'], default: 'Sunset (v1-legal)', options: 'World clock', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
+        { id: 'SLOT-C5-2', label: 'Sunset (horizon right)', shape: 'rect', x: 328, y: 234, w: 60, h: 24, types: ['SHORT_TEXT'], defaultProvider: 'WORLD_CLOCK', default: 'Sunset (v1-legal)', options: 'World clock', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
         { id: 'SLOT-C5-3', label: 'Ground event line', shape: 'rect', x: 145, y: 318, w: 160, h: 24, types: ['SHORT_TEXT'], default: 'Next event (v1-legal)', options: 'Alarm, world clock', fallback: '—', empty: 'Hidden', tap: 'Agenda' },
       ],
       settings: TERRA_SETTINGS('C5'),

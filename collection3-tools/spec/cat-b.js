@@ -95,7 +95,7 @@ export const category = {
       ],
       aodLayers: merAOD(false),
       complications: [
-        { id: 'SLOT-B1-1', label: 'Date window', shape: 'rect', x: 313, y: 212, w: 34, h: 26, types: ['SHORT_TEXT'], default: 'Date (native token fallback)', options: 'Day+date', fallback: 'Native date token', empty: 'Native date token', tap: 'Calendar' },
+        { id: 'SLOT-B1-1', label: 'Date window', shape: 'rect', x: 313, y: 212, w: 34, h: 26, types: ['SHORT_TEXT'], defaultProvider: 'DATE', default: 'Date (native token fallback)', options: 'Day+date', fallback: 'Native date token', empty: 'Native date token', tap: 'Calendar' },
         { id: 'SLOT-B1-2', label: 'Line at 6 (hidden by default)', shape: 'rect', x: 165, y: 330, w: 120, h: 22, types: ['SHORT_TEXT'], default: 'Empty', options: 'Next event, world clock, alarm', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
       ],
       settings: MER_SETTINGS('B1'),
@@ -188,7 +188,6 @@ export const category = {
       ],
       aodLayers: merAOD(true),
       complications: [
-        { id: 'SLOT-B3-1', label: 'Seconds register (swappable)', shape: 'circle', cx: 225, cy: 312, r: 52, types: ['RANGED_VALUE'], default: 'Native running seconds', options: 'Battery, steps (needle remaps to ranged value)', fallback: 'Running seconds', empty: 'Running seconds', tap: 'Provider chooser' },
         { id: 'SLOT-B3-2', label: 'Date window', shape: 'rect', x: 313, y: 212, w: 34, h: 26, types: ['SHORT_TEXT'], default: 'Date', options: 'Day+date', fallback: 'Native token', empty: 'Native token', tap: 'Calendar' },
       ],
       settings: MER_SETTINGS('B3').filter((s) => !s.id.includes('SECONDS')),
@@ -236,6 +235,9 @@ export const category = {
         { t: 'text', token: 'dnum', x: 225, y: 330, size: 24, weight: 300, color: 'muted', font: F_B },
       ],
       complications: [
+        // JUDGED (2026-07-22): keep NEXT_EVENT — the engraved 'NEXT' label above this line is
+        // baked dial art, so a day+date default would read 'NEXT: Sun 19'; the calendar row
+        // above is native tokens, so the face is never dataless. Event fills after permission.
         { id: 'SLOT-B4-1', label: 'Event line at 6', shape: 'rect', x: 155, y: 282, w: 140, h: 36, types: ['SHORT_TEXT'], default: 'Next event (v1-legal)', options: 'World clock, alarm, any short-text', fallback: '—', empty: 'Label hidden', tap: 'Agenda' },
       ],
       settings: MER_SETTINGS('B4'),

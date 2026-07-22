@@ -96,7 +96,7 @@ android {
         android:icon="@drawable/ic_launcher"
         android:hasCode="false">
 
-        <!-- Watch Face Format version ${wffVer} (Wear OS ${wffVer >= 2 ? '5+' : '4+'}). -->
+        <!-- Watch Face Format version ${wffVer} (Wear OS ${wffVer >= 2 ? '5+).' : '4+) — widest device coverage.'} -->
         <property
             android:name="com.google.wear.watchface.format.version"
             android:value="${wffVer}" />

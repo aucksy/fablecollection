@@ -456,7 +456,10 @@ export function analyzeFace(face) {
     // One patch box per native token, each with its own underlying colour, clamped to the
     // slot and shrunk away from baked decorations.
     s.patchBoxes = s.textLayers.map(L => {
-      const size = Math.max(MIN_SLOT_TEXT, L.size || 16);
+      // Mirror slotContent's W2.6 floor: where the slot is tall enough for an 18-unit row,
+      // the patch box must be sized for the 18 the text will actually render at.
+      const floor18 = s.bounds.h >= 25 ? 18 : MIN_SLOT_TEXT;
+      const size = Math.max(floor18, L.size || 16);
       const w = tokenWidth(L.token || 'dnum', size, '');
       const anchor = L.anchor || 'middle';
       const bx = anchor === 'start' ? L.x : anchor === 'end' ? L.x - w : L.x - w / 2;
@@ -678,7 +681,10 @@ function emitLiveLayer(item, face, roles, tag, toggles) {
       return null;
     }
     case 'dateLockText':
-      return partTextFor(L, face, roles, { name: nm('dt'), minSize: MIN_LIVE_TEXT, gate: '[CONFIGURATION.date] ? 255 : 0' });
+      // A locked-native token is dial furniture, not complication content: it renders at the
+      // design's OWN size, with no legibility floor. The floor made the live "SUN" bigger than
+      // the designed one — the same class of defect the adaptive-scale size fix removed.
+      return partTextFor(L, face, roles, { name: nm('dt'), gate: '[CONFIGURATION.date] ? 255 : 0' });
     case 'dateLockStatic': {
       const inner = L.t === 'rect' ? drawRect(L, roles, { name: nm('dlf') })
         : L.t === 'circle' ? drawCircle(L, roles, { name: nm('dlc') }) : null;
@@ -827,7 +833,7 @@ function slotContent(face, s, roles, tag, type, sprites) {
     }
     kids.push(el('PartDraw', { x: 0, y: 0, width: cw, height: ch, name: `rv_${tag}` }, [
       el('Arc', { centerX: cw / 2, centerY: ch / 2, width: s.r * 2, height: s.r * 2, startAngle: 0, endAngle: 0, direction: 'CLOCKWISE' }, [
-        el('Transform', { target: 'endAngle', value: '(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN])) * 360' }),
+        el('Transform', { target: 'endAngle', value: 'clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1) * 360' }),
         `<Stroke color="${roles.accent}" thickness="${s.ringW || 4}" cap="ROUND" />`,
       ]),
     ]));
@@ -835,6 +841,34 @@ function slotContent(face, s, roles, tag, type, sprites) {
   }
 
   const isCircle = s.shape === 'circle';
+  /* ⭐ AURUM integrated window (audit F2, plan W1.2). The generic patch is a flat rectangle
+     that tries to disappear into the dial colour — on Aurum's textured grounds (guilloché
+     lattice, sunray) a flat colour over texture reads as a sticker (the owner's photo #1).
+     Aurum slots instead draw a DELIBERATE recessed window: per-theme fill + keyline from
+     that theme's own palette (the VAKT date-window recipe), value-only row at ≥18.
+     Scoped to CAT-E only — the other 14 patch-using faces are W2.6's per-face judgement. */
+  const aurumWindow = /^WF-E/.test(face.id) && s.shape === 'rect';
+  if (aurumWindow) {
+    const kl = { x: 0, y: 0, w: s.design.w, h: s.design.h };
+    kids.push(el('PartDraw', { x: 0, y: 0, width: cw, height: ch, name: `patch_${tag}` }, [
+      el('RoundRectangle', { x: kl.x, y: kl.y, width: kl.w, height: kl.h, cornerRadiusX: 4, cornerRadiusY: 4 }, [
+        `<Fill color="${colFor(roles, 'shade:bg:-0.4')}" />`,
+        `<Stroke color="${colFor(roles, 'shade:bg:0.22')}" thickness="1" />`,
+      ]),
+    ]));
+    // Value-only row (the windows are 24–26 tall — no room for a title row; fit is
+    // arithmetic: h = min(ch, 1.33*size) and y centres it inside the window).
+    const aSize = Math.max(18, s.prim ? s.prim.size : 18);
+    const af = wffFont(face.fontStack, s.prim || { size: aSize, weight: 500 }, roles,
+      s.prim ? colFor(roles, s.prim.color) : roles.ink, aSize);
+    const ah = Math.min(ch, Math.round(aSize * 1.33));
+    kids.push(el('PartText', { x: 2, y: Math.round((ch - ah) / 2), width: cw - 4, height: ah, name: `sttx_${tag}` }, [
+      el('Text', { align: 'CENTER', ellipsis: 'TRUE' }, [
+        `<Font family="${af.family}" size="${af.size}" color="${af.color}"><Template>%s<Parameter expression="[COMPLICATION.TEXT]" /></Template></Font>`,
+      ]),
+    ]));
+    return el('Group', { x: 0, y: 0, width: cw, height: ch, name: `sc_${tag}` }, kids);
+  }
   // ---------- patch ----------
   if (isCircle) {
     const patchColor = s.plateColor ? colFor(roles, s.plateColor) : roles.bg;
@@ -900,7 +934,7 @@ function slotContent(face, s, roles, tag, type, sprites) {
     if (isCircle) {
       kids.push(el('PartDraw', { x: 0, y: 0, width: cw, height: ch, name: `rvarc_${tag}` }, [
         el('Arc', { centerX: cw / 2, centerY: ch / 2, width: rr * 2, height: rr * 2, startAngle: 30, endAngle: 30, direction: 'CLOCKWISE' }, [
-          el('Transform', { target: 'endAngle', value: '30 + ((([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN])) * 300)' }),
+          el('Transform', { target: 'endAngle', value: '30 + (clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1), 0, 1) * 300)' }),
           `<Stroke color="${roles.accent}" thickness="3" cap="ROUND" />`,
         ]),
       ]));
@@ -920,7 +954,11 @@ function slotContent(face, s, roles, tag, type, sprites) {
     ]));
   } else {
     const prim = s.prim;
-    const pSize = Math.max(MIN_SLOT_TEXT, prim ? prim.size : 16);
+    let pSize = Math.max(MIN_SLOT_TEXT, prim ? prim.size : 16);
+    // W2.6 (audit F13): raise the value-text floor to 18 wherever the row can actually hold
+    // it — 18 x 1.24 line box needs >= 25 units of height. Tighter rows keep the 16 floor
+    // rather than clip their own glyphs (fit before flourish, polish skill §7).
+    if (Math.round(area.h) >= 25) pSize = Math.max(pSize, 18);
     const pf = wffFont(face.fontStack, prim || { size: pSize, weight: 600 }, roles,
       prim ? colFor(roles, prim.color) : roles.ink, pSize);
     const useMonoIcon = s.patchMode === 'full' && !s.decorations.some(d => d.t === 'icon') && /unread|notif|chip/i.test(s.label || '');
@@ -997,7 +1035,10 @@ function tArc(cx, cy, r, from, to, color, thick, name, endExpr, cap) {
 // — not clamped, not wrapped — so every gauge expression clamps its own fraction to 0..1.
 // clamp(v,min,max) is verified from the XSD function enum (v1+); note that min()/max() do
 // NOT exist in WFF, hence clamp() and ternaries throughout.
-const RV_FRAC = 'clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]), 0, 1)';
+// Denominator guarded like GP_DIV: a provider with MIN == MAX would make this 0/0 -> NaN,
+// and clamp(NaN) is NaN — a garbage angle (audit F10; WFF has no max(), hence the ternary).
+const RV_SPAN = '(([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) > 0 ? ([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) : 1)';
+const RV_FRAC = `clamp(([COMPLICATION.RANGED_VALUE_VALUE] - [COMPLICATION.RANGED_VALUE_MIN]) / ${RV_SPAN}, 0, 1)`;
 const GP_VAL = '[COMPLICATION.GOAL_PROGRESS_VALUE]';
 const GP_TGT = '[COMPLICATION.GOAL_PROGRESS_TARGET_VALUE]';
 // Never divide by a provider-supplied zero: x/0 is Inf (or NaN for 0/0), and clamp(NaN) is
@@ -1587,13 +1628,16 @@ function slotXml(face, s, analysis, strings, sprites) {
     : s.gaugeGated ? '[CONFIGURATION.gauges] ? 255 : 0' : null;
   // A tagged slot renders one block per supported type INCLUDING EMPTY: the empty block
   // carries the slot's default artwork, so the platform swaps the decoration out for the
-  // provider's content automatically. Untagged slots keep the legacy patch behaviour.
-  const types = s.tagged ? Array.from(new Set([...s.types, 'EMPTY'])) : s.types;
+  // provider's content automatically. Untagged slots keep the legacy patch behaviour, but
+  // still declare a self-closing EMPTY block (audit F11): EMPTY is advertised in
+  // supportedTypes, and an advertised type with no block renders as a bare hole when the
+  // user picks Empty. A deliberate blank is acceptable CONTENT; the block records intent.
+  const types = Array.from(new Set([...s.types, 'EMPTY']));
   const body = (roles, tg, type) => (s.tagged
     ? (type === 'EMPTY' ? taggedEmpty(face, s, roles, tg, sprites, analysis) : taggedContent(face, s, roles, tg, type, sprites))
     : slotContent(face, s, roles, tg, type, sprites));
   for (const type of types) {
-    if (type === 'EMPTY' && !s.tagged) continue;
+    if (type === 'EMPTY' && !s.tagged) { kids.push(el('Complication', { type: 'EMPTY' })); continue; }
     const themed = el('Group', { x: 0, y: 0, width: s.bounds.w, height: s.bounds.h, name: `scT_${type}` }, [
       el('Transform', { target: 'alpha', value: '[CONFIGURATION.dark] ? 0 : 255' }),
       el('ListConfiguration', { id: 'theme' },
@@ -1724,7 +1768,13 @@ export function emitFace(entry) {
   // ON TOP of the hour and minute hands. Splitting puts the hands back over the register,
   // where a real chronograph has them. Referencing one ListConfiguration id from several
   // Scene elements is already proven: every slot's own type blocks do exactly that.
-  const hasTagged = analysis.slots.some(s => s.tagged);
+  // ⭐ Wave 3 (audit F12): EVERY face splits its scene now, not just tagged (VAKT) ones.
+  // ComplicationSlot is Scene-global and draws over everything before it, so on the
+  // unsplit faces assigned data covered the hour/minute hands as they passed. The split
+  // puts dial + under-layers + sub-hands BELOW the slots and the main hands ABOVE them —
+  // the layout a real watch has. (VAKT proved the structure; validator + full-fleet
+  // regen + byte-compare gate the rollout.)
+  const hasTagged = true;
   const liveCache = new Map();
   const kidsFor = (roles, tag) => {
     if (!liveCache.has(tag)) liveCache.set(tag, liveKids(roles, tag));

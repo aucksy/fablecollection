@@ -231,6 +231,20 @@ function dateWindowLocked(x, y) {
   ];
 }
 
+/* De-slotted native date WINDOW — the design's own recessed frame + dnum (+ day3 where the
+   design has one), pixel-identical to `dateWindow`, but locked native: every layer answers
+   only to the Date toggle (dateLock → dateLockStatic/dateLockText), no slot, non-customisable,
+   never blank. Applied to the 4 non-GT VAKT faces per the settled instrument design's register
+   map (docs/COMPLICATION-FIX-PROGRESS.md — "date→locked native"). */
+function dateWindowNative(x, y, day3y) {
+  const L = [
+    { t: 'rect', x: x - 20, y: y - 15, w: 40, h: 30, rx: 4, color: 'shade:bg:-0.5', stroke: 'shade:bg:0.18', sw: 1.2, dateLock: true },
+    { t: 'text', token: 'dnum', x, y: y + 1, size: 19, weight: 700, color: 'lume', font: F_DIG, dateLock: true },
+  ];
+  if (day3y != null) L.push({ t: 'text', token: 'day3', x, y: day3y, size: 12, weight: 700, color: 'muted', font: F_DIG, dateLock: true });
+  return L;
+}
+
 function mainHands(o) {
   o = o || {};
   return [
@@ -312,11 +326,14 @@ export const category = {
         ...skeletonWork(),
         { t: 'label', text: 'VAKT', x: 140, y: 118, size: 16, weight: 700, color: 'ink' },
         { t: 'label', text: 'INSTRUMENT', x: 140, y: 134, size: 8.5, weight: 600, color: 'muted' },
-        ...registerScale(262, 148, 64, 'SLOT-A1-1'),
-        ...registerBattery(130, 234, 47),
-        ...registerSteps(206, 324, 55),
-        ...dateWindow(334, 246, 'SLOT-A1-2'),
-        { t: 'text', token: 'day3', x: 334, y: 274, size: 12, weight: 700, color: 'muted', font: F_DIG, slot: 'SLOT-A1-2' },
+        // ⭐ SETTLED VAKT INSTRUMENT DESIGN (owner 2026-07-20, applied fleet-wide 2026-07-22):
+        // same artwork, GT ownership split — plate + tick sets + engraved numerals bake as
+        // permanent hardware; only icon + needle (+ arc) carry the slot tag. All three chronos
+        // are bare instrument slots (RANGED_VALUE GOAL_PROGRESS EMPTY); date → locked native.
+        ...registerScaleGT(262, 148, 64, 'SLOT-A1-1'),
+        ...registerBatteryGT(130, 234, 47, 'SLOT-A1-4'),
+        ...registerStepsGT(206, 324, 55, 'SLOT-A1-5'),
+        ...dateWindowNative(334, 246, 274),
         { t: 'rect', x: 318, y: 288, w: 32, h: 19, rx: 3, color: 'shade:bg:-0.45', stroke: 'shade:bg:0.15', sw: 1, slot: 'SLOT-A1-3' },
         { t: 'text', token: 'notif', x: 334, y: 298, size: 12.5, weight: 700, color: 'lume', font: F_DIG, slot: 'SLOT-A1-3' },
         { t: 'icon', name: 'msg', x: 360, y: 298, s: 9, color: 'muted', slot: 'SLOT-A1-3' },
@@ -324,9 +341,33 @@ export const category = {
       ],
       aodLayers: vaktAOD(),
       complications: [
-        { id: 'SLOT-A1-1', label: 'Top register', shape: 'circle', cx: 262, cy: 148, r: 64, frame: 'plate', types: CIRC_TYPES, default: 'Empty — native running-seconds sub-hand', options: 'Any Wear OS type — rendered inside the machined register frame', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
-        { id: 'SLOT-A1-2', label: 'Date window', shape: 'rect', x: 314, y: 231, w: 40, h: 30, frame: 'panel', types: PANEL_TYPES, default: 'Date (native token)', options: 'Text / gauge / icon / image — bevelled panel adapts', fallback: 'Native date token', empty: 'Hidden via SET-A1-DATE', tap: 'Calendar' },
+        {
+          id: 'SLOT-A1-1', label: 'Top register', shape: 'circle', cx: 262, cy: 148, r: 64, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,
+          // ⚠ HEART_RATE only GUARANTEES SHORT_TEXT — an OEM that returns text/shortcut leaves
+          // this dial blank until the wearer assigns a ranged pulse (wrist test; same as GT).
+          defaultProvider: 'HEART_RATE', defaultProviderType: 'RANGED_VALUE',
+          gauge: [30, 330],                            // the engraved 0–250 sweep
+          arc: false,                                  // the design's registerScale has NO arc
+          default: 'Empty — seconds sub-hand', options: 'Ranged/goal gauges only — the needle is the display', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser',
+        },
         { id: 'SLOT-A1-3', label: 'Unread chip', shape: 'rect', x: 318, y: 288, w: 48, h: 19, frame: 'panel', types: ['SHORT_TEXT', 'MONOCHROMATIC_IMAGE', 'SMALL_IMAGE'], default: 'Unread notifications (v1-legal)', options: 'Short-text / icon providers', fallback: 'Icon only', empty: 'Chip hidden', tap: 'Notification stream' },
+        {
+          id: 'SLOT-A1-4', label: 'Battery register', shape: 'circle', cx: 130, cy: 234, r: 47, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,
+          defaultProvider: 'WATCH_BATTERY', defaultProviderType: 'RANGED_VALUE',
+          gauge: [40, 320],
+          arc: { r: 42, w: 2.5, color: 'lume', track: 'muted', trackOpacity: 0.22, cap: 'butt' },
+          default: 'Battery', options: 'Ranged/goal gauges only — rendered by the design\'s own needle + lume arc', fallback: 'Battery instrument', empty: 'Battery instrument', tap: 'Battery settings',
+        },
+        {
+          id: 'SLOT-A1-5', label: 'Steps register', shape: 'circle', cx: 206, cy: 324, r: 55, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,
+          gauge: [0, 360],                             // the design's step needle turns a full lap
+          arc: false,                                  // One's steps register has no external arc
+          defaultProvider: 'STEP_COUNT', defaultProviderType: 'RANGED_VALUE',
+          default: 'Steps (native drawing)', options: 'Ranged/goal gauges only — full-turn needle', fallback: 'Native step progress', empty: 'Native step progress', tap: 'Fitness app',
+        },
       ],
       settings: VAKT_SETTINGS('A1'),
       feasibility: VAKT_FEAS(),
@@ -471,19 +512,44 @@ export const category = {
         { t: 'screw', cx: 112, cy: 300, r: 5, a: -30 },
         { t: 'label', text: 'VAKT', x: 142, y: 120, size: 15, weight: 700, color: 'ink' },
         { t: 'label', text: 'MERIDIAN', x: 142, y: 136, size: 8.5, weight: 600, color: 'accent' },
-        ...registerScale(258, 150, 56, 'SLOT-A3-1'),
-        ...registerBattery(130, 232, 44),
-        ...registerSteps(204, 320, 50),
-        ...dateWindow(334, 238, 'SLOT-A3-3'),
+        // ⭐ Settled VAKT instrument design (see WF-A1 note): three bare chrono slots, date native.
+        ...registerScaleGT(258, 150, 56, 'SLOT-A3-1'),
+        ...registerBatteryGT(130, 232, 44, 'SLOT-A3-4'),
+        ...registerStepsGT(204, 320, 50, 'SLOT-A3-5'),
+        ...dateWindowNative(334, 238),
         { t: 'label', text: 'NEXT', x: 334, y: 266, size: 8, weight: 700, color: 'accent', slot: 'SLOT-A3-2' },
         { t: 'text', token: 'event', x: 334, y: 282, size: 14, weight: 600, color: 'ink', font: F_DIG, slot: 'SLOT-A3-2' },
         ...mainHands({ second: 'accent' }),
       ],
       aodLayers: vaktAOD(),
       complications: [
-        { id: 'SLOT-A3-1', label: 'Top register', shape: 'circle', cx: 258, cy: 150, r: 56, frame: 'plate', types: CIRC_TYPES, default: 'Empty — seconds sub-hand', options: 'Any Wear OS type — rendered inside the register frame', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
+        {
+          id: 'SLOT-A3-1', label: 'Top register', shape: 'circle', cx: 258, cy: 150, r: 56, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,
+          defaultProvider: 'HEART_RATE', defaultProviderType: 'RANGED_VALUE',
+          gauge: [30, 330],
+          arc: false,
+          default: 'Empty — seconds sub-hand', options: 'Ranged/goal gauges only — the needle is the display', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser',
+        },
+        // Event line KEPT as designed (owner). NEXT_EVENT is permission-gated (audit F8) but it
+        // is a secondary slot on this face — the three chronos + native date carry first install.
         { id: 'SLOT-A3-2', label: 'Event line', shape: 'rect', x: 300, y: 258, w: 70, h: 32, frame: 'open', types: OPEN_TYPES, default: 'Next event (v1-legal)', options: 'Text / icon providers, laid out on the open dial', fallback: 'Line shows —', empty: 'Line hidden', tap: 'Agenda' },
-        { id: 'SLOT-A3-3', label: 'Date window', shape: 'rect', x: 314, y: 223, w: 40, h: 30, frame: 'panel', types: PANEL_TYPES, default: 'Date', options: 'Text / gauge / icon / image', fallback: 'Native tokens', empty: 'Hidden', tap: 'Calendar' },
+        {
+          id: 'SLOT-A3-4', label: 'Battery register', shape: 'circle', cx: 130, cy: 232, r: 44, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,
+          defaultProvider: 'WATCH_BATTERY', defaultProviderType: 'RANGED_VALUE',
+          gauge: [40, 320],
+          arc: { r: 39, w: 2.5, color: 'lume', track: 'muted', trackOpacity: 0.22, cap: 'butt' },
+          default: 'Battery', options: 'Ranged/goal gauges only — rendered by the design\'s own needle + lume arc', fallback: 'Battery instrument', empty: 'Battery instrument', tap: 'Battery settings',
+        },
+        {
+          id: 'SLOT-A3-5', label: 'Steps register', shape: 'circle', cx: 204, cy: 320, r: 50, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,
+          gauge: [0, 360],
+          arc: false,
+          defaultProvider: 'STEP_COUNT', defaultProviderType: 'RANGED_VALUE',
+          default: 'Steps (native drawing)', options: 'Ranged/goal gauges only — full-turn needle', fallback: 'Native step progress', empty: 'Native step progress', tap: 'Fitness app',
+        },
       ],
       settings: VAKT_SETTINGS('A3'),
       feasibility: [
@@ -524,17 +590,33 @@ export const category = {
         { t: 'screw', cx: 100, cy: 225, r: 5.5, a: 45 },
         { t: 'label', text: 'VAKT', x: 136, y: 152, size: 16, weight: 700, color: 'ink' },
         { t: 'label', text: 'TITANIUM', x: 136, y: 168, size: 8.5, weight: 600, color: 'muted' },
-        ...registerScale(254, 148, 62, 'SLOT-A4-1'),
-        ...registerSteps(192, 318, 58, 'SLOT-A4-2'),
-        ...dateWindow(338, 254, 'SLOT-A4-3'),
-        { t: 'text', token: 'day3', x: 338, y: 282, size: 12, weight: 700, color: 'muted', font: F_DIG, slot: 'SLOT-A4-3' },
+        // ⭐ Settled VAKT instrument design (see WF-A1 note). Ti's battery is the FLANGE ARC
+        // above (r212 −58°→58°, data:battery) — already a live native instrument, kept BAKED
+        // per the register map ("Ti's battery is a flange ARC — adapt"): Ti has two chrono
+        // dials (HR + steps); the arc stays the design's own dedicated battery gauge.
+        ...registerScaleGT(254, 148, 62, 'SLOT-A4-1'),
+        ...registerStepsGT(192, 318, 58, 'SLOT-A4-2'),
+        ...dateWindowNative(338, 254, 282),
         ...mainHands(),
       ],
       aodLayers: vaktAOD(),
       complications: [
-        { id: 'SLOT-A4-1', label: 'Top register', shape: 'circle', cx: 254, cy: 148, r: 62, frame: 'plate', types: CIRC_TYPES, default: 'Empty — seconds sub-hand', options: 'Any Wear OS type — rendered inside the register frame', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
-        { id: 'SLOT-A4-2', label: 'Steps register', shape: 'circle', cx: 192, cy: 318, r: 58, frame: 'plate', types: CIRC_TYPES, default: 'Steps (native)', options: 'Any Wear OS type — rendered inside the register frame', fallback: 'Native step progress', empty: 'Native step progress', tap: 'Fitness app' },
-        { id: 'SLOT-A4-3', label: 'Date window', shape: 'rect', x: 318, y: 239, w: 40, h: 30, frame: 'panel', types: PANEL_TYPES, default: 'Day + date', options: 'Text / gauge / icon / image', fallback: 'Native date tokens', empty: 'Hidden', tap: 'Calendar' },
+        {
+          id: 'SLOT-A4-1', label: 'Top register', shape: 'circle', cx: 254, cy: 148, r: 62, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,
+          defaultProvider: 'HEART_RATE', defaultProviderType: 'RANGED_VALUE',
+          gauge: [30, 330],
+          arc: false,
+          default: 'Empty — seconds sub-hand', options: 'Ranged/goal gauges only — the needle is the display', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser',
+        },
+        {
+          id: 'SLOT-A4-2', label: 'Steps register', shape: 'circle', cx: 192, cy: 318, r: 58, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,
+          gauge: [0, 360],
+          arc: false,
+          defaultProvider: 'STEP_COUNT', defaultProviderType: 'RANGED_VALUE',
+          default: 'Steps (native drawing)', options: 'Ranged/goal gauges only — full-turn needle', fallback: 'Native step progress', empty: 'Native step progress', tap: 'Fitness app',
+        },
       ],
       settings: VAKT_SETTINGS('A4'),
       feasibility: VAKT_FEAS(),
@@ -571,14 +653,15 @@ export const category = {
         ...skeletonWork(),
         { t: 'label', text: 'VAKT', x: 138, y: 118, size: 16, weight: 700, color: 'ink' },
         { t: 'label', text: 'NIGHT WATCH', x: 138, y: 134, size: 8.5, weight: 700, color: 'lume' },
-        ...registerScale(256, 148, 56, 'SLOT-A5-1'),
-        ...registerBattery(128, 234, 44),
-        ...registerSteps(200, 324, 48),
+        // ⭐ Settled VAKT instrument design (see WF-A1 note): three bare chrono slots, date native.
+        ...registerScaleGT(256, 148, 56, 'SLOT-A5-1'),
+        ...registerBatteryGT(128, 234, 44, 'SLOT-A5-5'),
+        ...registerStepsGT(200, 324, 48, 'SLOT-A5-6'),
         { t: 'icon', name: 'sun', x: 312, y: 226, s: 8, color: 'muted', slot: 'SLOT-A5-2' },
         { t: 'text', token: 'sunrise', x: 348, y: 226, size: 13, weight: 700, color: 'ink', font: F_DIG, slot: 'SLOT-A5-2' },
         { t: 'icon', name: 'moon', x: 312, y: 248, s: 8, color: 'lume', filled: true, slot: 'SLOT-A5-3' },
         { t: 'text', token: 'sunset', x: 348, y: 248, size: 13, weight: 700, color: 'ink', font: F_DIG, slot: 'SLOT-A5-3' },
-        ...dateWindow(332, 284, 'SLOT-A5-4'),
+        ...dateWindowNative(332, 284),
         ...mainHands({ second: 'lume' }),
       ],
       aodLayers: [
@@ -590,10 +673,35 @@ export const category = {
         { t: 'text', token: 'mm', x: 225, y: 338, size: 40, weight: 600, color: 'muted', font: F_DIG },
       ],
       complications: [
-        { id: 'SLOT-A5-1', label: 'Top register', shape: 'circle', cx: 256, cy: 148, r: 56, frame: 'plate', types: CIRC_TYPES, default: 'Empty — seconds sub-hand', options: 'Any Wear OS type — rendered inside the register frame', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
+        {
+          id: 'SLOT-A5-1', label: 'Top register', shape: 'circle', cx: 256, cy: 148, r: 56, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,
+          defaultProvider: 'HEART_RATE', defaultProviderType: 'RANGED_VALUE',
+          gauge: [30, 330],
+          arc: false,
+          default: 'Empty — seconds sub-hand', options: 'Ranged/goal gauges only — the needle is the display', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser',
+        },
         { id: 'SLOT-A5-2', label: 'Sunrise figure', shape: 'rect', x: 304, y: 214, w: 66, h: 22, frame: 'open', types: OPEN_TYPES, default: 'Sunrise (v1-legal)', options: 'Text / icon providers', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
-        { id: 'SLOT-A5-3', label: 'Sunset figure', shape: 'rect', x: 304, y: 236, w: 66, h: 22, frame: 'open', types: OPEN_TYPES, default: 'Sunset (v1-legal)', options: 'Text / icon providers', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
-        { id: 'SLOT-A5-4', label: 'Date window', shape: 'rect', x: 312, y: 269, w: 40, h: 30, frame: 'panel', types: PANEL_TYPES, default: 'Day + date', options: 'Text / gauge / icon / image', fallback: 'Native tokens', empty: 'Hidden', tap: 'Calendar' },
+        // F9 duplicate-provider fix (plan W1.1): SUNRISE_SUNSET only ever reports the NEXT sun
+        // event, so two windows on the same provider always show the same value. The sunset
+        // figure defaults to WORLD_CLOCK instead; the wearer can still assign any provider.
+        { id: 'SLOT-A5-3', label: 'Sunset figure', shape: 'rect', x: 304, y: 236, w: 66, h: 22, frame: 'open', types: OPEN_TYPES, defaultProvider: 'WORLD_CLOCK', default: 'World clock (was duplicate sunset — F9)', options: 'Text / icon providers', fallback: '—', empty: 'Hidden', tap: 'Provider app' },
+        {
+          id: 'SLOT-A5-5', label: 'Battery register', shape: 'circle', cx: 128, cy: 234, r: 44, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,
+          defaultProvider: 'WATCH_BATTERY', defaultProviderType: 'RANGED_VALUE',
+          gauge: [40, 320],
+          arc: { r: 39, w: 2.5, color: 'lume', track: 'muted', trackOpacity: 0.22, cap: 'butt' },
+          default: 'Battery', options: 'Ranged/goal gauges only — rendered by the design\'s own needle + lume arc', fallback: 'Battery instrument', empty: 'Battery instrument', tap: 'Battery settings',
+        },
+        {
+          id: 'SLOT-A5-6', label: 'Steps register', shape: 'circle', cx: 200, cy: 324, r: 48, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,
+          gauge: [0, 360],
+          arc: false,
+          defaultProvider: 'STEP_COUNT', defaultProviderType: 'RANGED_VALUE',
+          default: 'Steps (native drawing)', options: 'Ranged/goal gauges only — full-turn needle', fallback: 'Native step progress', empty: 'Native step progress', tap: 'Fitness app',
+        },
       ],
       settings: VAKT_SETTINGS('A5').map((s) => s.id.includes('SECONDS') ? Object.assign({}, s, { default: 'off' }) : s),
       feasibility: [
