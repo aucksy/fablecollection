@@ -113,8 +113,8 @@ function dateWindow(x, y, slotId) {
      icon + needle      → tagged, exactly as the design has them (a provider replaces them)
 
    Pixel-for-pixel identical to the design in the default state — verified by the
-   fidelity gate, not by eye (`node check.mjs`). Only used by WF-A2 so the other 24
-   faces stay byte-identical. */
+   fidelity gate, not by eye (`node check.mjs`). Since 2026-07-22 ALL FIVE VAKT faces
+   use these variants (the settled instrument design, applied fleet-wide). */
 function registerScaleGT(cx, cy, r, slotId) {
   return [
     { t: 'plate', cx, cy, r, rim: 3.5 },
