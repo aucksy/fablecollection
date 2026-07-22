@@ -12,6 +12,14 @@ const F_DIG = "'Saira SemiCondensed', sans-serif";
 /* Supported complication types per slot-frame style. Every VAKT slot accepts
    the full set its frame can render, so any provider the user picks lands
    cleanly (see faces/renderer.jsx complRender + handoff/04-complication-system.md). */
+/* ⭐ The machined registers accept ONLY the two types a needle can be driven from
+   (owner 2026-07-20: no text inside the chronos, only the original design). RANGED_VALUE
+   carries value/min/max, GOAL_PROGRESS carries value/target — both reduce to a fraction the
+   design's own needle and arc can show. Text and image types would have to draw something the
+   design does not have, so the slot does not advertise them and the watch's editor cannot
+   offer them there. Verified legal: `supportedTypes` is a free list of complicationType
+   (2/complication/complicationSlotElement.xsd) and a trimmed list passes the validator. */
+const GAUGE_TYPES = ['RANGED_VALUE', 'GOAL_PROGRESS'];
 const CIRC_TYPES = ['SHORT_TEXT', 'LONG_TEXT', 'RANGED_VALUE', 'GOAL_PROGRESS', 'WEIGHTED_ELEMENTS', 'MONOCHROMATIC_IMAGE', 'SMALL_IMAGE', 'PHOTO_IMAGE'];
 const PANEL_TYPES = ['SHORT_TEXT', 'LONG_TEXT', 'RANGED_VALUE', 'MONOCHROMATIC_IMAGE', 'SMALL_IMAGE'];
 const OPEN_TYPES = ['SHORT_TEXT', 'LONG_TEXT', 'MONOCHROMATIC_IMAGE'];
@@ -88,6 +96,139 @@ function dateWindow(x, y, slotId) {
     { t: 'rect', x: x - 20, y: y - 15, w: 40, h: 30, rx: 4, color: 'shade:bg:-0.5', stroke: 'shade:bg:0.18', sw: 1.2 },
     { t: 'text', token: 'dnum', x, y: y + 1, size: 19, weight: 700, color: 'lume', font: F_DIG },
   ], slotId);
+}
+
+/* ================= GT: complication-ready registers, SAME ARTWORK ==================
+   The design's own `registerScale`/`registerSteps` wrap EVERY layer in `withSlot(...)`,
+   which makes the whole machined register the slot's EMPTY-state artwork — so the
+   instant a user assigns any complication, the ticks and numerals vanish and a bare
+   plate is left. These variants change WHO OWNS each layer, not what is drawn:
+
+     plate + tick sets  → UNTAGGED = permanent hardware, baked into the dial, so the
+                          machined register survives under every complication type
+     numerals           → tagged: they are the only metric-specific part, so they stay
+                          the design's own numbers when the dial is empty, and the
+                          generator redraws them from the provider's own scale when a
+                          gauge is assigned
+     icon + needle      → tagged, exactly as the design has them (a provider replaces them)
+
+   Pixel-for-pixel identical to the design in the default state — verified by the
+   fidelity gate, not by eye (`node check.mjs`). Only used by WF-A2 so the other 24
+   faces stay byte-identical. */
+function registerScaleGT(cx, cy, r, slotId) {
+  return [
+    { t: 'plate', cx, cy, r, rim: 3.5 },
+    { t: 'ticks', cx, cy, r: r - 6, count: 25, len: 5, w: 1.1, color: 'muted', from: 30, to: 330 },
+    { t: 'ticks', cx, cy, r: r - 6, count: 5, len: 10, w: 2, color: 'ink', from: 30, to: 330 },
+    { t: 'numerals', cx, cy, vals: [0, 50, 100, 150, 200, 250], r: r - 21, size: 12.5, weight: 700, color: 'ink', from: 30, to: 330 },
+    ...withSlot([
+      // The icon is the ONE thing a complication may replace: it is what tells you which metric
+      // the needle is following. Same spot, same size as the design's engraved glyph, so an
+      // emptied dial shows the design's own heart again.
+      { t: 'icon', name: 'hr', x: cx, y: cy + r * 0.5, s: 8, color: 'muted' },
+      { t: 'hand', kind: 'second', cx, cy, len: r - 10, tail: 13, w: 1.8, shape: 'needle', color: 'accent', hub: 4, shadow: true },
+    ], slotId),
+  ];
+}
+
+function registerStepsGT(cx, cy, r, slotId) {
+  return [
+    { t: 'plate', cx, cy, r, rim: 3.5 },
+    { t: 'ticks', cx, cy, r: r - 5, count: 50, len: 4, w: 0.9, color: 'muted' },
+    { t: 'ticks', cx, cy, r: r - 5, count: 10, len: 9, w: 1.9, color: 'ink' },
+    { t: 'numerals', cx, cy, vals: [0, null, 2, null, 4, null, 6, null, 8, null], r: r - 17, size: 12.5, weight: 700, color: 'ink' },
+    ...withSlot([
+      { t: 'icon', name: 'steps', x: cx, y: cy - r * 0.45, s: 8.5, color: 'muted', filled: true },
+      { t: 'hand', kind: 'data', data: 'stepsDial', cx, cy, len: r - 9, tail: 11, w: 1.6, shape: 'needle', color: 'lume', hub: 3.4, shadow: true },
+    ], slotId),
+  ];
+}
+
+/* Battery register, made assignable — SAME ARTWORK, same ownership split as its two siblings.
+   In the source design this register is not a slot at all: `registerBattery` is native art, so
+   only two of GT's three chronos could ever take a complication. This variant changes WHO OWNS
+   each layer, not what is drawn:
+
+     plate + tick set + the engraved bolt → UNTAGGED = permanent hardware, baked into the dial
+     numerals + gauge arc + needle        → tagged: the parts that must re-scale to whatever the
+                                            user assigns (0–100 becomes 0–600 kcal, 40–200 bpm …)
+
+   ⚠ The bolt stays ENGRAVED rather than swapping to the provider's own icon. That is the one
+   deliberate trade here, and it is what makes the fresh install pixel-identical: the register's
+   default is the real WATCH_BATTERY complication (never `EMPTY`, which the platform renders as a
+   black hole on first install — audit L1), so the default state IS an assigned-provider state,
+   and a provider icon there would replace the design's bolt with a different glyph in a different
+   place. Cost: assign a non-battery source and the bolt is still engraved on the plate. */
+function registerBatteryGT(cx, cy, r, slotId) {
+  return [
+    { t: 'plate', cx, cy, r, rim: 3 },
+    { t: 'ticks', cx, cy, r: r - 5, count: 20, len: 4, w: 1, color: 'muted', from: 40, to: 320 },
+    { t: 'numerals', cx, cy, vals: [0, 25, 50, 75, 100], r: r - 16, size: 10.5, weight: 700, color: 'ink', from: 40, to: 320 },
+    ...withSlot([
+      { t: 'icon', name: 'bolt', x: cx, y: cy + r * 0.48, s: 8.5, color: 'muted', filled: true },
+      { t: 'arc', cx, cy, r: r - 5, w: 2.5, from: 40, to: 320, color: 'lume', data: 'battery', track: 'muted', trackOpacity: 0.22 },
+      { t: 'hand', kind: 'data', data: 'battery', from: 40, to: 320, cx, cy, len: r - 10, tail: 10, w: 1.6, shape: 'needle', color: 'lume', hub: 3.4, shadow: true },
+    ], slotId),
+  ];
+}
+
+/* ---------- live-instrument registers (VAKT instrument design, owner-approved 2026-07-19) ----------
+   Each machined register renders its home sensor as a real instrument: the scale bakes CLEAN
+   (ticks only — numerals collide with the centre value at watch size), and the needle/ring +
+   provider icon + value are drawn LIVE by the generator's taggedContent from the slot's default
+   (battery→WATCH_BATTERY/RANGED_VALUE, HR→HEART_RATE/RANGED_VALUE, steps→STEP_COUNT/GOAL_PROGRESS),
+   so the default looks identical to picking the home provider, and stays fully swappable. */
+
+/* ⭐ FRAME vs CONTENT (the rule that makes these registers work — see VAKT-COMPLICATIONS-PLAN §1):
+   the plate AND its engraved tick scale are permanent HARDWARE — they must stay UNTAGGED so they bake
+   into the dial and are therefore visible under EVERY complication type. Only the parts a provider
+   replaces (the baked icon, the empty-state needle) carry the slot tag and live in the EMPTY block.
+   Tagging the ticks makes the machined scale vanish the instant any provider is assigned. */
+
+/* Heart-rate needle register — 40..200 scale, gap at 6 o'clock (-150..150), heart above. */
+function registerHR(cx, cy, r, slotId) {
+  return [
+    { t: 'plate', cx, cy, r, rim: 3.5 },
+    { t: 'ticks', cx, cy, r: r - 5, count: 20, len: 5, w: 1.1, color: 'muted', from: -150, to: 150 },
+    { t: 'ticks', cx, cy, r: r - 5, count: 4, len: 10, w: 2, color: 'ink', from: -150, to: 150 },
+    ...withSlot([
+      { t: 'icon', name: 'hr', x: cx, y: cy - r * 0.5, s: 9, color: 'muted' },
+      { t: 'hand', kind: 'second', cx, cy, len: r - 12, tail: 13, w: 1.8, shape: 'needle', color: 'accent', hub: 3.4, shadow: true },
+    ], slotId),
+  ];
+}
+
+/* Battery needle register — 0..100 scale, gap at top where the bolt sits (40..320). */
+function registerBatterySlot(cx, cy, r, slotId) {
+  return [
+    { t: 'plate', cx, cy, r, rim: 3 },
+    { t: 'ticks', cx, cy, r: r - 5, count: 20, len: 4, w: 1, color: 'muted', from: 40, to: 320 },
+    ...withSlot([
+      { t: 'icon', name: 'bolt', x: cx, y: cy - r * 0.5, s: 8.5, color: 'muted', filled: true },
+      { t: 'hand', kind: 'data', data: 'battery', from: 40, to: 320, cx, cy, len: r - 10, tail: 10, w: 1.6, shape: 'needle', color: 'lume', hub: 3.4, shadow: true },
+    ], slotId),
+  ];
+}
+
+/* Steps hero register — footprints above + the design's own lume needle. The needle is
+   verbatim from the original `registerSteps` (handoff `faces/cat-a2.js` line 81): lume,
+   len r-9, tail 11, w 1.6, hub 3.4. It is the register's personality — the goal ring alone
+   is not this dial. Its external progress arc (r71, OUTSIDE the r64 plate) is a separate
+   layer on the face, tagged to the same slot, exactly as the original had it. */
+function registerStepsGoal(cx, cy, r, slotId) {
+  return withSlot([
+    { t: 'plate', cx, cy, r, rim: 3.5 },
+    { t: 'icon', name: 'steps', x: cx, y: cy - r * 0.5, s: 9, color: 'muted', filled: true },
+    { t: 'hand', kind: 'data', data: 'stepsDial', cx, cy, len: r - 9, tail: 11, w: 1.6, shape: 'needle', color: 'lume', hub: 3.4, shadow: true },
+  ], slotId);
+}
+
+/* De-slotted native date — day number + weekday, gated by the Date toggle, non-customisable. */
+function dateWindowLocked(x, y) {
+  return [
+    { t: 'text', token: 'dnum', x, y: y - 2, size: 20, weight: 700, color: 'lume', font: F_DIG, dateLock: true },
+    { t: 'text', token: 'day3', x, y: y + 22, size: 12, weight: 700, color: 'muted', font: F_DIG, dateLock: true },
+  ];
 }
 
 function mainHands(o) {
@@ -220,13 +361,24 @@ export const category = {
         { t: 'flange', r0: 225, r1: 200, color: 'shade:bg:-0.32', floor: 'bg' },
         { t: 'ticks', r: 222, count: 60, len: 7, w: 1.3, color: 'muted' },
         { t: 'numerals', vals: [60, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55], r: 212, size: 13.5, weight: 700, color: 'ink' },
+        // Rally-flange RED-LINE — restored VERBATIM from the original Collection-3 handoff design
+        // (`…/Premium Smartwatch Face Collection-handoff/…/faces/cat-a2.js` line 223). Do not
+        // "improve" this: it is a SHORT solid butt-capped zone marking sitting at the top of the
+        // rally scale (a tachometer red-line), NOT a gauge. It is deliberately unlike Ti's flange
+        // arc, which is a live battery instrument (track + fill + round caps + bolt, r212 w4.5
+        // −58°→58°). Two different objects with two different jobs.
         { t: 'arc', r: 221, w: 3.5, from: -32, to: -3, color: 'accent', value: 1, cap: 'butt' },
         ...skeletonWork(),
         { t: 'label', text: 'VAKT', x: 140, y: 120, size: 16, weight: 700, color: 'ink' },
         { t: 'label', text: 'GT', x: 140, y: 136, size: 9, weight: 700, color: 'accent' },
-        ...registerScale(260, 150, 58, 'SLOT-A2-1'),
-        ...registerBattery(128, 230, 44),
-        ...registerSteps(210, 318, 64, 'SLOT-A2-2'),
+        // ⛔ REGISTERS ARE VERBATIM FROM THE SOURCE OF TRUTH (handoff `faces/cat-a2.js`
+        // lines 227–232). Do not substitute "instrument" variants here: the chrono design
+        // must match the original exactly — same plates, both tick sets, numerals, icons and
+        // needles. Complication behaviour is layered on AFTER the art matches, never by
+        // redesigning the art.
+        ...registerScaleGT(260, 150, 58, 'SLOT-A2-1'),
+        ...registerBatteryGT(128, 230, 44, 'SLOT-A2-4'),
+        ...registerStepsGT(210, 318, 64, 'SLOT-A2-2'),
         { t: 'arc', cx: 210, cy: 318, r: 71, w: 3.5, from: -150, to: 150, color: 'accent', data: 'steps', track: 'muted', trackOpacity: 0.22, cap: 'round', slot: 'SLOT-A2-2' },
         ...dateWindow(336, 240, 'SLOT-A2-3'),
         { t: 'text', token: 'day3', x: 336, y: 268, size: 12, weight: 700, color: 'muted', font: F_DIG, slot: 'SLOT-A2-3' },
@@ -235,10 +387,53 @@ export const category = {
       aodLayers: vaktAOD([
         { t: 'arc', r: 210, w: 3, from: -150, to: 150, color: 'muted', data: 'steps', cap: 'round' },
       ]),
+      // ⛔ GEOMETRY IS VERBATIM from the source of truth — every plate, tick set, numeral, icon
+      // and needle above is the original. What these entries add is only WHO OWNS each layer and
+      // HOW an assigned provider is drawn inside the frame; none of it moves a design pixel, and
+      // `node check.mjs` is the proof, not this comment.
+      //
+      // `gauge` = the sweep the register's own scale runs through, so a needle points at the
+      //   number the plate is engraved with (top register 30→330, battery 40→320, hero full turn).
+      //   Without it every needle fell back to a generic -150..150 and read 180° out on the top dial.
+      // `arc`   = that register's own progress arc, verbatim from the design — or `false` where the
+      //   design has none. `from`/`to` let the arc keep its own span when the needle turns further.
       complications: [
-        { id: 'SLOT-A2-1', label: 'Top register', shape: 'circle', cx: 260, cy: 150, r: 58, frame: 'plate', types: CIRC_TYPES, default: 'Empty — seconds sub-hand', options: 'Any Wear OS type — rendered inside the register frame', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser' },
-        { id: 'SLOT-A2-2', label: 'Hero counter', shape: 'circle', cx: 210, cy: 318, r: 64, frame: 'plate', types: CIRC_TYPES, default: 'Steps (native drawing)', options: 'Any Wear OS type — hero register frame + external arc', fallback: 'Native step progress', empty: 'Native step progress', tap: 'Fitness app' },
+        {
+          id: 'SLOT-A2-1', label: 'Top register', shape: 'circle', cx: 260, cy: 150, r: 58, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,                                  // needle + the provider's icon; scale and numerals are dial art
+          // Owner 2026-07-20: the three dials are battery, steps and heart rate. This is the heart
+          // one — which is what the engraved heart and the 0–250 scale always meant.
+          // ⚠ HEART_RATE only GUARANTEES SHORT_TEXT; an OEM that returns text (or a health-app
+          // shortcut) leaves this dial blank until the wearer assigns a ranged pulse themselves.
+          // That is a wrist test, not something the validator can settle.
+          defaultProvider: 'HEART_RATE', defaultProviderType: 'RANGED_VALUE',
+          gauge: [30, 330],                            // the engraved 0–250 sweep, so the needle reads the numbers
+          arc: false,                                  // the design's `registerScale` has NO arc
+          default: 'Empty — seconds sub-hand', options: 'Any Wear OS type — rendered inside the register frame', fallback: 'Seconds sub-hand', empty: 'Seconds sub-hand', tap: 'Provider chooser',
+        },
+        {
+          id: 'SLOT-A2-2', label: 'Hero counter', shape: 'circle', cx: 210, cy: 318, r: 64, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,                                  // needle + external arc + the provider's icon
+          gauge: [0, 360],                             // the design's step needle turns a full lap
+          arc: { r: 71, w: 3.5, from: -150, to: 150, color: 'accent', track: 'muted', trackOpacity: 0.22, cap: 'round' },
+          defaultProvider: 'STEP_COUNT', defaultProviderType: 'RANGED_VALUE',
+          default: 'Steps (native drawing)', options: 'Any Wear OS type — hero register frame + external arc', fallback: 'Native step progress', empty: 'Native step progress', tap: 'Fitness app',
+        },
         { id: 'SLOT-A2-3', label: 'Date window', shape: 'rect', x: 316, y: 225, w: 40, h: 30, frame: 'panel', types: PANEL_TYPES, default: 'Date', options: 'Text / gauge / icon / image', fallback: 'Native tokens', empty: 'Hidden', tap: 'Calendar' },
+        {
+          // The third chrono, made assignable (owner, 2026-07-20 — "give me all three").
+          // Its default is the REAL battery complication, not `EMPTY`: an EMPTY default renders
+          // nothing at all on first install (audit L1, proven on-wrist), which would turn the one
+          // register that always works today into a black hole. WATCH_BATTERY/RANGED_VALUE draws
+          // the design's own instrument — same numerals, same lume arc, same needle — so the fresh
+          // install is unchanged, and any other provider re-scales the engraved 0–100.
+          id: 'SLOT-A2-4', label: 'Battery register', shape: 'circle', cx: 128, cy: 230, r: 44, frame: 'plate', types: GAUGE_TYPES,
+          bare: true,
+          defaultProvider: 'WATCH_BATTERY', defaultProviderType: 'RANGED_VALUE',
+          gauge: [40, 320],
+          arc: { r: 39, w: 2.5, color: 'lume', track: 'muted', trackOpacity: 0.22, cap: 'butt' },
+          default: 'Battery', options: 'Any Wear OS type — rendered inside the register frame', fallback: 'Battery instrument', empty: 'Battery instrument', tap: 'Battery settings',
+        },
       ],
       settings: VAKT_SETTINGS('A2'),
       feasibility: VAKT_FEAS(),

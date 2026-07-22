@@ -22,7 +22,7 @@
 // layers (centre caps, overlays) — matches every spec's layer table.
 
 import { AOD_INK, AOD_MUT, DARK_ROLES, fontFromStack, snapWeight } from './data.mjs';
-import { shade, isLive, handSpriteGeom, mergedSpriteGeom, C, polar } from './svglib.mjs';
+import { shade, isLive, handSpriteGeom, mergedSpriteGeom, C, polar, iconBox, iconClearY } from './svglib.mjs';
 
 export const MIN_SLOT_TEXT = 16; // user requirement: complication texts must not be too small
 export const MIN_LIVE_TEXT = 14;
@@ -256,7 +256,12 @@ export function analyzeFace(face) {
     const d = s.default || '';
     let provider = 'EMPTY';
     const isNativeDefault = /native|^Empty/i.test(d) && !/v1-legal/i.test(d);
-    if (!isNativeDefault) {
+    // Explicit per-slot override (Wave-1 complication fix, docs/COMPLICATION-FIX-PLAN.md W1.1):
+    // a spec may name the default system provider directly, bypassing the prose-derived guess.
+    // Faces without the field are untouched, so this cannot regress defaults elsewhere.
+    if (s.defaultProvider) {
+      provider = s.defaultProvider;
+    } else if (!isNativeDefault) {
       if (/day ?\+ ?date/i.test(d)) provider = 'DAY_AND_DATE';
       else if (/^date/i.test(d)) provider = 'DATE';
       else if (/steps/i.test(d)) provider = 'STEP_COUNT';
@@ -327,6 +332,13 @@ export function analyzeFace(face) {
     // An explicit spec tag names the slot a layer belongs to; it wins over the geometric
     // inSlot() guessing below, which cannot tell decoration from coincidence.
     const tag = typeof L.slot === 'string' ? slots.find(s => s.id === L.slot) : null;
+    // A date-locked layer is a native day/date token (or its recessed frame) that answers only
+    // to the Date toggle — no complication slot, non-customisable, never blank. Emitted live and
+    // gated on [CONFIGURATION.date], never baked (see emitLiveLayer + bake LIVE_KINDS).
+    if (L.dateLock) {
+      item.kind = (L.t === 'text' && L.token) ? 'dateLockText' : 'dateLockStatic';
+      return item;
+    }
     if (L.t === 'hand') {
       const cx = L.cx != null ? L.cx : C, cy = L.cy != null ? L.cy : C;
       const centered = Math.abs(cx - 225) < 2 && Math.abs(cy - 225) < 2;
@@ -493,8 +505,33 @@ export function analyzeFace(face) {
   for (const s of slots) {
     if (!s.tagged) continue;
     s.artLayers = items.filter(it => it.slot === s && it.kind === 'slotDecoration').map(it => it.L);
+    // The register's engraved numbers. They bake into the slot's EMPTY sprite exactly as
+    // designed; when a GAUGE is assigned the same positions are redrawn from the
+    // provider's own range, so the scale tells the truth about whatever is on the dial.
+    s.scaleLayer = s.frame === 'plate' ? s.artLayers.find(L => L.t === 'numerals') : null;
+    // The register's engraved glyph (heart / bolt / footprints). A provider's own icon is drawn
+    // in EXACTLY this box, so the mark that says what the dial is following lands where the
+    // designer put it, at the size they drew it, instead of at some generic spot.
+    s.iconLayer = s.frame === 'plate' ? s.artLayers.find(L => L.t === 'icon') : null;
+    // The numbers milled into the plate. They are permanent dial art, so they are NOT among
+    // the slot's own layers — but the needle still has to be read against them, so find them
+    // on the face by their register centre. This is what lets 72 bpm point at the engraved 72.
+    s.engravedScale = s.frame === 'plate'
+      ? face.layers.find(L => L.t === 'numerals'
+          && Math.abs((L.cx == null ? -1e9 : L.cx) - s.cx) < 2
+          && Math.abs((L.cy == null ? -1e9 : L.cy) - s.cy) < 2)
+      : null;
     if (s.dash) { const d = dashLayerFor(s); if (d) s.artLayers.push(d); }
     s.emptyItems = items.filter(it => it.slot === s && it.inEmpty && it.kind !== 'slotDecoration');
+    // Instrument design: the RANGED_VALUE content block reuses the register's own empty-state
+    // needle sprite, driven by the value fraction (so the default WATCH_BATTERY/HEART_RATE
+    // renders a live needle identical to picking the home provider). Record its sprite base.
+    const handItem = (s.emptyItems || []).find(it => it.L.t === 'hand');
+    if (handItem) {
+      s.needleSprite = handItem.kind === 'subSecond'
+        ? `subsec_${items.filter(x => x.kind === 'subSecond').indexOf(handItem)}`
+        : `needle_${items.filter(x => x.kind === 'dataNeedle').indexOf(handItem)}`;
+    }
   }
 
   return { toggles, slots, items, firstLiveIdx, firstHandIdx };
@@ -640,6 +677,16 @@ function emitLiveLayer(item, face, roles, tag, toggles) {
       if (L.t === 'dots') return drawDots(L, roles, { name: nm('dots') });
       return null;
     }
+    case 'dateLockText':
+      return partTextFor(L, face, roles, { name: nm('dt'), minSize: MIN_LIVE_TEXT, gate: '[CONFIGURATION.date] ? 255 : 0' });
+    case 'dateLockStatic': {
+      const inner = L.t === 'rect' ? drawRect(L, roles, { name: nm('dlf') })
+        : L.t === 'circle' ? drawCircle(L, roles, { name: nm('dlc') }) : null;
+      if (!inner) return null;
+      return el('Group', { x: 0, y: 0, width: 450, height: 450, name: nm('dlg') }, [
+        el('Transform', { target: 'alpha', value: '[CONFIGURATION.date] ? 255 : 0' }), inner,
+      ]);
+    }
     case 'dateGatedStatic': {
       const inner = L.t === 'rect' ? drawRect(L, roles, { name: nm('df') })
         : L.t === 'circle' ? drawCircle(L, roles, { name: nm('dd') })
@@ -663,7 +710,12 @@ const handEl = (kindEl, sp, cx = 225, cy = 225, boxR = null) => {
     x: Math.round(ox - g.pivotX), y: Math.round(oy - g.pivotY),
     width: g.W, height: g.H,
     pivotX: (g.pivotX / g.W).toFixed(4), pivotY: (g.pivotY / g.H).toFixed(4),
-  }, kindEl === 'SecondHand' ? [sp.tickMotion ? el('Tick', { strength: 0.5, duration: 0.3 }) : el('Sweep', { frequency: 15 })] : []);
+    // ⭐ EVERY seconds hand sweeps — centre AND sub-dial. `<Sweep frequency="15"/>` is the
+    // smoothest value the XSD allows (enum 2|5|10|15, verified in `1/clock/secondHand.xsd`);
+    // `<Tick>` is the once-a-second snap the owner explicitly does not want. The sub-dial
+    // hands used to be built with tickMotion, so the chrono register stepped while the
+    // centre hand swept — two different motions on one dial.
+  }, kindEl === 'SecondHand' ? [el('Sweep', { frequency: 15 })] : []);
 };
 
 // part: undefined = everything (default) | 'sub' = the sub-second registers that sit under
@@ -681,7 +733,7 @@ function clocksXml(face, sprites, tag, analysis, toggles, part) {
       const r = Math.max(g.pivotY, g.H - g.pivotY, g.W / 2) + 2;
       parts.push(el('AnalogClock', {
         x: Math.round(sp.sub.cx - r), y: Math.round(sp.sub.cy - r), width: Math.ceil(r * 2), height: Math.ceil(r * 2),
-      }, [handEl('SecondHand', { ...sp, tickMotion: true }, 0, 0, r)]));
+      }, [handEl('SecondHand', sp, 0, 0, r)]));
     });
   }
   if (part === 'sub') return parts;
@@ -955,6 +1007,34 @@ const GP_FRAC = `clamp(${GP_VAL} / ${GP_DIV}, 0, 1)`;
 // The excess beyond the target, as its own 0..1 lap (GOAL_PROGRESS may exceed its target).
 const GP_OVER = `clamp((${GP_VAL} - ${GP_TGT}) / ${GP_DIV}, 0, 1)`;
 
+/* ⭐ READ THE NEEDLE AGAINST THE NUMBERS THAT ARE ACTUALLY ENGRAVED ON THE DIAL.
+   `RV_FRAC` places the needle by the provider's OWN range, which is right for a plain gauge
+   but wrong the moment the register has real numbers milled into it: a pulse of 72 arriving
+   as "40..200" landed at one fifth of the sweep — pointing at the engraved **50** on a dial
+   numbered 0–250. The dial was lying about the very number it was drawn to show.
+
+   So a register that carries an engraved scale asks a question first, in the expression
+   itself (WFF ternaries are legal inside an arithmetic expression):
+
+     does the provider's whole range fit inside what is engraved?
+       yes → place the value ABSOLUTELY on the engraved scale — 72 bpm points at 72
+       no  → fall back to the proportional reading, i.e. "how full", which is the only
+             honest thing a 0–100 dial can say about 415 kcal
+
+   Registers with no engraved numerals keep the plain proportional reading. */
+function rvFracFor(s) {
+  const L = s.scaleLayer || s.engravedScale;
+  const vals = L && (L.vals || []).filter(v => v !== null && v !== '');
+  if (!vals || vals.length < 2) return RV_FRAC;
+  const lo = Number(vals[0]), hi = Number(vals[vals.length - 1]);
+  if (!isFinite(lo) || !isFinite(hi) || hi <= lo) return RV_FRAC;
+  const V = '[COMPLICATION.RANGED_VALUE_VALUE]';
+  const MIN = '[COMPLICATION.RANGED_VALUE_MIN]';
+  const MAX = '[COMPLICATION.RANGED_VALUE_MAX]';
+  const absolute = `clamp((${V} - ${lo}) / ${hi - lo}, 0, 1)`;
+  return `((${MIN} >= ${lo} && ${MAX} <= ${hi}) ? ${absolute} : ${RV_FRAC})`;
+}
+
 function taggedContent(face, s, roles, tag, type, sprites) {
   const kids = [];
   const cw = s.bounds.w, ch = s.bounds.h;
@@ -988,8 +1068,184 @@ function taggedContent(face, s, roles, tag, type, sprites) {
   if (isPlate) {
     const vBox = (y) => [ccx - ri, y, ri * 2, Math.round(vSize * 1.5)];
     const centred = (f, tpl, expr, name, dy = 0) => tNum(f, ccx - ri, ccy - vSize * 0.75 + dy, ri * 2, Math.round(vSize * 1.5), tpl, expr, 'CENTER', name);
-    const iconAbove = (name) => tImage(ccx - 9, ccy - ri * 0.44 - 9, 18, 18, '[COMPLICATION.MONOCHROMATIC_IMAGE]', name, roles.muted);
+    // Same box as `centred`, but printing the provider's own PRE-FORMATTED string rather than a
+    // raw number. Used by RANGED_VALUE so the register reads in the assigned metric's own units
+    // ("68%", "5.2 km", "18°") instead of a unitless, decimal-truncated "%.0f" of the raw value.
+    const centredText = (f, expr, name) => tText(f, ccx - ri, ccy - vSize * 0.75, ri * 2, Math.round(vSize * 1.5), expr, 'CENTER', name);
+    /* The provider's own mark, so the register never hardcodes what it is showing
+       (polish §5). `icon: false` opts a register out: its mark is ENGRAVED into the
+       plate as permanent hardware, so drawing a second one here would double it up.
+       Only the DECORATIVE icon is suppressed — the image TYPES still render their
+       payload, because there the image IS the complication. */
+    const noIcon = s.icon === false;
+    const iconAbove = (name) => (noIcon ? null
+      : tImage(ccx - 9, ccy - ri * 0.44 - 9, 18, 18, '[COMPLICATION.MONOCHROMATIC_IMAGE]', name, roles.muted));
     const titleBelow = (f, name) => tText(f, ccx - ri, ccy + ri * 0.45 - sSize * 0.75, ri * 2, Math.round(sSize * 1.5), '[COMPLICATION.TITLE]', 'CENTER', name);
+    // Live instrument needle: reuse the register's own empty-state needle sprite, pivoted on
+    // the register axis, angle driven by the value fraction across the gauge sweep. Only slots
+    // that carry a needle (battery, HR) have s.needleSprite; the goal-ring steps register does not.
+    // ⭐ PER-REGISTER GAUGE ARC (register-fidelity fix, 2026-07-20).
+    // The original Collection-3 design gives every register its OWN arc — its own colour,
+    // radius, thickness and cap — or NO arc at all (GT's top HR register has none; its
+    // hero steps arc is a THIN r71 ring OUTSIDE the r64 plate, not a fat internal one).
+    // A single generic gauge here overwrote all of that personality. `s.arc` now drives it:
+    //   undefined → the generic gauge below (every slot authored before this field is
+    //               byte-identical, so this cannot regress any other face)
+    //   false     → this register has no arc; the needle + readout carry the value
+    //   {r,w,color,track,trackOpacity,cap} → the register's own arc, verbatim from the design
+    //               (`r` is the absolute design radius, so an arc may sit outside the plate —
+    //               the container is already grown over tagged art at that radius).
+    const arcCfg = (d) => {
+      if (s.arc === false) return null;
+      const a = s.arc || null;
+      if (!a) return { r: gaugeR, tw: d.tw, fw: d.fw, color: roles.accent, track: withOpacity(roles.muted, 0.35), tcap: d.tcap, fcap: 'ROUND' };
+      const cap = (a.cap || 'round').toUpperCase();
+      return {
+        r: a.r != null ? a.r : gaugeR,
+        // A register's ARC and its NEEDLE do not have to share a sweep. GT's hero counter is
+        // the proof: the needle turns a full 360 (the design's mod-10k step dial) while its
+        // progress ring is the external r71 arc that opens -150..150. `from`/`to` let the arc
+        // keep its own span; omit them and it follows the register's gauge like before.
+        from: a.from, to: a.to,
+        tw: a.w != null ? a.w : d.tw,
+        fw: a.w != null ? a.w : d.fw,
+        color: colFor(roles, a.color || 'accent'),
+        track: a.track === false ? null : withOpacity(colFor(roles, a.track || 'muted'), a.trackOpacity != null ? a.trackOpacity : 0.35),
+        tcap: cap, fcap: cap,
+      };
+    };
+    // The arc's own span: its `from`/`to` when the design gives it one, else the register's gauge.
+    const arcSpan = (A, gf, gt) => {
+      const f = A && A.from != null ? A.from : gf;
+      const t = A && A.to != null ? A.to : gt;
+      return [f, t, t - f];
+    };
+    const pushArc = (A, gf, gt, frac, name) => {
+      if (!A) return;
+      const [af, at, aspan] = arcSpan(A, gf, gt);
+      if (A.track) kids.push(tArc(cw / 2, ch / 2, A.r, af, at, A.track, A.tw, nm(`${name}trk`), null, A.tcap));
+      kids.push(tArc(cw / 2, ch / 2, A.r, af, at, A.color, A.fw, nm(`${name}fill`), `${af} + (${frac} * ${aspan})`, A.fcap));
+    };
+    /* ⭐ ADAPTIVE SCALE — the register's numbers, re-derived for the assigned provider.
+       The design's numerals are metric-specific (0–250 on the top register, 0–8 thousand
+       on the hero). Point either at calories or distance and the needle would be right
+       while the printed scale lied. So for the two gauge types the SAME numerals, at the
+       SAME positions, in the SAME font, are printed from the provider's own range:
+         RANGED_VALUE   → MIN + (MAX-MIN) x fraction-around-the-dial
+         GOAL_PROGRESS  → 0 .. TARGET (shown in thousands once the target reaches 10k,
+                          which is what the hero's 0–8 scale already means)
+       Nothing else about the register moves: plate, both tick sets, icon and needle are
+       untouched, and an empty dial still shows the design's own engraved numbers. */
+    /* Where the scale leaves a hole. A 30°→330° scale is open at the top; that gap is
+       where a real instrument puts its readout, and it is the only place on a numbered
+       register that cannot collide with a number or the needle. */
+    const scaleGap = () => {
+      const L = s.scaleLayer;
+      if (!L || L.to == null) return null;
+      const mid = ((L.to + (L.from || 0) + 360) / 2) % 360;
+      return { a: mid, x: CX(s, s.cx + s.r * 0.6 * Math.sin(mid * Math.PI / 180)),
+                       y: CY(s, s.cy - s.r * 0.6 * Math.cos(mid * Math.PI / 180)) };
+    };
+    const pushScale = (kind) => {
+      const L = s.scaleLayer;
+      if (!L) return;
+      const vals = L.vals || [];
+      const n = vals.length;
+      const full = L.to == null;
+      const gf = L.from || 0;
+      const gspan = (L.to != null ? L.to : 360 + gf) - gf;
+      // ⭐ The adaptive scale must reproduce the ENGRAVED scale, not merely resemble it: same
+      // family, weight, colour and — this line — the same size the design milled into the plate.
+      // A legibility floor here made the live numerals bigger than the baked ones on the SAME
+      // register, so a dial visibly changed the moment a provider was assigned, and on a register
+      // whose default IS a provider (the battery instrument) it moved the fresh-install pixels.
+      // `size` is xs:float in the schema (verified against 2/group/part/text/fontElement.xsd),
+      // so the design's 10.5 / 12.5 ship verbatim.
+      const size = L.size || 12;
+      const f = tFont(face, roles, size, L.weight || 700, colFor(roles, L.color, roles.ink));
+      // EVEN box, so `centre - box/2` is a whole number and the numeral sits exactly on the
+      // engraved position. With an odd box the rounding threw every numeral half a pixel up,
+      // which the fidelity gate saw as five displaced numbers on the battery register.
+      const box = 2 * Math.round(size * 0.8);
+      vals.forEach((v, i) => {
+        if (v === null || v === '') return;
+        const frac = i / (full ? n : n - 1);              // position around the scale
+        const a = gf + gspan * frac;
+        const x = CX(s, s.cx + L.r * Math.sin(a * Math.PI / 180));
+        const y = CY(s, s.cy - L.r * Math.cos(a * Math.PI / 180));
+        const expr = kind === 'RANGED_VALUE'
+          ? `[COMPLICATION.RANGED_VALUE_MIN] + (([COMPLICATION.RANGED_VALUE_MAX] - [COMPLICATION.RANGED_VALUE_MIN]) * ${frac.toFixed(4)})`
+          // a 10 000-step goal reads 0..10 on a dial this size, so scale it down like the design does
+          : `${GP_TGT} >= 10000 ? ((${GP_TGT} * ${frac.toFixed(4)}) / 1000) : (${GP_TGT} * ${frac.toFixed(4)})`;
+        kids.push(tNum(f, x - box, y - Math.round(box / 2), box * 2, box, '%.0f', expr, 'CENTER', nm(`sc${i}`)));
+      });
+    };
+
+    const pushNeedle = (from, span, frac) => {
+      if (!s.needleSprite) return;
+      const sp = sprites.find(x => x.tag === tag && x.name === `${s.needleSprite}_${tag}`);
+      if (!sp) return;
+      const g = sp.geom;
+      kids.push(el('PartImage', {
+        x: Math.round(ccx - g.pivotX), y: Math.round(ccy - g.pivotY),
+        width: g.W, height: g.H,
+        pivotX: (g.pivotX / g.W).toFixed(4), pivotY: (g.pivotY / g.H).toFixed(4),
+        angle: from, name: nm('ndl'),
+      }, [
+        el('Transform', { target: 'angle', value: `${from} + (${frac} * ${span})` }),
+        el('Image', { resource: `@drawable/${sp.name}` }),
+      ]));
+    };
+
+    /* ⭐ INSTRUMENT-ONLY REGISTER (`bare: true`) — owner, 2026-07-20:
+       "I do not want text inside the chronos — only the original design. We only need to
+        support complications which can work with the existing design."
+
+       So a bare register renders NOTHING of its own: no provider value, no title, no
+       provider icon, no re-labelled scale. The engraved plate, tick scale, numerals and
+       icon are all permanent dial art, and the ONLY thing a complication may do is move
+       the design's own needle (and fill the design's own arc, where it has one).
+
+       That is also why a bare register advertises just RANGED_VALUE and GOAL_PROGRESS:
+       those are the two types that carry a value/min/max or a value/target, i.e. the only
+       two a needle can be driven from. Every other type is text or a picture, which by
+       definition cannot be drawn without adding something the design does not have — so
+       the slot does not offer them, and the watch's editor cannot put them here. */
+    if (s.bare) {
+      const [gf, gt] = s.gauge || [-150, 150];
+      const gspan = gt - gf;
+      const frac = type === 'GOAL_PROGRESS' ? GP_FRAC : rvFracFor(s);
+      if (type === 'RANGED_VALUE' || type === 'GOAL_PROGRESS') {
+        pushArc(arcCfg({ tw: 3, fw: 3.5, tcap: 'BUTT' }), gf, gt, frac, '');
+        pushNeedle(gf, gspan, frac);
+        /* The one mark a complication may add: the provider's OWN icon, in the exact box the
+           designer drew their engraved glyph in. Without it the needle is anonymous — you can
+           see 70% of something but not what. Never a hardcoded glyph (polish §5): the whole
+           point is that it changes with the provider, so a dial pointed at calories shows the
+           calories mark, not a lightning bolt. Drawn only when the layer exists; a register
+           with no engraved icon simply gets none. */
+        const IL = s.iconLayer;
+        if (IL) {
+          /* Same footprint as the engraved glyph it replaces: the paths are centred on their
+             own origin in a 12-unit grid and scaled by `s / 12`, so the drawn box is
+             2 * reach * s / 12. ⚠ NOT `layerExtent` — that is a padded box for overlap tests
+             (see ICON_REACH); using it here drew the icon at ~2x and straight over the
+             register's numerals. A provider image fills its box, so an oversized box IS an
+             oversized icon. */
+          const box = iconBox(IL.name, IL.s);
+          /* The engraved glyph can sit closer to a numeral than a SQUARE of the same presence
+             can: the battery bolt tapers to a thin tip, so it tucks above the "50" that a solid
+             8-9 unit square would land on. Rather than shrink the icon (which reads as a
+             shrunken design), slide it along the register's own axis until it clears — toward
+             the hub, which is the empty part of any register. The engraved glyph itself never
+             moves; this only positions the swapped-in content. */
+          const iy = iconClearY(s, IL, box);
+          kids.push(tImage(CX(s, IL.x) - box / 2, CY(s, iy) - box / 2, box, box,
+            '[COMPLICATION.MONOCHROMATIC_IMAGE]', nm('ic'), colFor(roles, IL.color, roles.muted)));
+        }
+      }
+      return el('Group', { x: 0, y: 0, width: cw, height: ch, name: `sc_${type}_${tag}` }, kids.filter(Boolean));
+    }
 
     switch (type) {
       case 'SHORT_TEXT':
@@ -1001,33 +1257,109 @@ function taggedContent(face, s, roles, tag, type, sprites) {
         kids.push(tText(accent, ccx - ri, ccy - ri * 0.52 - sSize * 0.75, ri * 2, Math.round(sSize * 1.5), '[COMPLICATION.TITLE]', 'CENTER', nm('t')));
         kids.push(tText(tFont(face, roles, Math.max(MIN_SLOT_TEXT, Math.round(dia * 0.19)), 600, roles.ink),
           ccx - ri, ccy - Math.round(dia * 0.19) * 0.75, ri * 2, Math.round(dia * 0.19 * 1.5), '[COMPLICATION.TEXT]', 'CENTER', nm('v')));
-        kids.push(tImage(ccx - 8, ccy + ri * 0.5 - 8, 16, 16, '[COMPLICATION.MONOCHROMATIC_IMAGE]', nm('ic'), roles.muted));
+        if (!noIcon) kids.push(tImage(ccx - 8, ccy + ri * 0.5 - 8, 16, 16, '[COMPLICATION.MONOCHROMATIC_IMAGE]', nm('ic'), roles.muted));
         break;
-      case 'RANGED_VALUE':
-        // 300° gauge, gap at 6 o'clock: track, then accent fill to the value.
-        kids.push(tArc(cw / 2, ch / 2, gaugeR, -150, 150, withOpacity(roles.muted, 0.35), 3, nm('trk'), null, 'BUTT'));
-        kids.push(tArc(cw / 2, ch / 2, gaugeR, -150, 150, roles.accent, 3, nm('fill'), `-150 + (${RV_FRAC} * 300)`));
+      case 'RANGED_VALUE': {
+        // Machined gauge: track + accent fill + a needle, all tracking the value across the
+        // register's own scale sweep (battery 40..320, HR -150..150), value read in the gap.
+        const [gf, gt] = s.gauge || [-150, 150];
+        const gspan = gt - gf;
+        pushArc(arcCfg({ tw: 3, fw: 3.5, tcap: 'BUTT' }), gf, gt, RV_FRAC, '');
+        pushScale('RANGED_VALUE');
+        pushNeedle(gf, gspan, RV_FRAC);
         kids.push(iconAbove(nm('ic')));
-        kids.push(centred(ink, '%.0f', '[COMPLICATION.RANGED_VALUE_VALUE]', nm('v')));
-        kids.push(titleBelow(muted, nm('t')));
+        // Read out the provider's own formatted TEXT, not the raw value: this register is a
+        // UNIVERSAL gauge (any RANGED_VALUE source the user assigns — battery, distance, pace,
+        // temperature, a ranged heart rate), and only the provider knows its units and precision.
+        // The needle/fill already carry the proportion from VALUE/MIN/MAX, so if a source omits
+        // the optional TEXT the dial still reads as a working gauge. (TEXT presence is
+        // on-wrist-unverifiable — WFF expressions are arithmetic-only, so there is no way to test
+        // for it and fall back; see docs/COMPLICATION-DATA-SOURCES-RESEARCH.md §7.)
+        if (s.needleSprite) {
+          // ⚠ A needle pivots on the register's centre, so a centred readout gets a needle drawn
+          // straight THROUGH it. Drop the value below the hub, sized off the dial so a small
+          // register gets small type, and show ONE value only (the provider's TEXT already carries
+          // its own units — a TITLE row here would crowd the rim).
+          // Sized for the LONGEST readout a universal gauge can receive, not the shortest: the
+          // provider's TEXT carries its own units, so this box has to hold "5.2 km" / "72 bpm",
+          // not just "68". Tuned down from 0.21 — at that size a 6-character value dominated the
+          // register. Floor at MIN_SLOT_TEXT so a small dial never drops below the legibility gate.
+          const rvSize = Math.max(MIN_SLOT_TEXT, Math.round(dia * 0.15));
+          /* ⭐ A register that carries a NUMBERED scale does not get a digital readout.
+             The design never had one: on this dial the needle against the numbers IS the
+             reading, exactly like the instrument it is imitating. Adding a value on top of
+             six numerals, an icon and a needle inside a 116px register collides with all
+             three however it is placed (tried below the hub and in the scale's gap). The
+             trade: you read it to the nearest tick rather than exactly. Registers with a
+             clean tick scale and no numerals still print the value below the hub. */
+          if (!s.scaleLayer) {
+            kids.push(tText(tFont(face, roles, rvSize, 700, roles.ink),
+              ccx - ri, ccy + ri * 0.20, ri * 2, Math.round(rvSize * 1.5), '[COMPLICATION.TEXT]', 'CENTER', nm('v')));
+          }
+        } else {
+          // No needle on this register (e.g. the goal-ring dial) — nothing to collide with, so the
+          // value sits centred and there is room for the provider's title beneath it.
+          kids.push(centredText(ink, '[COMPLICATION.TEXT]', nm('v')));
+          kids.push(titleBelow(muted, nm('t')));
+        }
         break;
+      }
       case 'GOAL_PROGRESS': {
-        // Full ring. The value may exceed the target, so the fill is capped at one lap and
-        // the excess draws a second 'overflow' lap on top of it. The lap saturates at 2x
-        // target — beyond that it stays a full second lap (the % readout keeps counting).
-        // In dark mode lume, accent and ink are all the same fixed light ink, so a lume lap
-        // would be invisible against the full accent ring underneath: fall back to muted,
-        // the only other colour that palette licenses.
+        // Goal ring: a thick accent ring sweeping the register scale toward the daily goal,
+        // footprints icon above, the count + "of TARGET" beneath. The value may beat the
+        // target, so the fill caps at one lap and the excess draws a second 'overflow' lap
+        // on top (saturating at 2x). In dark mode lume/accent/ink collapse to one fixed
+        // light ink, so a lume lap would be invisible over the accent ring underneath: fall
+        // back to muted, the only other colour that palette licenses.
+        const [gf, gt] = s.gauge || [0, 360];
+        const gspan = gt - gf;
+        const full = gspan >= 359;
         const lap = roles.lume === roles.accent ? roles.muted : roles.lume;
-        kids.push(tArc(cw / 2, ch / 2, gaugeR, 0, 360, withOpacity(roles.muted, 0.35), 3, nm('trk'), null, 'BUTT'));
-        kids.push(tArc(cw / 2, ch / 2, gaugeR, 0, 360, roles.accent, 3, nm('fill'), `${GP_FRAC} * 360`));
-        kids.push(el('Group', { x: 0, y: 0, width: cw, height: ch, name: nm('ovg') }, [
-          el('Transform', { target: 'alpha', value: `${GP_VAL} > ${GP_TGT} ? 255 : 0` }),
-          tArc(cw / 2, ch / 2, gaugeR, 0, 360, lap, 3, nm('ov'), `${GP_OVER} * 360`),
-        ]));
-        kids.push(centred(ink, '%.0f', GP_VAL, nm('v')));
-        kids.push(tNum(tFont(face, roles, sSize, 600, roles.muted), ccx - ri, ccy + ri * 0.45 - sSize * 0.75, ri * 2, Math.round(sSize * 1.5),
-          '%.0f%%', `(${GP_VAL} / ${GP_DIV}) * 100`, 'CENTER', nm('pct')));
+        const A = arcCfg({ tw: 5.5, fw: 5.5, tcap: full ? 'BUTT' : 'ROUND' });
+        pushArc(A, gf, gt, GP_FRAC, '');
+        if (A) {
+          const [af, at, aspan] = arcSpan(A, gf, gt);
+          kids.push(el('Group', { x: 0, y: 0, width: cw, height: ch, name: nm('ovg') }, [
+            el('Transform', { target: 'alpha', value: `${GP_VAL} > ${GP_TGT} ? 255 : 0` }),
+            tArc(cw / 2, ch / 2, A.r, af, at, lap, A.fw, nm('ov'), `${af} + (${GP_OVER} * ${aspan})`, A.fcap),
+          ]));
+        }
+        // A GOAL_PROGRESS register only carries a needle if its design has one (GT's hero
+        // steps counter does). RANGED_VALUE needles are automatic — a ranged register always
+        // has a scale — but a goal ring does not imply one, and turning it on implicitly
+        // would silently restyle every other VAKT face's goal slots. Opt in per slot.
+        pushScale('GOAL_PROGRESS');
+        // A register that carries a NUMBERED scale reads through its needle, so it needs one
+        // for a goal just as much as for a ranged value — otherwise a dial like GT's top
+        // register (which the design gives no arc at all) shows a goal with no indicator of
+        // progress whatsoever. `needle: true` still forces one on a register with no scale.
+        const gpNeedle = (s.needle === true || !!s.scaleLayer) && !!s.needleSprite;
+        if (gpNeedle) pushNeedle(gf, gspan, GP_FRAC);
+        kids.push(iconAbove(nm('ic')));
+        if (s.scaleLayer) {
+          /* ⭐ Same rule as RANGED_VALUE: no digital readout on a numbered register. The
+             value + "of TARGET" pair was printed over the middle of the dial, which is
+             exactly where the adaptive scale puts its numbers — so "540 / of 800" landed on
+             top of the engraved 600 and 400 on every register, in every theme. The needle
+             against the numbers IS the reading. */
+        } else if (gpNeedle) {
+          // A needle pivots on the hub, so it would be drawn straight THROUGH a centred
+          // readout (the defect NF-3/2 already fixed for RANGED_VALUE). Drop the pair below
+          // the hub instead; both GOAL_PROGRESS fields are definitional, so both always print.
+          // Both lines must finish INSIDE the register: stacked under the hub they run out
+          // of plate fast, so the target line is sized off the dial (floored at the
+          // legibility gate) rather than taking the plate-wide 20px title size.
+          const gpSize = Math.max(MIN_SLOT_TEXT, Math.round(dia * 0.15));
+          const tgSize = Math.max(MIN_SLOT_TEXT, Math.round(dia * 0.105));
+          const vTop = ccy + ri * 0.12, vH = Math.round(gpSize * 1.4);
+          kids.push(tNum(tFont(face, roles, gpSize, 700, roles.ink), ccx - ri, vTop, ri * 2, vH, '%.0f', GP_VAL, 'CENTER', nm('v')));
+          kids.push(tNum(tFont(face, roles, tgSize, 600, roles.muted), ccx - ri, vTop + vH, ri * 2, Math.round(tgSize * 1.4),
+            'of %.0f', GP_TGT, 'CENTER', nm('tgt')));
+        } else {
+          kids.push(centred(ink, '%.0f', GP_VAL, nm('v')));
+          kids.push(tNum(tFont(face, roles, sSize, 600, roles.muted), ccx - ri, ccy + ri * 0.42 - sSize * 0.75, ri * 2, Math.round(sSize * 1.5),
+            'of %.0f', GP_TGT, 'CENTER', nm('tgt')));
+        }
         break;
       }
       case 'WEIGHTED_ELEMENTS':
@@ -1042,7 +1374,7 @@ function taggedContent(face, s, roles, tag, type, sprites) {
             }),
           ]),
         ]));
-        kids.push(tImage(ccx - 10, ccy - 10, 20, 20, '[COMPLICATION.MONOCHROMATIC_IMAGE]', nm('ic'), roles.muted));
+        if (!noIcon) kids.push(tImage(ccx - 10, ccy - 10, 20, 20, '[COMPLICATION.MONOCHROMATIC_IMAGE]', nm('ic'), roles.muted));
         break;
       case 'MONOCHROMATIC_IMAGE': {
         const b = Math.round(ri * 0.9);
@@ -1061,7 +1393,8 @@ function taggedContent(face, s, roles, tag, type, sprites) {
       }
       default: break;
     }
-    return el('Group', { x: 0, y: 0, width: cw, height: ch, name: `sc_${type}_${tag}` }, kids);
+    // `icon: false` returns null instead of a decorative provider mark; drop those holes.
+    return el('Group', { x: 0, y: 0, width: cw, height: ch, name: `sc_${type}_${tag}` }, kids.filter(Boolean));
   }
 
   /* ---------- 3b/3c. bevelled panel + open dial region ---------- */
@@ -1210,7 +1543,11 @@ function taggedEmpty(face, s, roles, tag, sprites, analysis) {
       const g = sp.geom;
       const from = L.from != null ? L.from : 0;
       const to = L.to != null ? L.to : 360;
-      const expr = it.kind === 'subSecond' ? '[SECOND] * 6' : arcEndExpr(L.data, from, to);
+      // A sub-hand inside a <Complication> is a PartImage, not a <SecondHand>, so it gets no
+      // <Sweep> — it is only as smooth as its own expression. [SECOND] steps once a second;
+      // [SECOND_MILLISECOND] carries the fraction, so the hand sweeps continuously like the
+      // centre hand. (Legal v1 source — enum in `1/common/attributes/sourceType.xsd`.)
+      const expr = it.kind === 'subSecond' ? '[SECOND_MILLISECOND] * 6' : arcEndExpr(L.data, from, to);
       kids.push(el('PartImage', {
         x: Math.round(it.cx - s.bounds.x - g.pivotX), y: Math.round(it.cy - s.bounds.y - g.pivotY),
         width: g.W, height: g.H,
@@ -1229,7 +1566,12 @@ function slotXml(face, s, analysis, strings, sprites) {
   const nameKey = `slot_${s.idx + 1}`;
   strings[nameKey] = s.label.replace(/·/g, '-');
   const supported = Array.from(new Set([...s.types, 'EMPTY'])).join(' ');
-  const provType = s.provider === 'EMPTY' ? 'EMPTY' : (s.types.includes('SHORT_TEXT') ? 'SHORT_TEXT' : s.types[0]);
+  // A spec may pin the default provider's rendered TYPE (instrument design: battery/HR →
+  // RANGED_VALUE, steps → GOAL_PROGRESS) so the default renders as the machined instrument,
+  // not a flat SHORT_TEXT. Slots without the field keep the SHORT_TEXT-preferred guess, so
+  // this cannot change any face that doesn't set it.
+  const provType = s.provider === 'EMPTY' ? 'EMPTY'
+    : (s.defaultProviderType || (s.types.includes('SHORT_TEXT') ? 'SHORT_TEXT' : s.types[0]));
   const kids = [
     el('Variant', { mode: 'AMBIENT', target: 'alpha', value: 0 }),
     el('DefaultProviderPolicy', { defaultSystemProvider: s.provider, defaultSystemProviderType: provType }),

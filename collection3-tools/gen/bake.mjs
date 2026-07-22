@@ -38,7 +38,7 @@ export function render(svg, outPath, widthPx) {
 /* Which layers belong in the static dial bake? Mirrors the emitter's analysis. */
 const LIVE_KINDS = new Set(['mainHand', 'centerSecond', 'subSecond', 'dataNeedle', 'dataArc',
   'liveText', 'timeText', 'ampm', 'slotText', 'providerOnlyText', 'centerCap',
-  'overlayStatic', 'dateGatedStatic', 'slotDecoration']);
+  'overlayStatic', 'dateGatedStatic', 'dateLockText', 'dateLockStatic', 'slotDecoration']);
 
 function gateDefaultOn(item, toggles) {
   const L = item.L;

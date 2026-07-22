@@ -90,6 +90,69 @@ export const ICONS = {
   hr: 'M0 4.5-4.5-0.5C-6-2.5-4.5-5-2.2-5-1-5 0-4 0-3 0-4 1-5 2.2-5 4.5-5 6-2.5 4.5-0.5Z',
 };
 
+/* ⭐ WHAT EACH GLYPH ACTUALLY RENDERS AS — measured, not inferred.
+   Produced by `node gen/measure-icons.mjs`, which draws each path exactly as this file draws
+   it and rasterises it through resvg (the same engine that bakes the dial), then reads the ink
+   box. Width/height are in the 12-unit authoring grid, so at size `s` a glyph occupies
+   `w * s / 12` by `h * s / 12`.
+
+   ⚠ Do NOT go back to reading the path coordinates. Twice now that produced the wrong answer:
+   `layerExtent`'s padded collision box drew icons at ~2x (they printed over the register
+   numerals), and then "max |coord|" over-corrected — the paths are asymmetric and their extreme
+   vertices are thin tips that antialias away, so the bolt reads 8x12 here, not the 8x12 square
+   its coordinates suggest, and the heart is WIDER than it is tall. Re-run the measurer instead. */
+export const ICON_INK = {
+  sun:   { w: 12.75, h: 12.75 },
+  bolt:  { w: 8,     h: 12 },      // slim and tall
+  steps: { w: 9,     h: 10 },
+  bell:  { w: 10.75, h: 11.75 },
+  moon:  { w: 11,    h: 11.13 },
+  cal:   { w: 9.75,  h: 10.75 },
+  msg:   { w: 9,     h: 8.5 },
+  hr:    { w: 12,    h: 11.25 },   // wider than tall
+};
+
+/* The box a provider's icon gets on a register: the same presence as the engraved glyph it
+   stands in for. A MONOCHROMATIC_IMAGE is square and FILLS its box, so it is sized off the
+   glyph's larger dimension — anything smaller reads as a shrunken version of the design. */
+export function iconBox(name, s) {
+  const g = ICON_INK[name] || { w: 11, h: 11 };
+  return Math.max(6, Math.round(Math.max(g.w, g.h) * (s || 12) / 12));
+}
+
+/* Slide a register's swapped-in icon toward the hub until its box clears the engraved
+   numerals. Returns the y to draw at (dial coords). Never moves it past the hub, and never
+   moves it outward. `gen/fit-check.mjs` imports THIS function, so the gate measures the
+   position that is actually generated — the two cannot drift apart. */
+export function iconClearY(s, IL, box) {
+  const nums = s.engravedScale;
+  if (!nums) return IL.y;
+  const vals = nums.vals || [];
+  const full = nums.to == null, from = nums.from || 0;
+  const span = (nums.to != null ? nums.to : 360 + from) - from;
+  const below = IL.y > s.cy;                       // which way is "toward the hub"
+  let y = IL.y;
+  for (let step = 0; step <= 60; step++) {         // 0.1-unit steps, ≤6 units of travel
+    y = IL.y + (below ? -1 : 1) * step * 0.1;
+    const iy0 = y - box / 2, iy1 = y + box / 2;
+    const ix0 = IL.x - box / 2, ix1 = IL.x + box / 2;
+    let clear = true;
+    vals.forEach((v, i) => {
+      if (v === null || v === '') return;
+      const a = from + span * (i / (full ? vals.length : vals.length - 1));
+      const nx = s.cx + nums.r * Math.sin(a * Math.PI / 180);
+      const ny = s.cy - nums.r * Math.cos(a * Math.PI / 180);
+      const hw = String(v).length * 0.55 * nums.size / 2, hh = 0.72 * nums.size / 2;
+      const gap = Math.max(Math.max(nx - hw - ix1, ix0 - (nx + hw)),
+                           Math.max(ny - hh - iy1, iy0 - (ny + hh)));
+      if (gap < 0.5) clear = false;                // keep half a unit of daylight
+    });
+    if (clear) return y;
+    if (Math.abs(y - s.cy) < box / 2 + 4) break;   // reached the hub — stop
+  }
+  return y;
+}
+
 /* ---- hand shape path generators (0,0 = pivot, -len = tip) — verbatim port ---- */
 export function handPath(shape, len, w, tail) {
   const t = tail || 0;
